@@ -6,8 +6,12 @@
         Me.Left = My.Computer.Screen.Bounds.Size.Width - Me.Width
 
         ' dump all windows available at startup
-        WinHandle.printProcesses()
+        ' WinHandle.printProcesses()
 
+        Edge.ensureRunning()
+
+
+        Edge.printAllEdge()
 
         ' update ester rate
         '  Ester.fetchRateFromBCE()
@@ -21,7 +25,14 @@
     End Sub
 
     Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
-        Degiro.pairToEdgeDegiro()
+        'Degiro.setupWindows()
+        'Edge.createTab("ddg.gg", Edge.OpenModeEnum.AS_WINDOW)
+        Edge.createTabIfNotExist("youtube", "https://www.youtube.com/", Edge.OpenModeEnum.AS_WINDOW, New Rectangle(3, 3, 500, 500))
+    End Sub
+
+    Private Sub Button2_Click(sender As Object, e As EventArgs) Handles Button2.Click
+        Edge.updateEdgeProcess()
+        dbg.info(Edge.edgeProcess.MainWindowTitle)
     End Sub
 
 

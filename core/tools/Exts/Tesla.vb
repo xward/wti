@@ -21,7 +21,7 @@ Namespace Tesla
                 '  dbgMain.info(streamText)
                 Return streamText
             Else
-                dbgMain.fail("Fail to fetch " & url & " status code: " & rep.StatusCode.ToString)
+                dbg.fail("Fail to fetch " & url & " status code: " & rep.StatusCode.ToString)
 
                 Return Nothing
             End If

@@ -26,6 +26,7 @@ Partial Class FrmMain
         TmrUI = New Timer(components)
         LblDegiroState = New Label()
         Button1 = New Button()
+        Button2 = New Button()
         SuspendLayout()
         ' 
         ' TmrUI
@@ -51,12 +52,22 @@ Partial Class FrmMain
         Button1.Text = "Button1"
         Button1.UseVisualStyleBackColor = True
         ' 
+        ' Button2
+        ' 
+        Button2.Location = New Point(281, 90)
+        Button2.Name = "Button2"
+        Button2.Size = New Size(47, 95)
+        Button2.TabIndex = 2
+        Button2.Text = "Button2"
+        Button2.UseVisualStyleBackColor = True
+        ' 
         ' FrmMain
         ' 
         AutoScaleDimensions = New SizeF(7F, 15F)
         AutoScaleMode = AutoScaleMode.Font
         BackColor = Color.LightSlateGray
         ClientSize = New Size(365, 527)
+        Controls.Add(Button2)
         Controls.Add(Button1)
         Controls.Add(LblDegiroState)
         Name = "FrmMain"
@@ -68,5 +79,6 @@ Partial Class FrmMain
     Friend WithEvents TmrUI As Timer
     Friend WithEvents LblDegiroState As Label
     Friend WithEvents Button1 As Button
+    Friend WithEvents Button2 As Button
 
 End Class

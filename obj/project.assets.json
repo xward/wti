@@ -1,11 +1,36 @@
 {
   "version": 3,
   "targets": {
-    "net8.0-windows7.0": {}
+    "net8.0-windows7.0": {
+      "InputManager/1.0.0": {
+        "type": "package",
+        "compile": {
+          "lib/InputManager.dll": {}
+        },
+        "runtime": {
+          "lib/InputManager.dll": {}
+        }
+      }
+    }
   },
-  "libraries": {},
+  "libraries": {
+    "InputManager/1.0.0": {
+      "sha512": "jx5aolDToAQFloxCMxYeDaRsNXeb/D4WlORvYhy1Y02Y/EUIqKN5UAccM3lXqEfDHPHG6VnfuJQY7awS5sUlOA==",
+      "type": "package",
+      "path": "inputmanager/1.0.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "inputmanager.1.0.0.nupkg.sha512",
+        "inputmanager.nuspec",
+        "lib/InputManager.dll"
+      ]
+    }
+  },
   "projectFileDependencyGroups": {
-    "net8.0-windows7.0": []
+    "net8.0-windows7.0": [
+      "InputManager >= 1.0.0"
+    ]
   },
   "packageFolders": {
     "C:\\Users\\xwar\\.nuget\\packages\\": {}
@@ -50,6 +75,12 @@
     "frameworks": {
       "net8.0-windows7.0": {
         "targetAlias": "net8.0-windows",
+        "dependencies": {
+          "InputManager": {
+            "target": "Package",
+            "version": "[1.0.0, )"
+          }
+        },
         "imports": [
           "net461",
           "net462",
@@ -72,5 +103,17 @@
         "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.400/PortableRuntimeIdentifierGraph.json"
       }
     }
-  }
+  },
+  "logs": [
+    {
+      "code": "NU1701",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "Package 'InputManager 1.0.0' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0-windows7.0'. This package may not be fully compatible with your project.",
+      "libraryId": "InputManager",
+      "targetGraphs": [
+        "net8.0-windows7.0"
+      ]
+    }
+  ]
 }

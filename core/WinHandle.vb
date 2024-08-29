@@ -1,7 +1,8 @@
 ﻿Imports System.DirectoryServices.ActiveDirectory
+Imports System.Security.Policy
 
 Public Module WinHandle
-    Public dbgMain As New N3rdDebug("main", dbgIndentLevel.subMaster1)
+    Public dbg As New N3rdDebug("main", dbgIndentLevel.subMaster1)
 
 
     ' <WTI 75,122 ▼ −1.82% MSCI SP500 NASDAQ - Personal - Microsoft​ Edge>  process msedge
@@ -17,37 +18,27 @@ Public Module WinHandle
     Public Sub printProcesses()
         For Each p As Process In Process.GetProcesses
             If p.MainWindowTitle = String.Empty = False Then
-                dbgMain.info("Windows available: <" & p.MainWindowTitle & ">  process " & p.ProcessName & " (" & p.Id & ")")
+                dbg.info("Windows available: <" & p.MainWindowTitle & ">  process " & p.ProcessName & " (" & p.Id & ")")
             End If
         Next
     End Sub
 
-    Public Function findEdgeContainingName(name As String) As Process
-        For Each p As Process In Process.GetProcesses
-            If p.MainWindowTitle = String.Empty = False And p.ProcessName = "msedge" And p.MainWindowTitle.Contains(name) Then Return p
-        Next
-        Return Nothing
-    End Function
 
-    Public Function findEdgeContainingOneNames(names As List(Of String)) As Process
-        For Each p As Process In Process.GetProcesses
-            If p.MainWindowTitle = String.Empty = False And p.ProcessName = "msedge" Then
-                For Each name As String In names
-                    If p.MainWindowTitle.Contains(name) Then Return p
-                Next
-            End If
-        Next
-        Return Nothing
-    End Function
-
-    Public Sub initEdgeDegiro()
-        ' find
-    End Sub
-
-
-    Public Sub coucou()
-
-    End Sub
 
 
 End Module
+
+
+' Dim p As Process =
+'   System.Diagnostics.Process.Start("C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe", "https://trader.degiro.nl/login/fr#/login")
+
+'Pause(1000)
+'Dim Processes As Process() = Process.GetProcessesByName("msedge")
+
+'For Each p As Process In Processes
+
+'If Not p.MainWindowTitle.Contains("Personal - Microsoft​ Edge") Then Continue For
+
+'                dbgMain.info("edge available: <" & p.MainWindowTitle & "> process " & p.ProcessName & " (" & p.Id & ") " & User32.getWindowPos(p.MainWindowHandle).ToString)
+
+'Next

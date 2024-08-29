@@ -22,10 +22,10 @@ Namespace Ester
 
                 rate = Single.Parse(r)
             Catch ex As Exception
-                dbgMain.fail("Can' t parse ester rate")
+                dbg.fail("Can' t parse ester rate")
             End Try
 
-            dbgMain.info("Ester rate fetched: " & rate)
+            dbg.info("Ester rate fetched: " & rate)
         End Sub
     End Module
 End Namespace
