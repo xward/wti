@@ -21,7 +21,7 @@
     End Sub
 
     Private Sub Timer1_Tick(sender As Object, e As EventArgs) Handles TmrUI.Tick
-        LblDegiroState.Text = Degiro.degiroState.ToString
+        ' LblDegiroState.Text = Degiro.degiroState.ToString
     End Sub
 
     Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
@@ -31,8 +31,10 @@
     End Sub
 
     Private Sub Button2_Click(sender As Object, e As EventArgs) Handles Button2.Click
-        Edge.updateEdgeProcess()
-        dbg.info(Edge.edgeProcess.MainWindowTitle)
+        'Edge.updateEdgeProcess()
+        'dbg.info(Edge.edgeProcess.MainWindowTitle)
+
+        Degiro.checkLoggedIn()
     End Sub
 
 

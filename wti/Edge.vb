@@ -8,6 +8,17 @@ Namespace Edge
         AS_WINDOW
     End Enum
 
+    ' https://trader.degiro.nl/trader/#/portfolio/assets
+    ' <Portefeuille - Personal - Microsoft​ Edge>  process msedge
+
+    ' https://trader.degiro.nl/trader/#/orders/open
+    ' <Ordres en cours and 1 more page - Personal - Microsoft​ Edge>  process msedge
+
+    Public Enum TabEnum
+        DEGIRO_POSITONS
+        DEGIRO_ORDERS
+    End Enum
+
     Module Edge
         ' tab = window
         ' only one process of edge for all edge tabs or windows
@@ -42,9 +53,24 @@ Namespace Edge
             User32.setPos(edgeProcess.MainWindowHandle, pos.X, pos.Y, pos.Width, pos.Height)
         End Sub
 
-
         ' switch to tab or window via ctrl+maj+a where window title containing name
         ' return true on success
+
+        Public Function switchTab(tab As TabEnum) As Boolean
+            Select Case tab
+                Case TabEnum.DEGIRO_ORDERS
+                    Return switchTab("ordre")
+                Case TabEnum.DEGIRO_POSITONS
+                    Return switchTab("portefeuille")
+            End Select
+            Return False
+        End Function
+
+        Public Function switchTabPlaceOrder(tab As Degiro.AssetEnum) As Boolean
+
+            Return False
+        End Function
+
         Public Function switchTab(name As String) As Boolean
             bringToFront()
             Pause(100)
@@ -78,7 +104,6 @@ Namespace Edge
             'dbg.info(edgeProcess.MainWindowTitle)
             Return edgeProcess.MainWindowTitle.ToUpper.Contains(name.ToUpper)
         End Function
-
 
         Public Sub bringToFront()
             User32.bringToFront(edgeProcess.MainWindowHandle)
@@ -118,10 +143,7 @@ Namespace Edge
 
                 'User32.bringToFront(p.MainWindowHandle)
                 'User32.setPos(p.MainWindowHandle, 10, 10, 500, 800)
-
             Next
         End Sub
-
     End Module
-
 End Namespace

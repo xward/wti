@@ -37,7 +37,7 @@ Partial Class FrmMain
         ' 
         LblDegiroState.AutoSize = True
         LblDegiroState.Font = New Font("Segoe UI", 14.25F, FontStyle.Regular, GraphicsUnit.Point, CByte(0))
-        LblDegiroState.Location = New Point(49, 79)
+        LblDegiroState.Location = New Point(12, 9)
         LblDegiroState.Name = "LblDegiroState"
         LblDegiroState.Size = New Size(135, 25)
         LblDegiroState.TabIndex = 0
@@ -47,16 +47,16 @@ Partial Class FrmMain
         ' 
         Button1.Location = New Point(286, 235)
         Button1.Name = "Button1"
-        Button1.Size = New Size(36, 25)
+        Button1.Size = New Size(67, 42)
         Button1.TabIndex = 1
         Button1.Text = "Button1"
         Button1.UseVisualStyleBackColor = True
         ' 
         ' Button2
         ' 
-        Button2.Location = New Point(281, 90)
+        Button2.Location = New Point(286, 283)
         Button2.Name = "Button2"
-        Button2.Size = New Size(47, 95)
+        Button2.Size = New Size(67, 41)
         Button2.TabIndex = 2
         Button2.Text = "Button2"
         Button2.UseVisualStyleBackColor = True

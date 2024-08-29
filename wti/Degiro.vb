@@ -3,7 +3,81 @@ Imports System.Runtime.InteropServices
 
 Namespace Degiro
 
+
+    Public Structure Order
+        Dim id As String
+        Dim asset As AssetEnum
+        Dim orderType As OrderTypeEnum
+        ' all the values
+
+        Dim referToPosition As String
+    End Structure
+
+    Public Structure Position
+        Dim id As String
+        Dim asset As AssetEnum
+        ' can be negative
+        Dim gain As Double
+
+        ' previous gain
+    End Structure
+
+    Public Enum AssetEnum
+        WTI3x
+        WTI3xShort
+    End Enum
+
+    Public Enum OrderTypeEnum
+        LIMIT_SELL
+        LIMIT_BUY
+        ' stop loss
+        STOP_SELL
+        STOP_BUY
+    End Enum
+
+
     Module Degiro
+        Public orders As New List(Of Order)
+        Public positions As New List(Of Position)
+
+
+        Public Function checkLoggedIn() As Boolean
+            Dim ok As Boolean = Edge.switchTab(Edge.TabEnum.DEGIRO_POSITONS)
+
+            If ok Then
+                FrmMain.LblDegiroState.Text = "DEGIRO LOGGED_IN"
+            Else
+                FrmMain.LblDegiroState.Text = "DEGIRO DISCONNECTED"
+                FrmMain.LblDegiroState.BackColor = Color.LightCyan
+            End If
+
+            ' update ui from ok
+
+            Return ok
+        End Function
+
+        ' updateOrders as boolean
+        ' updatePositions as boolean
+
+        ' placeOrder(name, amount, type as Enum of limit/stoploss/stopbuy) as Order  where name is in a know value from enum, then we will find isin, and degiro id number
+
+        ' cancelOrder(order as Order) as boolean 
+
+
+
+
+
+
+
+
+        ' ==========================================================================================================
+        ' ==========================================================================================================
+        ' ==========================================================================================================
+
+
+
+
+
         ' this is home page
         ' <Marché - Personal - Microsoft​ Edge>  process msedge
 
