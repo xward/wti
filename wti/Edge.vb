@@ -45,28 +45,40 @@ Namespace Edge
         End Sub
 
         ' create tab if not exist
-        Public Sub createTabIfNotExist(name As String, url As String, openMode As OpenModeEnum, pos As Rectangle)
+        Public Sub createTabIfNotExist(name As String, url As String, openMode As OpenModeEnum, Optional pos As Rectangle = Nothing)
             If switchTab(name) Then Exit Sub
             createTab(url, openMode)
 
             bringToFront()
-            User32.setPos(edgeProcess.MainWindowHandle, pos.X, pos.Y, pos.Width, pos.Height)
+            '  If Not IsNothing(pos) Then User32.setPos(edgeProcess.MainWindowHandle, pos.X, pos.Y, pos.Width, pos.Height)
         End Sub
 
         ' switch to tab or window via ctrl+maj+a where window title containing name
         ' return true on success
 
         Public Function switchTab(tab As TabEnum) As Boolean
+            Dim edgeRectPositionRect As New Rectangle(0, 0, 1200, 800)
+
             Select Case tab
                 Case TabEnum.DEGIRO_ORDERS
-                    Return switchTab("ordre")
+                    Edge.createTabIfNotExist("Ordres en cours", "https://trader.degiro.nl/trader/#/orders/open", OpenModeEnum.AS_TAB)
+                    Return True
                 Case TabEnum.DEGIRO_POSITONS
-                    Return switchTab("portefeuille")
+                    If switchTab("portefeuille") Then
+                        Dim rect As Rectangle = User32.getWindowPos(edgeProcess.MainWindowHandle)
+                        If rect.ToString <> edgeRectPositionRect.ToString Then
+                            User32.bringToFront(edgeProcess.MainWindowHandle)
+                            User32.setPos(edgeProcess.MainWindowHandle, edgeRectPositionRect.X, edgeRectPositionRect.Y, edgeRectPositionRect.Width, edgeRectPositionRect.Height)
+                        End If
+                        Return True
+                    Else
+                        Return False
+                    End If
             End Select
             Return False
         End Function
 
-        Public Function switchTabPlaceOrder(tab As Degiro.AssetEnum) As Boolean
+        Public Function switchTabPlaceOrder(tab As AssetEnum) As Boolean
 
             Return False
         End Function
@@ -74,8 +86,6 @@ Namespace Edge
         Public Function switchTab(name As String) As Boolean
             bringToFront()
             Pause(100)
-
-            Clipboard.SetText(name)
 
             InputManager.Keyboard.KeyDown(Keys.ControlKey)
             Pause(15)
@@ -86,20 +96,21 @@ Namespace Edge
             InputManager.Keyboard.KeyUp(Keys.LShiftKey)
             Pause(15)
             InputManager.Keyboard.KeyUp(Keys.ControlKey)
-            Pause(15)
+            Pause(50)
 
             ' paste
-            InputManager.Keyboard.KeyDown(Keys.ControlKey)
-            Pause(15)
-            InputManager.Keyboard.KeyPress(Keys.V)
-            Pause(15)
-            InputManager.Keyboard.KeyUp(Keys.ControlKey)
-            Pause(15)
-            ' enter
-            InputManager.Keyboard.KeyPress(Keys.Enter)
-
+            KMOut.pasteText(name)
             Pause(100)
+
+            KMOut.enter()
+            Pause(100)
+
             updateEdgeProcess()
+
+            'unselect any or close search if not found
+            InputManager.Keyboard.KeyPress(Keys.Escape)
+            Pause(100)
+
             'printAllEdge()
             'dbg.info(edgeProcess.MainWindowTitle)
             Return edgeProcess.MainWindowTitle.ToUpper.Contains(name.ToUpper)
@@ -110,7 +121,15 @@ Namespace Edge
         End Sub
 
         ' ------------------------------------------------------------------------------------------------------------------
+
+        Public Function extractBetween(src As String, aBlock As String, bBlock As String) As String
+            Return src.Split(aBlock).ElementAt(1).Split(bBlock).ElementAt(0)
+        End Function
+
+
+        ' ------------------------------------------------------------------------------------------------------------------
         Public Function updateEdgeProcess() As Process
+            ' re-fetch process, userfull to update process window's title
             For Each p As Process In Process.GetProcessesByName("msedge")
                 If Not p.MainWindowTitle.Contains("Personal - Microsoft​ Edge") Then Continue For
                 edgeProcess = p
@@ -119,19 +138,19 @@ Namespace Edge
             Return Nothing
         End Function
 
-        Public Function findEdgeContainingName(name As String) As Process
-            Return findEdgeContainingOneNames(New List(Of String)({name}))
-        End Function
+        'Public Function findEdgeContainingName(name As String) As Process
+        '    Return findEdgeContainingOneNames(New List(Of String)({name}))
+        'End Function
 
-        Public Function findEdgeContainingOneNames(names As List(Of String)) As Process
-            For Each p As Process In Process.GetProcessesByName("msedge")
-                If Not p.MainWindowTitle.Contains("Personal - Microsoft​ Edge") Then Continue For
-                For Each name As String In names
-                    If p.MainWindowTitle.Contains(name) Then Return p
-                Next
-            Next
-            Return Nothing
-        End Function
+        'Public Function findEdgeContainingOneNames(names As List(Of String)) As Process
+        '    For Each p As Process In Process.GetProcessesByName("msedge")
+        '        If Not p.MainWindowTitle.Contains("Personal - Microsoft​ Edge") Then Continue For
+        '        For Each name As String In names
+        '            If p.MainWindowTitle.Contains(name) Then Return p
+        '        Next
+        '    Next
+        '    Return Nothing
+        'End Function
 
         Public Sub printAllEdge()
             Dim Processes As Process() = Process.GetProcessesByName("msedge")

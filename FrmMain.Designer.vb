@@ -27,6 +27,7 @@ Partial Class FrmMain
         LblDegiroState = New Label()
         Button1 = New Button()
         Button2 = New Button()
+        Label1 = New Label()
         SuspendLayout()
         ' 
         ' TmrUI
@@ -61,12 +62,22 @@ Partial Class FrmMain
         Button2.Text = "Button2"
         Button2.UseVisualStyleBackColor = True
         ' 
+        ' Label1
+        ' 
+        Label1.AutoSize = True
+        Label1.Location = New Point(36, 399)
+        Label1.Name = "Label1"
+        Label1.Size = New Size(41, 15)
+        Label1.TabIndex = 3
+        Label1.Text = "Label1"
+        ' 
         ' FrmMain
         ' 
         AutoScaleDimensions = New SizeF(7F, 15F)
         AutoScaleMode = AutoScaleMode.Font
         BackColor = Color.LightSlateGray
         ClientSize = New Size(365, 527)
+        Controls.Add(Label1)
         Controls.Add(Button2)
         Controls.Add(Button1)
         Controls.Add(LblDegiroState)
@@ -80,5 +91,6 @@ Partial Class FrmMain
     Friend WithEvents LblDegiroState As Label
     Friend WithEvents Button1 As Button
     Friend WithEvents Button2 As Button
+    Friend WithEvents Label1 As Label
 
 End Class

@@ -17,6 +17,7 @@ Module TimeHelper
 
     Public Sub Pause(ByVal elapse As Integer, Optional ByVal doPrintElasped As Boolean = False)
         If elapse = 0 Then Exit Sub
+
         If elapse < 501 Then
             Thread.Sleep(elapse)
             Exit Sub
