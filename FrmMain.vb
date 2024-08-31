@@ -43,8 +43,11 @@
         'Edge.updateEdgeProcess()
         'dbg.info(Edge.edgeProcess.MainWindowTitle)
 
-        TradingView.fetchPrice(AssetEnum.WTI3x)
-        TradingView.fetchPrice(AssetEnum.WTI3xShort)
+        'TradingView.fetchPrice(AssetEnum.WTI3x)
+        'TradingView.fetchPrice(AssetEnum.WTI3xShort)
+
+        MsgBox(Date.Parse("8/21/2023 16:51:21"))
+
 
         ' Degiro.checkLoggedIn()
         ' Degiro.updateOrders()

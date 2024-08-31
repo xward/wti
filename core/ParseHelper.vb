@@ -2,6 +2,8 @@
 
     Public Function parseMoney(s As String) As Double
 
+        If s = "—" Then Return Nothing
+
         ' test with more than 1000
         ' avoid 1.123,423 being changed to 1.123.423
 

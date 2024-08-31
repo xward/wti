@@ -64,7 +64,6 @@ Namespace Degiro
                         accountTotalMoula = parseMoney(l)
                     Case "accountPositionsMoula"
                         accountPositionsMoula = parseMoney(l)
-                        dbg.info(accountPositionsMoula)
                     Case "accountCashMoula"
                         accountCashMoula = parseMoney(l)
                     Case "accountWinLooseMoula"
@@ -80,11 +79,11 @@ Namespace Degiro
             Next
 
 
-            dbg.info("Account: " & vbCrLf &
-                     "accountTotalMoula       = " & accountTotalMoula & " €" & vbCrLf &
-                      "accountPositionsMoula  = " & accountPositionsMoula & " €" & vbCrLf &
-                       "accountCashMoula      = " & accountCashMoula & " €" & vbCrLf &
-                        "accountWinLooseMoula = " & accountWinLooseMoula & " €" & vbCrLf)
+            dbg.info(vbCrLf &
+                         "accountTotalMoula       = " & accountTotalMoula & " €" & vbCrLf &
+                          "accountPositionsMoula  = " & accountPositionsMoula & " €" & vbCrLf &
+                           "accountCashMoula      = " & accountCashMoula & " €" & vbCrLf &
+                            "accountWinLooseMoula = " & accountWinLooseMoula & " €" & vbCrLf)
 
             'Recherche par nom, ISIN ou ticker
 
@@ -127,15 +126,20 @@ Namespace Degiro
                 If split.ElementAt(4) <> "€" Then Continue For
                 If split.ElementAt(6) <> "EUR" Then Continue For
 
-                ' dbg.info("position: " & l)
+                dbg.info("position: " & l)
 
-                positions.Add(New DegiroPosition With {
-                              .ticker = split.ElementAt(0),
-                              .isin = split.ElementAt(2),
-                              .quantity = Integer.Parse(split.ElementAt(3)),
-                              .totalValue = parseMoney(split.ElementAt(7)),
-                              .pru = parseMoney(split.ElementAt(8))
-                              })
+                Dim position As DegiroPosition = New DegiroPosition With {
+                                  .ticker = split.ElementAt(0),
+                                  .isin = split.ElementAt(2),
+                                  .quantity = Integer.Parse(split.ElementAt(3)),
+                                  .totalValue = parseMoney(split.ElementAt(7)),
+                                  .pru = parseMoney(split.ElementAt(8))
+                                  }
+
+                dbg.info(" ->: " & StructToString(position))
+
+                positions.Add(position)
+
             Next
             ' 3OIL | IE00BMTM6B32	5	€ 28,91	EUR	144,55	28,50	0,00	0,00%	+2,05 (+1,43%)	-0,95	15	
 
@@ -222,33 +226,33 @@ Namespace Degiro
                 If Not l.Contains(" | ") Or Not l.Contains("€") Then Continue For
 
                 Dim split As String() = l.Split({" ", "	"}, StringSplitOptions.None)
-                dbg.info(split.Length)
+                'dbg.info(split.Length)
                 If split.Length <> 16 Then Continue For
                 'For Each s As String In split
                 '    dbg.info(">" & s & "<")
                 'Next
                 If split.ElementAt(3) <> "|" Then Continue For
 
-
-
                 dbg.info("order: " & l)
 
-                'orders.Add(New DegiroPosition With {
-                '              .ticker = split.ElementAt(0),
-                '              .isin = split.ElementAt(2),
-                '              .quantity = Integer.Parse(split.ElementAt(3)),
-                '              .totalValue = parseMoney(split.ElementAt(7)),
-                '              .pru = parseMoney(split.ElementAt(8))
-                '              })
+                Dim daySplit As String() = split.ElementAt(0).Split("/")
+                Dim order As DegiroOrder = New DegiroOrder With {
+                               .ticker = split.ElementAt(2),
+                               .isin = split.ElementAt(4),
+                               .dat = Date.Parse(daySplit.ElementAt(1) & "/" & daySplit.ElementAt(0) & "/" & daySplit.ElementAt(1) & " " & split.ElementAt(1)),
+                               .orderAction = split.ElementAt(6),
+                               .quantity = split.ElementAt(7),
+                               .limit = parseMoney(split.ElementAt(9)),
+                               .stopPrice = parseMoney(split.ElementAt(11))
+                              }
+
+                orders.Add(order)
+
+                dbg.info(" ->: " & StructToString(order))
             Next
 
-
+            'date ticker isin placeBoursiere action qté limitPrix€ 33,00 stop(€ —) valeur ouvert execution
             '30/08/2024 16:49:27	3OIL | IE00BMTM6B32	MIL	Vente	5	€ 33,00	€ —	165,00	5	0	
-
-
-
-
-
         End Sub
 
         'orders:

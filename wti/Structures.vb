@@ -1,4 +1,6 @@
-﻿Module Structures
+﻿Imports System.Reflection
+
+Module Structures
 
 
     'please take care  to sell trade with this strat
@@ -7,18 +9,46 @@
 
     ' ----------------------------------------------------------------------------------------
 
-
+    'date ticker isin placeBoursiere action qté limitPrix€ 33,00 stop(€ —) valeur ouvert execution
 
     Public Structure DegiroOrder
+        'unused
         Dim id As String
-        Dim asset As AssetEnum
-        Dim orderType As OrderTypeEnum
-        ' all the values
 
-        Dim referToPosition As String
+        ' 3OIL
+        Dim ticker As String
+        ' IE00BMTM6B32
+        Dim isin As String
+
+        Dim dat As Date
+
+        ' Vente Achat
+        Dim orderAction As String
+
+        Dim quantity As Integer
+
+        Dim limit As Double
+        Dim stopPrice As Double
     End Structure
 
+    Public Function StructToString(obj As Object) As String
+        Dim structString As String = ""
+        Dim i As Integer
+        Dim myType As Type = obj.GetType()
+        Dim myField As FieldInfo() = myType.GetFields()
+        For i = 0 To myField.Length - 1
+            structString &= myField(i).Name & ":" & myField(i).GetValue(obj) & " "
+        Next i
+
+        Return structString
+    End Function
+
+    'Public Function degiroOrderToString(o As DegiroOrder) As String
+    '    Return o.ticker & " " & o.isin & " " & o.dat.ToString & " " & o.orderAction & " " & o.quantity & " " & o.limit & " " & o.stopPrice
+    'End Function
+
     Public Structure DegiroPosition
+        'unused
         Dim id As String
         ' 3OIL
         Dim ticker As String
