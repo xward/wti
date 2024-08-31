@@ -23,75 +23,202 @@ Partial Class FrmMain
     <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
         components = New ComponentModel.Container()
+        Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(FrmMain))
         TmrUI = New Timer(components)
-        LblDegiroState = New Label()
         Button1 = New Button()
-        Button2 = New Button()
-        Label1 = New Label()
+        statusLed = New ToolStripStatusLabel()
+        statusLabel = New ToolStripStatusLabel()
+        degiroLabel = New ToolStripStatusLabel()
+        esterLabel = New ToolStripStatusLabel()
+        StatusStrip = New StatusStrip()
+        PictureLedRedOff = New PictureBox()
+        PictureLedRedOn = New PictureBox()
+        PictureLedGreenOff = New PictureBox()
+        PictureLedGreenOn = New PictureBox()
+        DataGridViewAssetPrices = New DataGridView()
+        ticker = New DataGridViewTextBoxColumn()
+        price = New DataGridViewTextBoxColumn()
+        todayChange = New DataGridViewTextBoxColumn()
+        StatusStrip.SuspendLayout()
+        CType(PictureLedRedOff, ComponentModel.ISupportInitialize).BeginInit()
+        CType(PictureLedRedOn, ComponentModel.ISupportInitialize).BeginInit()
+        CType(PictureLedGreenOff, ComponentModel.ISupportInitialize).BeginInit()
+        CType(PictureLedGreenOn, ComponentModel.ISupportInitialize).BeginInit()
+        CType(DataGridViewAssetPrices, ComponentModel.ISupportInitialize).BeginInit()
         SuspendLayout()
         ' 
         ' TmrUI
         ' 
         TmrUI.Enabled = True
-        ' 
-        ' LblDegiroState
-        ' 
-        LblDegiroState.AutoSize = True
-        LblDegiroState.Font = New Font("Segoe UI", 14.25F, FontStyle.Regular, GraphicsUnit.Point, CByte(0))
-        LblDegiroState.Location = New Point(12, 9)
-        LblDegiroState.Name = "LblDegiroState"
-        LblDegiroState.Size = New Size(135, 25)
-        LblDegiroState.TabIndex = 0
-        LblDegiroState.Text = "LblDegiroState"
+        TmrUI.Interval = 200
         ' 
         ' Button1
         ' 
-        Button1.Location = New Point(286, 235)
+        Button1.Location = New Point(481, 181)
         Button1.Name = "Button1"
         Button1.Size = New Size(67, 42)
         Button1.TabIndex = 1
-        Button1.Text = "Button1"
+        Button1.Text = "test me"
         Button1.UseVisualStyleBackColor = True
         ' 
-        ' Button2
+        ' statusLed
         ' 
-        Button2.Location = New Point(286, 283)
-        Button2.Name = "Button2"
-        Button2.Size = New Size(67, 41)
-        Button2.TabIndex = 2
-        Button2.Text = "Button2"
-        Button2.UseVisualStyleBackColor = True
+        statusLed.AutoSize = False
+        statusLed.BackgroundImage = CType(resources.GetObject("statusLed.BackgroundImage"), Image)
+        statusLed.Margin = New Padding(0)
+        statusLed.Name = "statusLed"
+        statusLed.Size = New Size(32, 32)
+        statusLed.Text = "        "
         ' 
-        ' Label1
+        ' statusLabel
         ' 
-        Label1.AutoSize = True
-        Label1.Font = New Font("Segoe UI", 11.25F, FontStyle.Regular, GraphicsUnit.Point, CByte(0))
-        Label1.Location = New Point(36, 399)
-        Label1.Name = "Label1"
-        Label1.Size = New Size(53, 20)
-        Label1.TabIndex = 3
-        Label1.Text = "Label1"
+        statusLabel.BackColor = SystemColors.ButtonFace
+        statusLabel.Font = New Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point, CByte(0))
+        statusLabel.Name = "statusLabel"
+        statusLabel.Size = New Size(70, 27)
+        statusLabel.Text = "OFFLINE"
+        ' 
+        ' degiroLabel
+        ' 
+        degiroLabel.BackColor = SystemColors.ButtonFace
+        degiroLabel.Font = New Font("Sitka Heading", 12F, FontStyle.Regular, GraphicsUnit.Point, CByte(0))
+        degiroLabel.Name = "degiroLabel"
+        degiroLabel.Size = New Size(55, 27)
+        degiroLabel.Text = "degiro "
+        ' 
+        ' esterLabel
+        ' 
+        esterLabel.BackColor = SystemColors.ButtonFace
+        esterLabel.Font = New Font("Segoe UI", 9.75F, FontStyle.Regular, GraphicsUnit.Point, CByte(0))
+        esterLabel.ImageScaling = ToolStripItemImageScaling.None
+        esterLabel.Name = "esterLabel"
+        esterLabel.Size = New Size(76, 27)
+        esterLabel.Text = "Ester 3.66%"
+        ' 
+        ' StatusStrip
+        ' 
+        StatusStrip.Items.AddRange(New ToolStripItem() {statusLed, statusLabel, degiroLabel, esterLabel})
+        StatusStrip.Location = New Point(0, 763)
+        StatusStrip.Name = "StatusStrip"
+        StatusStrip.Size = New Size(590, 32)
+        StatusStrip.TabIndex = 4
+        ' 
+        ' PictureLedRedOff
+        ' 
+        PictureLedRedOff.Image = CType(resources.GetObject("PictureLedRedOff.Image"), Image)
+        PictureLedRedOff.Location = New Point(921, 583)
+        PictureLedRedOff.Name = "PictureLedRedOff"
+        PictureLedRedOff.Size = New Size(32, 32)
+        PictureLedRedOff.SizeMode = PictureBoxSizeMode.AutoSize
+        PictureLedRedOff.TabIndex = 5
+        PictureLedRedOff.TabStop = False
+        PictureLedRedOff.Visible = False
+        ' 
+        ' PictureLedRedOn
+        ' 
+        PictureLedRedOn.Image = CType(resources.GetObject("PictureLedRedOn.Image"), Image)
+        PictureLedRedOn.Location = New Point(959, 583)
+        PictureLedRedOn.Name = "PictureLedRedOn"
+        PictureLedRedOn.Size = New Size(32, 32)
+        PictureLedRedOn.SizeMode = PictureBoxSizeMode.AutoSize
+        PictureLedRedOn.TabIndex = 6
+        PictureLedRedOn.TabStop = False
+        PictureLedRedOn.Visible = False
+        ' 
+        ' PictureLedGreenOff
+        ' 
+        PictureLedGreenOff.Image = CType(resources.GetObject("PictureLedGreenOff.Image"), Image)
+        PictureLedGreenOff.Location = New Point(921, 621)
+        PictureLedGreenOff.Name = "PictureLedGreenOff"
+        PictureLedGreenOff.Size = New Size(32, 32)
+        PictureLedGreenOff.SizeMode = PictureBoxSizeMode.AutoSize
+        PictureLedGreenOff.TabIndex = 7
+        PictureLedGreenOff.TabStop = False
+        PictureLedGreenOff.Visible = False
+        ' 
+        ' PictureLedGreenOn
+        ' 
+        PictureLedGreenOn.Image = CType(resources.GetObject("PictureLedGreenOn.Image"), Image)
+        PictureLedGreenOn.Location = New Point(959, 621)
+        PictureLedGreenOn.Name = "PictureLedGreenOn"
+        PictureLedGreenOn.Size = New Size(32, 32)
+        PictureLedGreenOn.SizeMode = PictureBoxSizeMode.AutoSize
+        PictureLedGreenOn.TabIndex = 8
+        PictureLedGreenOn.TabStop = False
+        PictureLedGreenOn.Visible = False
+        ' 
+        ' DataGridViewAssetPrices
+        ' 
+        DataGridViewAssetPrices.AllowUserToAddRows = False
+        DataGridViewAssetPrices.AllowUserToDeleteRows = False
+        DataGridViewAssetPrices.AllowUserToResizeColumns = False
+        DataGridViewAssetPrices.AllowUserToResizeRows = False
+        DataGridViewAssetPrices.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize
+        DataGridViewAssetPrices.Columns.AddRange(New DataGridViewColumn() {ticker, price, todayChange})
+        DataGridViewAssetPrices.Location = New Point(0, 0)
+        DataGridViewAssetPrices.Name = "DataGridViewAssetPrices"
+        DataGridViewAssetPrices.ReadOnly = True
+        DataGridViewAssetPrices.Size = New Size(344, 90)
+        DataGridViewAssetPrices.TabIndex = 10
+        ' 
+        ' ticker
+        ' 
+        ticker.HeaderText = "ticker"
+        ticker.Name = "ticker"
+        ticker.ReadOnly = True
+        ' 
+        ' price
+        ' 
+        price.HeaderText = "price"
+        price.Name = "price"
+        price.ReadOnly = True
+        ' 
+        ' todayChange
+        ' 
+        todayChange.HeaderText = "todayChange"
+        todayChange.Name = "todayChange"
+        todayChange.ReadOnly = True
         ' 
         ' FrmMain
         ' 
         AutoScaleDimensions = New SizeF(7F, 15F)
         AutoScaleMode = AutoScaleMode.Font
-        BackColor = Color.LightSlateGray
-        ClientSize = New Size(365, 527)
-        Controls.Add(Label1)
-        Controls.Add(Button2)
+        BackColor = Color.MidnightBlue
+        ClientSize = New Size(590, 795)
+        Controls.Add(DataGridViewAssetPrices)
+        Controls.Add(PictureLedGreenOn)
+        Controls.Add(PictureLedGreenOff)
+        Controls.Add(PictureLedRedOn)
+        Controls.Add(PictureLedRedOff)
+        Controls.Add(StatusStrip)
         Controls.Add(Button1)
-        Controls.Add(LblDegiroState)
         Name = "FrmMain"
         Text = "WTI"
+        StatusStrip.ResumeLayout(False)
+        StatusStrip.PerformLayout()
+        CType(PictureLedRedOff, ComponentModel.ISupportInitialize).EndInit()
+        CType(PictureLedRedOn, ComponentModel.ISupportInitialize).EndInit()
+        CType(PictureLedGreenOff, ComponentModel.ISupportInitialize).EndInit()
+        CType(PictureLedGreenOn, ComponentModel.ISupportInitialize).EndInit()
+        CType(DataGridViewAssetPrices, ComponentModel.ISupportInitialize).EndInit()
         ResumeLayout(False)
         PerformLayout()
     End Sub
 
     Friend WithEvents TmrUI As Timer
-    Friend WithEvents LblDegiroState As Label
     Friend WithEvents Button1 As Button
-    Friend WithEvents Button2 As Button
-    Friend WithEvents Label1 As Label
+    Friend WithEvents statusLed As ToolStripStatusLabel
+    Friend WithEvents statusLabel As ToolStripStatusLabel
+    Friend WithEvents degiroLabel As ToolStripStatusLabel
+    Friend WithEvents esterLabel As ToolStripStatusLabel
+    Friend WithEvents StatusStrip As StatusStrip
+    Friend WithEvents PictureLedRedOff As PictureBox
+    Friend WithEvents PictureLedRedOn As PictureBox
+    Friend WithEvents PictureLedGreenOff As PictureBox
+    Friend WithEvents PictureLedGreenOn As PictureBox
+    Friend WithEvents DataGridViewAssetPrices As DataGridView
+    Friend WithEvents ticker As DataGridViewTextBoxColumn
+    Friend WithEvents price As DataGridViewTextBoxColumn
+    Friend WithEvents todayChange As DataGridViewTextBoxColumn
 
 End Class

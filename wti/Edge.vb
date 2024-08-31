@@ -31,7 +31,9 @@ Namespace Edge
             updateEdgeProcess()
             If edgeProcess Is Nothing Then
                 edgeProcess = System.Diagnostics.Process.Start(EDGE_PATH)
+
                 Pause(PROCESS_POST_PAUSE)
+
             End If
         End Sub
 

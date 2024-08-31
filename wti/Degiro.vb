@@ -18,20 +18,17 @@ Namespace Degiro
         Public lastUpdate As Date
 
         Public Sub updateAll()
+            Dim start As Date = Date.UtcNow
 
             If Not Edge.switchTab(Edge.TabEnum.DEGIRO_POSITONS) Then
-                FrmMain.LblDegiroState.Text = "DEGIRO DISCONNECTED"
-                FrmMain.LblDegiroState.BackColor = Color.LightCyan
+                status = StatusEnum.OFFLINE
                 Exit Sub
             End If
-
-            FrmMain.LblDegiroState.Text = "DEGIRO LOGGED_IN"
+            If status = StatusEnum.OFFLINE Then status = StatusEnum.ONLINE
 
             ' expect position tab opened
             Dim body As String = KMOut.selectAllCopy()
             ' dbg.info(body)
-
-            dbg.info("go")
 
             updateAccountDataFromBody(body)
             updatePositions(body)
@@ -42,6 +39,8 @@ Namespace Degiro
 
 
             lastUpdate = Date.UtcNow()
+
+            dbg.info("Updated degiro data within " & Math.Round(Date.UtcNow.Subtract(start).TotalMilliseconds) & "ms")
         End Sub
 
 
@@ -84,6 +83,8 @@ Namespace Degiro
                           "accountPositionsMoula  = " & accountPositionsMoula & " €" & vbCrLf &
                            "accountCashMoula      = " & accountCashMoula & " €" & vbCrLf &
                             "accountWinLooseMoula = " & accountWinLooseMoula & " €" & vbCrLf)
+
+            FrmMain.degiroLabel.Text = "cash: " & accountCashMoula & "€ positions: " & accountPositionsMoula & "€"
 
             'Recherche par nom, ISIN ou ticker
 

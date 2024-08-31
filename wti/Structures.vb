@@ -6,6 +6,15 @@ Module Structures
     'please take care  to sell trade with this strat
 
 
+    Public status As StatusEnum = StatusEnum.OFFLINE
+
+    Public Enum StatusEnum
+        OFFLINE
+        ONLINE
+        SIMU
+        LIVE
+    End Enum
+
 
     ' ----------------------------------------------------------------------------------------
 
