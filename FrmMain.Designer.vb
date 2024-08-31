@@ -65,9 +65,10 @@ Partial Class FrmMain
         ' Label1
         ' 
         Label1.AutoSize = True
+        Label1.Font = New Font("Segoe UI", 11.25F, FontStyle.Regular, GraphicsUnit.Point, CByte(0))
         Label1.Location = New Point(36, 399)
         Label1.Name = "Label1"
-        Label1.Size = New Size(41, 15)
+        Label1.Size = New Size(53, 20)
         Label1.TabIndex = 3
         Label1.Text = "Label1"
         ' 

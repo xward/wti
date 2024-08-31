@@ -1,5 +1,15 @@
 ﻿Module Structures
-    Public Structure Order
+
+
+    'please take care  to sell trade with this strat
+
+
+
+    ' ----------------------------------------------------------------------------------------
+
+
+
+    Public Structure DegiroOrder
         Dim id As String
         Dim asset As AssetEnum
         Dim orderType As OrderTypeEnum
@@ -8,19 +18,62 @@
         Dim referToPosition As String
     End Structure
 
-    Public Structure Position
+    Public Structure DegiroPosition
         Dim id As String
-        Dim asset As AssetEnum
-        ' can be negative
-        Dim gain As Double
+        ' 3OIL
+        Dim ticker As String
+        ' IE00BMTM6B32
+        Dim isin As String
 
-        ' previous gain
+        Dim quantity As Integer
+        'how much is it now
+        Dim totalValue As Double
+        'how much you bought it
+        Dim pru As Double
+
+    End Structure
+
+    ' the complete buy/sell tracking object
+    '' currently bs filling
+    Public Structure Trade
+        ' id
+
+        ' ME, X
+        Dim owner As String
+
+
+        ' buy ''''''''''''''''''''''''''''''''''''
+        Dim buyDone As Boolean
+        Dim buyOrderDegiroId As String
+        Dim orderDate As Date
+
+
+        ' STOP_BUY
+        Dim buyStrat As String
+
+        ' sell '''''''''''''''''''''''''''''''''''
+        Dim sellDone As Boolean
+        Dim sellOrderDegiroId As String
+        Dim sellDate As Date
+
+        Dim sellStrat As String
+
+        ' at what value ?
+
+
+
+        ' feedbacks ''''''''''''''''''''''''''''''
+        ' Dim finalGain As Double
+
+        'failure rate, count won more if stop buy
+
     End Structure
 
 
     Public Structure AssetPrice
         Dim ticker As String
         Dim price As Double
+        Dim todayChangePerc As Double
         Dim dat As Date
     End Structure
 

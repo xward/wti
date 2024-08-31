@@ -25,7 +25,7 @@ Namespace Edge
 
         Const EDGE_PATH As String = "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
         Public edgeProcess As Process
-        Const PROCESS_POST_PAUSE As Integer = 1000
+        Const PROCESS_POST_PAUSE As Integer = 2500
 
         Public Sub ensureRunning()
             updateEdgeProcess()

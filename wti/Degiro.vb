@@ -2,45 +2,144 @@
 Imports System.Runtime.InteropServices
 
 Namespace Degiro
-
     Module Degiro
-        Public tradableMoula As Double
-        Public orders As New List(Of Order)
-        Public positions As New List(Of Position)
+        ' Total Compte
+        Public accountTotalMoula As Double
+        ' Portefeuille
+        Public accountPositionsMoula As Double
+        ' EUR Cash tradable
+        Public accountCashMoula As Double
+        ' P/L Cumulée
+        Public accountWinLooseMoula As Double
 
+        Public orders As New List(Of DegiroOrder)
+        Public positions As New List(Of DegiroPosition)
 
-        Public Function checkLoggedIn() As Boolean
-            Dim ok As Boolean = Edge.switchTab(Edge.TabEnum.DEGIRO_POSITONS)
+        Public lastUpdate As Date
 
-            If ok Then
-                FrmMain.LblDegiroState.Text = "DEGIRO LOGGED_IN"
-                ' also set pos
-            Else
+        Public Sub updateAll()
+
+            If Not Edge.switchTab(Edge.TabEnum.DEGIRO_POSITONS) Then
                 FrmMain.LblDegiroState.Text = "DEGIRO DISCONNECTED"
                 FrmMain.LblDegiroState.BackColor = Color.LightCyan
+                Exit Sub
             End If
 
-            ' update ui from ok
+            FrmMain.LblDegiroState.Text = "DEGIRO LOGGED_IN"
 
-            Return ok
-        End Function
+            ' expect position tab opened
+            Dim body As String = KMOut.selectAllCopy()
+            ' dbg.info(body)
 
-        Public Sub bumpStayLoggedIn()
+            dbg.info("go")
 
+            updateAccountDataFromBody(body)
+            updatePositions(body)
+
+            Edge.switchTab(Edge.TabEnum.DEGIRO_ORDERS)
+            body = KMOut.selectAllCopy()
+            updateOrders(body)
+
+
+            lastUpdate = Date.UtcNow()
         End Sub
 
 
+        Public Sub updateAccountDataFromBody(body As String)
+            Dim nextIs As String = ""
 
-        Public Function updatePositions() As Boolean
-            Edge.switchTab(Edge.TabEnum.DEGIRO_POSITONS)
+            For Each l As String In body.Split(vbCrLf)
+
+                'dbg.info(l)
+                'dbg.info(nextIs)
+
+                'If l.Contains("€ ") Then
+
+                '    dbg.info(l.Replace("€ ", "").Trim())
+                '    dbg.info(parseMoney(l))
+                'End If
+
+                Select Case nextIs
+                    Case "accountTotalMoula"
+                        accountTotalMoula = parseMoney(l)
+                    Case "accountPositionsMoula"
+                        accountPositionsMoula = parseMoney(l)
+                        dbg.info(accountPositionsMoula)
+                    Case "accountCashMoula"
+                        accountCashMoula = parseMoney(l)
+                    Case "accountWinLooseMoula"
+                        accountWinLooseMoula = parseMoney(l)
+                        Exit For
+                End Select
+
+                nextIs = ""
+                If l.Contains("Total Compte") Then nextIs = "accountTotalMoula"
+                If l.Contains("Portefeuille") Then nextIs = "accountPositionsMoula"
+                If l.Contains("EUR") Then nextIs = "accountCashMoula"
+                If l.Contains("L Cumulée") Then nextIs = "accountWinLooseMoula"
+            Next
 
 
-            Dim body As String = KMOut.selectAllCopy()
+            dbg.info("Account: " & vbCrLf &
+                     "accountTotalMoula       = " & accountTotalMoula & " €" & vbCrLf &
+                      "accountPositionsMoula  = " & accountPositionsMoula & " €" & vbCrLf &
+                       "accountCashMoula      = " & accountCashMoula & " €" & vbCrLf &
+                        "accountWinLooseMoula = " & accountWinLooseMoula & " €" & vbCrLf)
 
-            dbg.info(body)
+            'Recherche par nom, ISIN ou ticker
+
+            'Aide & assistance
+            'Dépôt / Retrait
+            'Ordre
+            'Total Compte
+            '€ 150,53
+            'Portefeuille
+            '€ 145,23
+
+            'EUR
+            '€ 5,30
 
 
-        End Function
+            'Espace libre
+            '€ 5,30
+
+
+            'P/ L Cumulée
+            '€ +114,46
+
+
+
+        End Sub
+
+        Public Sub updatePositions(body As String)
+
+            positions.Clear()
+
+            For Each l As String In body.Split(vbCrLf)
+                If Not l.Contains(" | ") Or Not l.Contains("€") Then Continue For
+
+                Dim split As String() = l.Split({" ", "	"}, StringSplitOptions.None)
+                If split.Length <> 16 Then Continue For
+                'For Each s As String In split
+                '    dbg.info(">" & s & "<")
+                'Next
+                If split.ElementAt(1) <> "|" Then Continue For
+                If split.ElementAt(4) <> "€" Then Continue For
+                If split.ElementAt(6) <> "EUR" Then Continue For
+
+                ' dbg.info("position: " & l)
+
+                positions.Add(New DegiroPosition With {
+                              .ticker = split.ElementAt(0),
+                              .isin = split.ElementAt(2),
+                              .quantity = Integer.Parse(split.ElementAt(3)),
+                              .totalValue = parseMoney(split.ElementAt(7)),
+                              .pru = parseMoney(split.ElementAt(8))
+                              })
+            Next
+            ' 3OIL | IE00BMTM6B32	5	€ 28,91	EUR	144,55	28,50	0,00	0,00%	+2,05 (+1,43%)	-0,95	15	
+
+        End Sub
 
         'position
 
@@ -115,21 +214,42 @@ Namespace Degiro
         ' ==========================================================================================================
         ' ==========================================================================================================
 
-        Public Function updateOrders() As Boolean
-            Edge.switchTab(Edge.TabEnum.DEGIRO_ORDERS)
+        Public Sub updateOrders(body As String)
+
+            orders.Clear()
+
+            For Each l As String In body.Split(vbCrLf)
+                If Not l.Contains(" | ") Or Not l.Contains("€") Then Continue For
+
+                Dim split As String() = l.Split({" ", "	"}, StringSplitOptions.None)
+                dbg.info(split.Length)
+                If split.Length <> 16 Then Continue For
+                'For Each s As String In split
+                '    dbg.info(">" & s & "<")
+                'Next
+                If split.ElementAt(3) <> "|" Then Continue For
 
 
 
-            Dim body As String = KMOut.selectAllCopy()
+                dbg.info("order: " & l)
 
-            dbg.info(body)
+                'orders.Add(New DegiroPosition With {
+                '              .ticker = split.ElementAt(0),
+                '              .isin = split.ElementAt(2),
+                '              .quantity = Integer.Parse(split.ElementAt(3)),
+                '              .totalValue = parseMoney(split.ElementAt(7)),
+                '              .pru = parseMoney(split.ElementAt(8))
+                '              })
+            Next
+
+
+            '30/08/2024 16:49:27	3OIL | IE00BMTM6B32	MIL	Vente	5	€ 33,00	€ —	165,00	5	0	
 
 
 
 
 
-
-        End Function
+        End Sub
 
         'orders:
 
@@ -230,6 +350,10 @@ Namespace Degiro
         ' <Ordres en cours and 1 more page - Personal - Microsoft​ Edge>  process msedge
 
 
+        ' https://trader.degiro.nl/trader/#/transactions?fromDate=2024-08-01&toDate=2024-08-31&groupTransactionsByOrder=false&activePeriodType=LastMonthIncludingToday
+        ' <Transaction - Personal - Microsoft​ Edge>
+
+
         ' https://trader.degiro.nl/trader/#/favourites
         ' <Favoris and 1 more page - Personal - Microsoft​ Edge>  process msedge (7060)
 
@@ -327,6 +451,22 @@ Namespace Degiro
         'End Sub
 
 
+
+        'Public Function checkLoggedIn() As Boolean
+        '    Dim ok As Boolean = Edge.switchTab(Edge.TabEnum.DEGIRO_POSITONS)
+
+        '    If ok Then
+        '        FrmMain.LblDegiroState.Text = "DEGIRO LOGGED_IN"
+        '        ' also set pos
+        '    Else
+        '        FrmMain.LblDegiroState.Text = "DEGIRO DISCONNECTED"
+        '        FrmMain.LblDegiroState.BackColor = Color.LightCyan
+        '    End If
+
+        '    ' update ui from ok
+
+        '    Return ok
+        'End Function
 
     End Module
 End Namespace
