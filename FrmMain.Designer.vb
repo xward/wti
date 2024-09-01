@@ -25,7 +25,6 @@ Partial Class FrmMain
         components = New ComponentModel.Container()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(FrmMain))
         TmrUI = New Timer(components)
-        Button1 = New Button()
         statusLed = New ToolStripStatusLabel()
         statusLabel = New ToolStripStatusLabel()
         degiroLabel = New ToolStripStatusLabel()
@@ -39,27 +38,22 @@ Partial Class FrmMain
         ticker = New DataGridViewTextBoxColumn()
         price = New DataGridViewTextBoxColumn()
         todayChange = New DataGridViewTextBoxColumn()
+        BottomPanel = New Panel()
+        BtnTest = New Button()
+        TopPanel = New Panel()
         StatusStrip.SuspendLayout()
         CType(PictureLedRedOff, ComponentModel.ISupportInitialize).BeginInit()
         CType(PictureLedRedOn, ComponentModel.ISupportInitialize).BeginInit()
         CType(PictureLedGreenOff, ComponentModel.ISupportInitialize).BeginInit()
         CType(PictureLedGreenOn, ComponentModel.ISupportInitialize).BeginInit()
         CType(DataGridViewAssetPrices, ComponentModel.ISupportInitialize).BeginInit()
+        BottomPanel.SuspendLayout()
         SuspendLayout()
         ' 
         ' TmrUI
         ' 
         TmrUI.Enabled = True
         TmrUI.Interval = 200
-        ' 
-        ' Button1
-        ' 
-        Button1.Location = New Point(481, 181)
-        Button1.Name = "Button1"
-        Button1.Size = New Size(67, 42)
-        Button1.TabIndex = 1
-        Button1.Text = "test me"
-        Button1.UseVisualStyleBackColor = True
         ' 
         ' statusLed
         ' 
@@ -98,9 +92,9 @@ Partial Class FrmMain
         ' StatusStrip
         ' 
         StatusStrip.Items.AddRange(New ToolStripItem() {statusLed, statusLabel, degiroLabel, esterLabel})
-        StatusStrip.Location = New Point(0, 763)
+        StatusStrip.Location = New Point(0, 739)
         StatusStrip.Name = "StatusStrip"
-        StatusStrip.Size = New Size(590, 32)
+        StatusStrip.Size = New Size(649, 32)
         StatusStrip.TabIndex = 4
         ' 
         ' PictureLedRedOff
@@ -155,11 +149,12 @@ Partial Class FrmMain
         DataGridViewAssetPrices.AllowUserToResizeRows = False
         DataGridViewAssetPrices.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize
         DataGridViewAssetPrices.Columns.AddRange(New DataGridViewColumn() {ticker, price, todayChange})
-        DataGridViewAssetPrices.Location = New Point(0, 0)
+        DataGridViewAssetPrices.Location = New Point(814, 411)
         DataGridViewAssetPrices.Name = "DataGridViewAssetPrices"
         DataGridViewAssetPrices.ReadOnly = True
         DataGridViewAssetPrices.Size = New Size(344, 90)
         DataGridViewAssetPrices.TabIndex = 10
+        DataGridViewAssetPrices.Visible = False
         ' 
         ' ticker
         ' 
@@ -179,19 +174,47 @@ Partial Class FrmMain
         todayChange.Name = "todayChange"
         todayChange.ReadOnly = True
         ' 
+        ' BottomPanel
+        ' 
+        BottomPanel.Controls.Add(BtnTest)
+        BottomPanel.Dock = DockStyle.Bottom
+        BottomPanel.Location = New Point(0, 528)
+        BottomPanel.Name = "BottomPanel"
+        BottomPanel.Size = New Size(649, 211)
+        BottomPanel.TabIndex = 12
+        ' 
+        ' BtnTest
+        ' 
+        BtnTest.Location = New Point(570, 166)
+        BtnTest.Name = "BtnTest"
+        BtnTest.Size = New Size(67, 42)
+        BtnTest.TabIndex = 2
+        BtnTest.Text = "test me"
+        BtnTest.UseVisualStyleBackColor = True
+        ' 
+        ' TopPanel
+        ' 
+        TopPanel.BackColor = Color.SlateGray
+        TopPanel.Dock = DockStyle.Fill
+        TopPanel.Location = New Point(0, 0)
+        TopPanel.Name = "TopPanel"
+        TopPanel.Size = New Size(649, 528)
+        TopPanel.TabIndex = 13
+        ' 
         ' FrmMain
         ' 
         AutoScaleDimensions = New SizeF(7F, 15F)
         AutoScaleMode = AutoScaleMode.Font
         BackColor = Color.MidnightBlue
-        ClientSize = New Size(590, 795)
+        ClientSize = New Size(649, 771)
+        Controls.Add(TopPanel)
+        Controls.Add(BottomPanel)
         Controls.Add(DataGridViewAssetPrices)
         Controls.Add(PictureLedGreenOn)
         Controls.Add(PictureLedGreenOff)
         Controls.Add(PictureLedRedOn)
         Controls.Add(PictureLedRedOff)
         Controls.Add(StatusStrip)
-        Controls.Add(Button1)
         Name = "FrmMain"
         Text = "WTI"
         StatusStrip.ResumeLayout(False)
@@ -201,12 +224,12 @@ Partial Class FrmMain
         CType(PictureLedGreenOff, ComponentModel.ISupportInitialize).EndInit()
         CType(PictureLedGreenOn, ComponentModel.ISupportInitialize).EndInit()
         CType(DataGridViewAssetPrices, ComponentModel.ISupportInitialize).EndInit()
+        BottomPanel.ResumeLayout(False)
         ResumeLayout(False)
         PerformLayout()
     End Sub
 
     Friend WithEvents TmrUI As Timer
-    Friend WithEvents Button1 As Button
     Friend WithEvents statusLed As ToolStripStatusLabel
     Friend WithEvents statusLabel As ToolStripStatusLabel
     Friend WithEvents degiroLabel As ToolStripStatusLabel
@@ -220,5 +243,8 @@ Partial Class FrmMain
     Friend WithEvents ticker As DataGridViewTextBoxColumn
     Friend WithEvents price As DataGridViewTextBoxColumn
     Friend WithEvents todayChange As DataGridViewTextBoxColumn
+    Friend WithEvents BottomPanel As Panel
+    Friend WithEvents BtnTest As Button
+    Friend WithEvents TopPanel As Panel
 
 End Class

@@ -51,12 +51,12 @@
         Application.DoEvents()
     End Sub
 
-    Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
+    Private Sub Button1_Click(sender As Object, e As EventArgs)
 
         Degiro.updateAll()
 
-        TradingView.fetchPrice(AssetEnum.WTI3x)
-        TradingView.fetchPrice(AssetEnum.WTI3xShort)
+        fetchPrice(AssetEnum.WTI_3X)
+        fetchPrice(AssetEnum.WTI_3X_SHORT)
         'Degiro.setupWindows()
         'Edge.createTab("ddg.gg", Edge.OpenModeEnum.AS_WINDOW)
         'Edge.createTabIfNotExist("youtube", "https://www.youtube.com/", Edge.OpenModeEnum.AS_WINDOW, New Rectangle(3, 3, 500, 500))

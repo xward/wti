@@ -14,9 +14,16 @@ Namespace Edge
     ' https://trader.degiro.nl/trader/#/orders/open
     ' <Ordres en cours and 1 more page - Personal - Microsoft​ Edge>  process msedge
 
+    ' https://trader.degiro.nl/trader/#/transactions
+    ' <Transaction en cours and 1 more page - Personal - Microsoft​ Edge>  process msedge
+
     Public Enum TabEnum
+        ' current stuff I own
         DEGIRO_POSITONS
+        ' active orders
         DEGIRO_ORDERS
+        ' transactions history
+        DEGIRO_TRANSACTIONS
     End Enum
 
     Module Edge
@@ -49,6 +56,9 @@ Namespace Edge
         ' create tab if not exist
         Public Sub createTabIfNotExist(name As String, url As String, openMode As OpenModeEnum, Optional pos As Rectangle = Nothing)
             If switchTab(name) Then Exit Sub
+
+            dbg.info("Creating new EDGE tab " & name)
+
             createTab(url, openMode)
 
             bringToFront()
@@ -62,9 +72,6 @@ Namespace Edge
             Dim edgeRectPositionRect As New Rectangle(0, 0, 1200, 800)
 
             Select Case tab
-                Case TabEnum.DEGIRO_ORDERS
-                    Edge.createTabIfNotExist("Ordres en cours", "https://trader.degiro.nl/trader/#/orders/open", OpenModeEnum.AS_TAB)
-                    Return True
                 Case TabEnum.DEGIRO_POSITONS
                     If switchTab("portefeuille") Then
                         Dim rect As Rectangle = User32.getWindowPos(edgeProcess.MainWindowHandle)
@@ -76,14 +83,18 @@ Namespace Edge
                     Else
                         Return False
                     End If
+                Case TabEnum.DEGIRO_ORDERS
+                    Edge.createTabIfNotExist("Ordres en cours", "https://trader.degiro.nl/trader/#/orders/open", OpenModeEnum.AS_TAB)
+                    Return True
+
+                Case TabEnum.DEGIRO_TRANSACTIONS
+                    Edge.createTabIfNotExist("Transaction", "https://trader.degiro.nl/trader/#/transactions", OpenModeEnum.AS_TAB)
+                    Return True
             End Select
             Return False
         End Function
 
-        Public Function switchTabPlaceOrder(tab As AssetEnum) As Boolean
 
-            Return False
-        End Function
 
         Public Function switchTab(name As String) As Boolean
             bringToFront()

@@ -72,10 +72,14 @@ Public Class N3rdDebug
 
 
 
-  Public Sub fail(ByVal msg As String)
-    newLogLine(indentStr & "@[" & dateStrTimestamp(Now) & _
-                "] [" & Me.name & " (Tid=" & Thread.CurrentThread.ManagedThreadId & ")] ERROR " & msg)
-  End Sub
+    Public Sub fail(ByVal msg As String)
+
+        'Console.ForegroundColor = ConsoleColor.Red
+        newLogLine(indentStr & "@[" & dateStrTimestamp(Now) &
+                    "] [" & Me.name & " (Tid=" & Thread.CurrentThread.ManagedThreadId & ")] ERROR " & msg)
+
+        'Console.ResetColor()
+    End Sub
 
 
     Public Function dateStrTimestamp(ByVal dat As Date) As String ' like 123d12h03m12.3245s

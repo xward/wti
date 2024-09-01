@@ -14,6 +14,7 @@ Namespace Degiro
 
         Public orders As New List(Of DegiroOrder)
         Public positions As New List(Of DegiroPosition)
+        Public transactions As New List(Of DegiroTransaction)
 
         Public lastUpdate As Date
 
@@ -26,16 +27,24 @@ Namespace Degiro
             End If
             If status = StatusEnum.OFFLINE Then status = StatusEnum.ONLINE
 
-            ' expect position tab opened
-            Dim body As String = KMOut.selectAllCopy()
-            ' dbg.info(body)
+            Dim body As String
 
+            ' expect position tab opened
+            body = KMOut.selectAllCopy()
             updateAccountDataFromBody(body)
             updatePositions(body)
 
             Edge.switchTab(Edge.TabEnum.DEGIRO_ORDERS)
             body = KMOut.selectAllCopy()
             updateOrders(body)
+
+            ' todo: transaction history
+            Edge.switchTab(Edge.TabEnum.DEGIRO_TRANSACTIONS)
+            body = KMOut.selectAllCopy()
+            updateTransactions(body)
+
+
+            ' todo: create trade aggreagation
 
 
             lastUpdate = Date.UtcNow()
@@ -330,7 +339,102 @@ Namespace Degiro
 
         ' cancelOrder(order as Order) as boolean 
 
+        ' ==========================================================================================================
+        ' ==========================================================================================================
+        ' ==========================================================================================================
 
+        ' transactions
+
+        Public Sub updateTransactions(body As String)
+            transactions.Clear()
+
+        End Sub
+
+
+        'Wisdomtree Wti Crude Oil 3X Daily Lev
+        'D
+        '30/08/2024 15:07:36	3OIL | IE00BMTM6B32	MIL	
+        'ETFP
+        'Achat	5	€ 28,50	€ -142,50	€ -142,50	—	—	€ -3,00	€ -145,50	
+        'A
+        'V
+
+        'WisdomTree Natural Gas - EUR Daily Hedged
+        'D
+        '09/08/2023 14:03:21	ENGS | JE00B6XF0923	MIL	
+        'ETFP
+        'Vente	-392	€ 0,65	€ 254,80	€ 254,80	—	—	€ -3,00	€ 251,80	
+        'A
+        'V
+
+        'Wisdomtree Wti Crude Oil 3X Daily Short
+        'D
+        '31/07/2023 11:14:04	3OIS | IE00BMTM6C49	MIL	
+        'ETFP
+        'Vente	-1044	€ 0,54	€ 563,76	€ 563,76	—	—	€ -3,00	€ 560,76	
+        'A
+        'V
+
+        'Wisdomtree Wti Crude Oil 3X Daily Short
+        'D
+        '27/07/2023 16:04:55	3OIS | IE00BMTM6C49	MIL	
+        'ETFP
+        'Achat	1044	€ 0,56	€ -584,64	€ -584,64	—	—	€ -3,00	€ -587,64	
+        'A
+        'V
+
+        'WisdomTree WTI Crude Oil ETC
+        'A
+        '27/07/2023 14:39:06	CRUD | GB00B15KXV33	MIL	
+        'ETFP
+        'Vente	-68	€ 8,50	€ 578,00	€ 578,00	—	—	€ -3,00	€ 575,00	
+        'A
+        'V
+
+        'WisdomTree Natural Gas - EUR Daily Hedged
+        'D
+        '01/06/2023 15:01:58	ENGS | JE00B6XF0923	MIL	
+        'ETFP
+        'Achat	392	€ 0,51	€ -199,92	€ -199,92	—	—	€ -3,00	€ -202,92	
+        'A
+        'V
+
+        'WisdomTree WTI Crude Oil ETC
+        'A
+        '03/05/2023 14:55:26	CRUD | GB00B15KXV33	MIL	
+        'ETFP
+        'Achat	68	€ 7,30	€ -496,40	€ -496,40	—	—	€ -1,00	€ -497,40	
+        'A
+        'V
+
+        'WisdomTree WTI Crude Oil ETC
+        'A
+        '04/04/2023 14:02:13	CRUD | GB00B15KXV33	MIL	
+        'ETFP
+        'Vente	-7	€ 8,60	€ 60,20	€ 60,20	—	—	€ -1,00	€ 59,20	
+        'A
+        'V
+
+        'Cisco Systems
+        'A
+        '20/03/2023 14:30:02	CSCO | US17275R1023	NDQ	
+        'XNAS
+        'Vente	-1	$ 50,10	$ 50,10	€ 46,72	1,0723	€ -0,12	€ -1,00	€ 45,61	
+        'A
+        'V
+
+        'WisdomTree WTI Crude Oil ETC
+        'A
+        '20/03/2023 09:04:02	CRUD | GB00B15KXV33	MIL	
+        'ETFP
+        'Achat	7	€ 7,099	€ -49,69	€ -49,69	—	—	€ -1,00	€ -50,69	
+
+        '1
+
+        'Résultats par page
+        '© 2024 - flatexDEGIRO Bank Dutch Branch
+        '- Données fournies par : LSEG Data & Analytics
+        ' | Données prix de : Infront Financial Technology; Euronext Chi-X Bats
 
 
 

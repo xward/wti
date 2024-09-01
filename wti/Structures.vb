@@ -15,7 +15,6 @@ Module Structures
         LIVE
     End Enum
 
-
     ' ----------------------------------------------------------------------------------------
 
     'date ticker isin placeBoursiere action qté limitPrix€ 33,00 stop(€ —) valeur ouvert execution
@@ -40,21 +39,7 @@ Module Structures
         Dim stopPrice As Double
     End Structure
 
-    Public Function StructToString(obj As Object) As String
-        Dim structString As String = ""
-        Dim i As Integer
-        Dim myType As Type = obj.GetType()
-        Dim myField As FieldInfo() = myType.GetFields()
-        For i = 0 To myField.Length - 1
-            structString &= myField(i).Name & ":" & myField(i).GetValue(obj) & " "
-        Next i
 
-        Return structString
-    End Function
-
-    'Public Function degiroOrderToString(o As DegiroOrder) As String
-    '    Return o.ticker & " " & o.isin & " " & o.dat.ToString & " " & o.orderAction & " " & o.quantity & " " & o.limit & " " & o.stopPrice
-    'End Function
 
     Public Structure DegiroPosition
         'unused
@@ -72,18 +57,53 @@ Module Structures
 
     End Structure
 
+    Public Structure DegiroTransaction
+        'unused
+        Dim id As String
+        ' 3OIL
+        Dim ticker As String
+        ' IE00BMTM6B32
+        Dim isin As String
+
+        Dim quantity As Integer
+        'how much is it now
+        Dim currentValue As Double
+        'how much you bought it
+        Dim pru As Double
+
+    End Structure
+
     ' the complete buy/sell tracking object
     '' currently bs filling
     Public Structure Trade
         ' id
 
         ' ME, X
-        Dim owner As String
+
+        Dim ticker As String
+
+        ' buying
+
+        Dim buyDone As Boolean
+
+        ' when buy is done, I own it
+        Dim currentValue As Double
+        Dim quantity As Integer
+        Dim pru As String
+
+        ' selling
+
+
+        ' sell it done
+
+
 
 
         ' buy ''''''''''''''''''''''''''''''''''''
-        Dim buyDone As Boolean
-        Dim buyOrderDegiroId As String
+
+
+
+
         Dim orderDate As Date
 
 
@@ -119,9 +139,15 @@ Module Structures
     Public Structure AssetInfos
         ' if etf
         Dim ISIN As String
+        'surname to disaplay
+        Dim name As String
+        Dim fullName As String
+
         Dim tradingViewUrl As String
         ' also called ticker
         Dim ticker As String
+        Dim leverage As Integer
+        Dim isShort As Boolean
         ' if apply, only for raw like wti but not it's ETF version w or wo leverage
         Dim futurUrl As String
         Dim degiroOrderUrl As String
@@ -129,21 +155,31 @@ Module Structures
     End Structure
 
 
+
+
     Public Function assetInfo(asset As AssetEnum) As AssetInfos
         Select Case asset
-            Case AssetEnum.WTI3x
+            Case AssetEnum.WTI_3X
                 Return New AssetInfos With {
                     .ISIN = "IE00BMTM6B32",
+                    .name = "WTI 3X",
+                    .fullName = "WISDOMTREE WTI CRUDE OIL 3X DAILY L",
                     .tradingViewUrl = "https://www.tradingview.com/chart/aSPkAHjR/?symbol=MIL%3A3OIL",
                     .ticker = "3OIL",
+                    .leverage = 3,
+                    .isShort = False,
                     .degiroOrderUrl = "https://trader.degiro.nl/trader/?appMode=order#/markets?newOrder&action=buy&productId=18744180",
                     .degireId = 18744180
                 }
-            Case AssetEnum.WTI3xShort
+            Case AssetEnum.WTI_3X_SHORT
                 Return New AssetInfos With {
                     .ISIN = "XS2819844387",
+                    .name = "WTI 3X Short",
+                    .fullName = "WISDOMTREE WTI CRUDE OIL 3X DAILY SHO",
                     .tradingViewUrl = "https://www.tradingview.com/chart/2OrM2Knv/?symbol=MIL%3A3OIS",
                     .ticker = "3OIS",
+                    .leverage = 3,
+                    .isShort = True,
                     .degiroOrderUrl = "https://trader.degiro.nl/trader/?appMode=order#/markets?newOrder&action=buy&productId=30311482",
                     .degireId = 30311482
                 }
@@ -151,8 +187,8 @@ Module Structures
     End Function
 
     Public Enum AssetEnum
-        WTI3x
-        WTI3xShort
+        WTI_3X
+        WTI_3X_SHORT
     End Enum
 
     Public Enum OrderTypeEnum
@@ -162,4 +198,20 @@ Module Structures
         STOP_SELL
         STOP_BUY
     End Enum
+
+    Public Function StructToString(obj As Object) As String
+        Dim structString As String = ""
+        Dim i As Integer
+        Dim myType As Type = obj.GetType()
+        Dim myField As FieldInfo() = myType.GetFields()
+        For i = 0 To myField.Length - 1
+            structString &= myField(i).Name & ":" & myField(i).GetValue(obj) & " "
+        Next i
+
+        Return structString
+    End Function
+
+    'Public Function degiroOrderToString(o As DegiroOrder) As String
+    '    Return o.ticker & " " & o.isin & " " & o.dat.ToString & " " & o.orderAction & " " & o.quantity & " " & o.limit & " " & o.stopPrice
+    'End Function
 End Module

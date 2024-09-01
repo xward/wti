@@ -23,19 +23,19 @@ Module TradingView
     End Sub
 
     Public Sub updateAssetValueDataGridFor(asset As AssetEnum)
-        Dim infos As AssetInfos = assetInfo(asset)
-        Dim price As AssetPrice = currentPrice.Item(asset.ToString)
+        'Dim infos As AssetInfos = assetInfo(asset)
+        'Dim price As AssetPrice = currentPrice.Item(asset.ToString)
 
-        ' update DataGridViewAssetPrices
-        For Each row As DataGridViewRow In FrmMain.DataGridViewAssetPrices.Rows
-            If row.Cells(0).Value = infos.ticker Then
-                row.Cells(1).Value = price.price
-                row.Cells(2).Value = price.todayChangePerc
-                Exit Sub
-            End If
-        Next
+        '' update DataGridViewAssetPrices
+        'For Each row As DataGridViewRow In FrmMain.DataGridViewAssetPrices.Rows
+        '    If row.Cells(0).Value = infos.ticker Then
+        '        row.Cells(1).Value = price.price
+        '        row.Cells(2).Value = price.todayChangePerc
+        '        Exit Sub
+        '    End If
+        'Next
 
-        FrmMain.DataGridViewAssetPrices.Rows.Add(New String() {infos.ticker, price.price, price.todayChangePerc})
+        'FrmMain.DataGridViewAssetPrices.Rows.Add(New String() {infos.ticker, price.price, price.todayChangePerc})
     End Sub
 
     Private Sub setFromTitle(asset As AssetEnum)
