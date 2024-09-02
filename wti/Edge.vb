@@ -40,6 +40,8 @@ Namespace Edge
                 edgeProcess = System.Diagnostics.Process.Start(EDGE_PATH)
                 Pause(PROCESS_POST_PAUSE)
             End If
+            bringToFront()
+            Pause(200)
         End Sub
 
         Public Sub createTab(url As String, Optional openMode As OpenModeEnum = OpenModeEnum.AS_TAB)

@@ -1,4 +1,5 @@
-﻿Imports System.Reflection
+﻿Imports System.IO
+Imports System.Reflection
 
 Module Structures
 
@@ -210,4 +211,6 @@ Module Structures
     'Public Function degiroOrderToString(o As DegiroOrder) As String
     '    Return o.ticker & " " & o.isin & " " & o.dat.ToString & " " & o.orderAction & " " & o.quantity & " " & o.limit & " " & o.stopPrice
     'End Function
+
+    Public SLN As String = Path.GetFullPath(Path.GetDirectoryName(System.Windows.Forms.Application.ExecutablePath) & "/../../..")
 End Module
