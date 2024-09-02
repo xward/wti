@@ -1,10 +1,18 @@
-﻿Public Class FrmMain
+﻿Imports System.Runtime.InteropServices
+
+Public Class FrmMain
+    <DllImport("user32.dll")>
+    Public Shared Function GetAsyncKeyState(ByVal vKey As System.Windows.Forms.Keys) As Short
+    End Function
 
     ' display layout, degiro status / led tracker, show asset prices, orders and position (merged as trade)
+    ' event trade updated
+
+    ' simulation, place fake order, fetch fake order/position/transaction, output results to file
+    ' implem 4%/1.5% algo with
 
 
     ' place sell order, update order, delete order
-
 
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         ' init ui
@@ -14,23 +22,32 @@
         Edge.ensureRunning()
         Edge.printAllEdge()
 
-
         ' update ester rate
         Ester.fetchRateFromBCE()
         esterLabel.Text = "ester: " & Ester.rate
 
     End Sub
 
+
+    Dim lastFetch As Date = Date.UtcNow
+
     Private ledBlink As Boolean = False
+
+    Dim assetsToTrack As New List(Of AssetInfos) From {
+        assetInfo("3OIL"),
+        assetInfo("3OIS")
+    }
+
     Private Sub Timer1_Tick(sender As Object, e As EventArgs) Handles TmrUI.Tick
         If statusLabel.Text <> status.ToString Then statusLabel.Text = status.ToString
 
         Select Case status
             Case StatusEnum.OFFLINE
                 status = StatusEnum.OFFLINE
+                statusLed.BackgroundImage = PictureLedRedOff.Image
             Case StatusEnum.ONLINE
                 statusLed.BackgroundImage = PictureLedGreenOff.Image
-            Case StatusEnum.SIMU, StatusEnum.LIVE
+            Case StatusEnum.SIMU, StatusEnum.LIVE, StatusEnum.COLLECT
                 If ledBlink Then
                     statusLed.BackgroundImage = PictureLedGreenOn.Image
                 Else
@@ -38,6 +55,22 @@
                 End If
                 ledBlink = Not ledBlink
         End Select
+
+
+        If status = StatusEnum.COLLECT Then
+            Dim diff As Integer = Math.Round(Date.UtcNow.Subtract(lastFetch).TotalSeconds)
+
+            Label1.Text = "next price update " & (5 - diff) & " secs"
+
+            If diff >= 5 Then
+                TmrUI.Enabled = False
+                Label1.Text = "updating ..."
+                dbg.info("updating prices from trading view ...")
+                fetchPrice(assetsToTrack)
+                lastFetch = Date.UtcNow
+                TmrUI.Enabled = True
+            End If
+        End If
 
 
         ' LblDegiroState.Text = Degiro.degiroState.ToString
@@ -51,27 +84,25 @@
         Application.DoEvents()
     End Sub
 
-    Private Sub Button1_Click(sender As Object, e As EventArgs)
 
-        Degiro.updateAll()
+    Private Sub BtnTest_Click(sender As Object, e As EventArgs) Handles BtnTest.Click
+        ' Degiro.updateAll()
 
-        fetchPrice(AssetEnum.WTI_3X)
-        fetchPrice(AssetEnum.WTI_3X_SHORT)
+        ' Edge.bringToFront()
+        '  Edge.switchTab("3OIL")
+
+        fetchPrice(assetsToTrack)
         'Degiro.setupWindows()
         'Edge.createTab("ddg.gg", Edge.OpenModeEnum.AS_WINDOW)
         'Edge.createTabIfNotExist("youtube", "https://www.youtube.com/", Edge.OpenModeEnum.AS_WINDOW, New Rectangle(3, 3, 500, 500))
     End Sub
 
-    Private Sub Button2_Click(sender As Object, e As EventArgs)
-        'Edge.updateEdgeProcess()
-        'dbg.info(Edge.edgeProcess.MainWindowTitle)
-
-
-
-        MsgBox(Date.Parse("8/21/2023 16:51:21"))
-
-
-        ' Degiro.checkLoggedIn()
-        ' Degiro.updateOrders()
+    Private Sub Timer1_Tick_1(sender As Object, e As EventArgs) Handles TmerStartStop.Tick
+        If GetAsyncKeyState(Keys.F2) And GetAsyncKeyState(Keys.ControlKey) Then
+            status = StatusEnum.COLLECT
+        End If
+        If GetAsyncKeyState(Keys.F3) And GetAsyncKeyState(Keys.ControlKey) Then
+            status = StatusEnum.OFFLINE
+        End If
     End Sub
 End Class

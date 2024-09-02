@@ -38,9 +38,7 @@ Namespace Edge
             updateEdgeProcess()
             If edgeProcess Is Nothing Then
                 edgeProcess = System.Diagnostics.Process.Start(EDGE_PATH)
-
                 Pause(PROCESS_POST_PAUSE)
-
             End If
         End Sub
 
@@ -51,17 +49,16 @@ Namespace Edge
             System.Diagnostics.Process.Start(EDGE_PATH, extra & url)
             Pause(PROCESS_POST_PAUSE)
             updateEdgeProcess()
+
+            bringToFront()
         End Sub
 
         ' create tab if not exist
         Public Sub createTabIfNotExist(name As String, url As String, openMode As OpenModeEnum, Optional pos As Rectangle = Nothing)
             If switchTab(name) Then Exit Sub
-
             dbg.info("Creating new EDGE tab " & name)
-
             createTab(url, openMode)
 
-            bringToFront()
             '  If Not IsNothing(pos) Then User32.setPos(edgeProcess.MainWindowHandle, pos.X, pos.Y, pos.Width, pos.Height)
         End Sub
 
@@ -95,21 +92,23 @@ Namespace Edge
         End Function
 
 
-
         Public Function switchTab(name As String) As Boolean
             bringToFront()
             Pause(100)
 
+            Dim keyPause As Integer = 25
+
             InputManager.Keyboard.KeyDown(Keys.ControlKey)
-            Pause(15)
+            Pause(keyPause)
             InputManager.Keyboard.KeyDown(Keys.LShiftKey)
-            Pause(15)
+            Pause(keyPause)
             InputManager.Keyboard.KeyPress(Keys.A)
-            Pause(15)
+            Pause(keyPause)
             InputManager.Keyboard.KeyUp(Keys.LShiftKey)
-            Pause(15)
+            Pause(keyPause)
             InputManager.Keyboard.KeyUp(Keys.ControlKey)
-            Pause(50)
+            Pause(100)
+
 
             ' paste
             KMOut.pasteText(name)
@@ -132,6 +131,11 @@ Namespace Edge
         Public Sub bringToFront()
             User32.bringToFront(edgeProcess.MainWindowHandle)
         End Sub
+
+        Public Function currentEdgeWindowTitleInclude(name As String) As Boolean
+            Return edgeProcess.MainWindowTitle.ToUpper.Contains(name.ToUpper)
+
+        End Function
 
         ' ------------------------------------------------------------------------------------------------------------------
 

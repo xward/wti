@@ -13,6 +13,8 @@ Module Structures
         ONLINE
         SIMU
         LIVE
+        'just collect data from trading view
+        COLLECT
     End Enum
 
     ' ----------------------------------------------------------------------------------------
@@ -155,11 +157,9 @@ Module Structures
     End Structure
 
 
-
-
-    Public Function assetInfo(asset As AssetEnum) As AssetInfos
-        Select Case asset
-            Case AssetEnum.WTI_3X
+    Public Function assetInfo(assetTicker As String) As AssetInfos
+        Select Case assetTicker
+            Case "3OIL"
                 Return New AssetInfos With {
                     .ISIN = "IE00BMTM6B32",
                     .name = "WTI 3X",
@@ -171,7 +171,7 @@ Module Structures
                     .degiroOrderUrl = "https://trader.degiro.nl/trader/?appMode=order#/markets?newOrder&action=buy&productId=18744180",
                     .degireId = 18744180
                 }
-            Case AssetEnum.WTI_3X_SHORT
+            Case "3OIS"
                 Return New AssetInfos With {
                     .ISIN = "XS2819844387",
                     .name = "WTI 3X Short",
@@ -184,12 +184,8 @@ Module Structures
                     .degireId = 30311482
                 }
         End Select
+        Return New AssetInfos With {.ticker = "nothing"}
     End Function
-
-    Public Enum AssetEnum
-        WTI_3X
-        WTI_3X_SHORT
-    End Enum
 
     Public Enum OrderTypeEnum
         LIMIT_SELL

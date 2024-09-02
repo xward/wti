@@ -41,6 +41,9 @@ Partial Class FrmMain
         BottomPanel = New Panel()
         BtnTest = New Button()
         TopPanel = New Panel()
+        ListBox1 = New ListBox()
+        Label1 = New Label()
+        TmerStartStop = New Timer(components)
         StatusStrip.SuspendLayout()
         CType(PictureLedRedOff, ComponentModel.ISupportInitialize).BeginInit()
         CType(PictureLedRedOn, ComponentModel.ISupportInitialize).BeginInit()
@@ -48,6 +51,7 @@ Partial Class FrmMain
         CType(PictureLedGreenOn, ComponentModel.ISupportInitialize).BeginInit()
         CType(DataGridViewAssetPrices, ComponentModel.ISupportInitialize).BeginInit()
         BottomPanel.SuspendLayout()
+        TopPanel.SuspendLayout()
         SuspendLayout()
         ' 
         ' TmrUI
@@ -195,11 +199,37 @@ Partial Class FrmMain
         ' TopPanel
         ' 
         TopPanel.BackColor = Color.SlateGray
+        TopPanel.Controls.Add(ListBox1)
+        TopPanel.Controls.Add(Label1)
         TopPanel.Dock = DockStyle.Fill
         TopPanel.Location = New Point(0, 0)
         TopPanel.Name = "TopPanel"
         TopPanel.Size = New Size(649, 528)
         TopPanel.TabIndex = 13
+        ' 
+        ' ListBox1
+        ' 
+        ListBox1.Font = New Font("Segoe UI", 14.25F, FontStyle.Regular, GraphicsUnit.Point, CByte(0))
+        ListBox1.FormattingEnabled = True
+        ListBox1.ItemHeight = 25
+        ListBox1.Location = New Point(351, 418)
+        ListBox1.Name = "ListBox1"
+        ListBox1.Size = New Size(295, 104)
+        ListBox1.TabIndex = 1
+        ' 
+        ' Label1
+        ' 
+        Label1.AutoSize = True
+        Label1.Font = New Font("Segoe UI", 15.75F, FontStyle.Regular, GraphicsUnit.Point, CByte(0))
+        Label1.Location = New Point(351, 385)
+        Label1.Name = "Label1"
+        Label1.Size = New Size(73, 30)
+        Label1.TabIndex = 0
+        Label1.Text = "Label1"
+        ' 
+        ' TmerStartStop
+        ' 
+        TmerStartStop.Enabled = True
         ' 
         ' FrmMain
         ' 
@@ -225,6 +255,8 @@ Partial Class FrmMain
         CType(PictureLedGreenOn, ComponentModel.ISupportInitialize).EndInit()
         CType(DataGridViewAssetPrices, ComponentModel.ISupportInitialize).EndInit()
         BottomPanel.ResumeLayout(False)
+        TopPanel.ResumeLayout(False)
+        TopPanel.PerformLayout()
         ResumeLayout(False)
         PerformLayout()
     End Sub
@@ -246,5 +278,8 @@ Partial Class FrmMain
     Friend WithEvents BottomPanel As Panel
     Friend WithEvents BtnTest As Button
     Friend WithEvents TopPanel As Panel
+    Friend WithEvents Label1 As Label
+    Friend WithEvents ListBox1 As ListBox
+    Friend WithEvents TmerStartStop As Timer
 
 End Class
