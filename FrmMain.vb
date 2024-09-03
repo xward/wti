@@ -5,8 +5,9 @@ Public Class FrmMain
     Public Shared Function GetAsyncKeyState(ByVal vKey As System.Windows.Forms.Keys) As Short
     End Function
 
-    ' display layout, degiro status / led tracker, show asset prices, orders and position (merged as trade)
-    ' event trade updated
+    ' // show asset prices
+    ' orders, position, transaction, merged as trade
+    ' show trades, with current price, how far I am
 
     ' simulation, place fake order, fetch fake order/position/transaction, output results to file
     ' implem 4%/1.5% algo with
