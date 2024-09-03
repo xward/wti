@@ -18,8 +18,15 @@ Namespace Degiro
         Public orders As New List(Of DegiroOrder)
         Public positions As New List(Of DegiroPosition)
         Public transactions As New List(Of DegiroTransaction)
+        Public trades As New List(Of DegiroTrade)
 
         Public lastUpdate As Date
+
+
+        Public Sub loadPastTransactions()
+            transactions = transactionsFromFiles()
+            trades = tradesFromFiles()
+        End Sub
 
         Public Sub updateAll()
             Dim start As Date = Date.UtcNow
@@ -369,13 +376,13 @@ Namespace Degiro
                     Dim daySplit As String() = split.ElementAt(0).Split("/")
 
                     transaction = New DegiroTransaction With {
-                    .ticker = split.ElementAt(2),
-                    .dat = Date.Parse(daySplit.ElementAt(1) & "/" & daySplit.ElementAt(0) & "/" & daySplit.ElementAt(2) & " " & split.ElementAt(1)),
-                    .isin = split.ElementAt(4),
-                    .action = "",
-                    .quantity = 0,
-                    .pru = 2,
-                    .fee = 3
+                        .ticker = split.ElementAt(2),
+                        .dat = Date.Parse(daySplit.ElementAt(1) & "/" & daySplit.ElementAt(0) & "/" & daySplit.ElementAt(2) & " " & split.ElementAt(1)),
+                        .isin = split.ElementAt(4),
+                        .action = "",
+                        .quantity = 0,
+                        .pru = 2,
+                        .fee = 3
                     }
 
                     Continue For
@@ -391,10 +398,9 @@ Namespace Degiro
                     transaction.pru = parseMoney(split.ElementAt(3))
                     lineStep = 0
 
-
-                    'save to file if never found
+                    'save to file if not found
                     If Not File.Exists(transactionToFilePath(transaction)) Then
-                        File.Create(transactionToFilePath(transaction))
+                        File.WriteAllText(transactionToFilePath(transaction), serializeTransaction(transaction))
                     End If
 
                     transactions.Add(transaction)

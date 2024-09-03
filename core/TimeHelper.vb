@@ -52,6 +52,11 @@ Module TimeHelper
 
     End Sub
 
+    Public Function dateToPrettySortableString(dat As Date) As String
+        Return dat.Year.ToString & "-" & dat.Month.ToString("00") & "-" & dat.Day.ToString("00") & " " &
+            dat.Hour.ToString("00") & "h " & dat.Minute.ToString("00") & "m " & dat.Second.ToString("00") & "sec"
+    End Function
+
     ' ex to wait next 03h45 timeDate="XX/XX/XXXX 03:45:XX"
     Public Sub waitUntilTimeDate(ByVal timeDate As String, Optional ByVal doPrintElasped As Boolean = False)
         Dim over As Boolean = False

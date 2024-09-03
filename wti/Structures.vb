@@ -81,65 +81,107 @@ Module Structures
 
     End Structure
 
+
+    Public Function transactionsFromFiles() As List(Of DegiroTransaction)
+        Dim l As New List(Of DegiroTransaction)
+
+        For Each filePath As String In Directory.GetFiles(SLN & "/degiroTransactions/")
+            Dim t As DegiroTransaction = deserializeTransaction(File.ReadAllText(filePath))
+            dbg.info("Load transaction " & StructToString(t))
+            l.Add(t)
+        Next
+        dbg.info("Loaded " & l.Count & " previous transactions")
+        Return l
+    End Function
+
     Public Function transactionToFilePath(t As DegiroTransaction) As String
-        Return SLN & "/degiroTransactions/" & t.dat.Year.ToString & "-" & t.dat.Month.ToString("00") & "-" & t.dat.Day.ToString("00") & " " & t.dat.Hour.ToString("00") & "h " & t.dat.Minute.ToString("00") & "m " & t.dat.Second.ToString("00") & "sec " &
-            t.ticker & " " & t.action & " quantity=" & t.quantity & "  pru=" & t.pru & "€.transaction.degiro.txt"
+        Return SLN & "/degiroTransactions/" & dateToPrettySortableString(t.dat) & " " &
+            t.ticker & " " & t.action & " quantity=" & t.quantity & " pru=" & t.pru & "€.transaction.degiro.txt"
+    End Function
+
+    Public Function serializeTransaction(t As DegiroTransaction) As String
+        Return t.ticker & "|" & t.isin & "|" & t.dat.ToString & "|" & t.action & "|" & t.quantity & "|" & t.pru & "|" & t.fee
+    End Function
+
+    Public Function deserializeTransaction(s As String) As DegiroTransaction
+        Dim split As String() = s.Split("|")
+        Return New DegiroTransaction With {
+            .ticker = split.ElementAt(0),
+            .isin = split.ElementAt(1),
+            .dat = Date.Parse(split.ElementAt(2)),
+            .action = split.ElementAt(3),
+            .quantity = Integer.Parse(split.ElementAt(4)),
+            .pru = Double.Parse(split.ElementAt(5)),
+            .fee = Double.Parse(split.ElementAt(6))
+            }
     End Function
 
     ' the complete buy/sell tracking object
     '' currently bs filling
-    Public Structure Trade
+    Public Structure DegiroTrade
         ' id
 
         ' ME, X
 
         Dim ticker As String
+        Dim isin As String
 
-        ' buying
+        ' BUYING
 
+        ' BUY DONE
         Dim buyDone As Boolean
+        Dim buyFee As Double
+        Dim buyDate As Date
 
-        ' when buy is done, I own it
-        Dim currentValue As Double
         Dim quantity As Integer
-        Dim pru As String
+        Dim pru As Double
 
-        ' selling
+        ' SELLING
+        Dim sellPrice As Double
 
-
-        ' sell it done
-
-
-
-
-        ' buy ''''''''''''''''''''''''''''''''''''
-
-
-
-
-        Dim orderDate As Date
-
-
-        ' STOP_BUY
-        Dim buyStrat As String
-
-        ' sell '''''''''''''''''''''''''''''''''''
+        ' SELL DONE
         Dim sellDone As Boolean
-        Dim sellOrderDegiroId As String
+        Dim sellFee As Double
         Dim sellDate As Date
-
-        Dim sellStrat As String
-
-        ' at what value ?
-
-
-
-        ' feedbacks ''''''''''''''''''''''''''''''
-        ' Dim finalGain As Double
-
-        'failure rate, count won more if stop buy
-
     End Structure
+
+    Public Function tradesFromFiles() As List(Of DegiroTrade)
+        Dim l As New List(Of DegiroTrade)
+
+        For Each filePath As String In Directory.GetFiles(SLN & "/degiroTrades/")
+            Dim t As DegiroTrade = deserializeTrade(File.ReadAllText(filePath))
+            dbg.info("Load trade " & StructToString(t))
+            l.Add(t)
+        Next
+        dbg.info("Loaded " & l.Count & " previous trades")
+        Return l
+    End Function
+
+    Public Function tradeToFilePath(t As DegiroTrade) As String
+        Return SLN & "/degiroTrades/" & dateToPrettySortableString(t.sellDate) &
+            t.ticker & " quantity=" & t.quantity & " pru=" & t.pru & "€.transaction.degiro.txt"
+    End Function
+
+    Public Function serializeTrade(t As DegiroTrade) As String
+        Return t.ticker & "|" & t.isin & "|" & t.buyDone & "|" & t.buyFee & "|" & t.buyDate.ToString & "|" & t.quantity & "|" & t.pru & "|" & t.sellPrice & "|" & t.sellDone & "|" & t.sellFee & "|" & t.sellDate.ToString
+    End Function
+
+    Public Function deserializeTrade(s As String) As DegiroTrade
+        Dim split As String() = s.Split("|")
+        Return New DegiroTrade With {
+            .ticker = split.ElementAt(0),
+            .isin = split.ElementAt(1),
+            .buyDone = Boolean.Parse(split.ElementAt(2)),
+            .buyFee = Boolean.Parse(split.ElementAt(3)),
+            .buyDate = Date.Parse(split.ElementAt(4)),
+            .quantity = Integer.Parse(split.ElementAt(5)),
+            .pru = Double.Parse(split.ElementAt(6)),
+            .sellPrice = Double.Parse(split.ElementAt(7)),
+            .sellDone = Boolean.Parse(split.ElementAt(8)),
+            .sellFee = Double.Parse(split.ElementAt(9)),
+            .sellDate = Date.Parse(split.ElementAt(10))
+            }
+    End Function
 
 
     Public Structure AssetPrice

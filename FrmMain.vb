@@ -20,6 +20,8 @@ Public Class FrmMain
         ' init ui
         Me.Left = My.Computer.Screen.Bounds.Size.Width - Me.Width
 
+        Degiro.loadPastTransactions()
+
         ' Edge init
         Edge.ensureRunning()
         Edge.printAllEdge()
@@ -27,6 +29,7 @@ Public Class FrmMain
         ' update ester rate
         Ester.fetchRateFromBCE()
         esterLabel.Text = "ester: " & Ester.rate
+
 
     End Sub
 
@@ -108,11 +111,11 @@ Public Class FrmMain
     End Sub
 
     Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
-        'Edge.switchTab(Edge.TabEnum.DEGIRO_TRANSACTIONS)
-        'Dim body As String = KMOut.selectAllCopy()
+        Edge.switchTab(Edge.TabEnum.DEGIRO_TRANSACTIONS)
+        Dim body As String = KMOut.selectAllCopy()
 
-        'Degiro.updateTransactions(body)
+        Degiro.updateTransactions(body)
 
-        Degiro.updateAll()
+        ' Degiro.updateAll()
     End Sub
 End Class
