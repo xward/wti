@@ -1,5 +1,8 @@
 ﻿Imports System.Reflection.Metadata
+Imports System.Runtime
 Imports System.Runtime.InteropServices
+Imports System.Runtime.InteropServices.JavaScript.JSType
+Imports System.IO
 
 Namespace Degiro
     Module Degiro
@@ -87,11 +90,11 @@ Namespace Degiro
             Next
 
 
-            dbg.info(vbCrLf &
-                         "accountTotalMoula       = " & accountTotalMoula & " €" & vbCrLf &
-                          "accountPositionsMoula  = " & accountPositionsMoula & " €" & vbCrLf &
-                           "accountCashMoula      = " & accountCashMoula & " €" & vbCrLf &
-                            "accountWinLooseMoula = " & accountWinLooseMoula & " €" & vbCrLf)
+            dbg.info(vbCrLf & vbCrLf &
+                         "| accountTotalMoula      = " & accountTotalMoula.ToString("   0.00") & " €" & vbCrLf &
+                         "| accountPositionsMoula  = " & accountPositionsMoula.ToString("   0.00") & " €" & vbCrLf &
+                         "| accountCashMoula       = " & accountCashMoula.ToString("   0.00") & " €" & vbCrLf &
+                         "| accountWinLooseMoula   = " & accountWinLooseMoula.ToString("   0.00") & " €" & vbCrLf)
 
             FrmMain.degiroLabel.Text = "cash: " & accountCashMoula & "€ positions: " & accountPositionsMoula & "€"
 
@@ -249,7 +252,7 @@ Namespace Degiro
                 Dim order As DegiroOrder = New DegiroOrder With {
                                .ticker = split.ElementAt(2),
                                .isin = split.ElementAt(4),
-                               .dat = Date.Parse(daySplit.ElementAt(1) & "/" & daySplit.ElementAt(0) & "/" & daySplit.ElementAt(1) & " " & split.ElementAt(1)),
+                               .dat = Date.Parse(daySplit.ElementAt(1) & "/" & daySplit.ElementAt(0) & "/" & daySplit.ElementAt(2) & " " & split.ElementAt(1)),
                                .orderAction = split.ElementAt(6),
                                .quantity = split.ElementAt(7),
                                .limit = parseMoney(split.ElementAt(9)),
@@ -348,6 +351,58 @@ Namespace Degiro
         Public Sub updateTransactions(body As String)
             transactions.Clear()
 
+
+            Dim lineStep As Integer = 0
+
+            Dim transaction As DegiroTransaction
+
+
+            For Each l As String In body.Split(vbCrLf)
+                Dim split As String() = l.Trim.Split({" ", "	"}, StringSplitOptions.None)
+
+                ' dbg.info("STEP" & lineStep & " " & l & " " & split.Length)
+
+                If split.Length = 6 AndAlso lineStep = 0 AndAlso split.ElementAt(3) = "|" Then
+                    lineStep = 1
+
+                    ' 27/07/2023 14:39:06
+                    Dim daySplit As String() = split.ElementAt(0).Split("/")
+
+                    transaction = New DegiroTransaction With {
+                    .ticker = split.ElementAt(2),
+                    .dat = Date.Parse(daySplit.ElementAt(1) & "/" & daySplit.ElementAt(0) & "/" & daySplit.ElementAt(2) & " " & split.ElementAt(1)),
+                    .isin = split.ElementAt(4),
+                    .action = "",
+                    .quantity = 0,
+                    .pru = 2,
+                    .fee = 3
+                    }
+
+                    Continue For
+                End If
+
+                If lineStep = 1 Then
+                    lineStep = 2
+                    Continue For
+                End If
+                If lineStep = 2 Then
+                    transaction.action = split.ElementAt(0)
+                    transaction.quantity = Integer.Parse(split.ElementAt(1))
+                    transaction.pru = parseMoney(split.ElementAt(3))
+                    lineStep = 0
+
+
+                    'save to file if never found
+                    If Not File.Exists(transactionToFilePath(transaction)) Then
+                        File.Create(transactionToFilePath(transaction))
+                    End If
+
+                    transactions.Add(transaction)
+                        dbg.info(" ->: " & StructToString(transaction))
+                        Continue For
+                    End If
+                    lineStep = 0
+            Next
         End Sub
 
 

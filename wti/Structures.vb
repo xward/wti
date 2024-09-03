@@ -68,13 +68,23 @@ Module Structures
         ' IE00BMTM6B32
         Dim isin As String
 
+        Dim dat As Date
+
+        ' Achat | Vente
+        Dim action As String
+
         Dim quantity As Integer
-        'how much is it now
-        Dim currentValue As Double
         'how much you bought it
         Dim pru As Double
 
+        Dim fee As Double
+
     End Structure
+
+    Public Function transactionToFilePath(t As DegiroTransaction) As String
+        Return SLN & "/degiroTransactions/" & t.dat.Year.ToString & "-" & t.dat.Month.ToString("00") & "-" & t.dat.Day.ToString("00") & " " & t.dat.Hour.ToString("00") & "h " & t.dat.Minute.ToString("00") & "m " & t.dat.Second.ToString("00") & "sec " &
+            t.ticker & " " & t.action & " quantity=" & t.quantity & "  pru=" & t.pru & "€.transaction.degiro.txt"
+    End Function
 
     ' the complete buy/sell tracking object
     '' currently bs filling

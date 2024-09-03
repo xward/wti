@@ -1,4 +1,5 @@
 ﻿Imports System.Runtime.InteropServices
+Imports System.Windows.Forms.VisualStyles.VisualStyleElement.Tab
 
 Public Class FrmMain
     <DllImport("user32.dll")>
@@ -104,5 +105,14 @@ Public Class FrmMain
         If GetAsyncKeyState(Keys.F3) And GetAsyncKeyState(Keys.ControlKey) Then
             status = StatusEnum.OFFLINE
         End If
+    End Sub
+
+    Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
+        'Edge.switchTab(Edge.TabEnum.DEGIRO_TRANSACTIONS)
+        'Dim body As String = KMOut.selectAllCopy()
+
+        'Degiro.updateTransactions(body)
+
+        Degiro.updateAll()
     End Sub
 End Class

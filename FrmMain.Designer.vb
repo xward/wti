@@ -44,6 +44,7 @@ Partial Class FrmMain
         ListBox1 = New ListBox()
         Label1 = New Label()
         TmerStartStop = New Timer(components)
+        Button1 = New Button()
         StatusStrip.SuspendLayout()
         CType(PictureLedRedOff, ComponentModel.ISupportInitialize).BeginInit()
         CType(PictureLedRedOn, ComponentModel.ISupportInitialize).BeginInit()
@@ -180,6 +181,7 @@ Partial Class FrmMain
         ' 
         ' BottomPanel
         ' 
+        BottomPanel.Controls.Add(Button1)
         BottomPanel.Controls.Add(BtnTest)
         BottomPanel.Dock = DockStyle.Bottom
         BottomPanel.Location = New Point(0, 528)
@@ -189,7 +191,7 @@ Partial Class FrmMain
         ' 
         ' BtnTest
         ' 
-        BtnTest.Location = New Point(570, 166)
+        BtnTest.Location = New Point(477, 137)
         BtnTest.Name = "BtnTest"
         BtnTest.Size = New Size(67, 42)
         BtnTest.TabIndex = 2
@@ -230,6 +232,15 @@ Partial Class FrmMain
         ' TmerStartStop
         ' 
         TmerStartStop.Enabled = True
+        ' 
+        ' Button1
+        ' 
+        Button1.Location = New Point(550, 137)
+        Button1.Name = "Button1"
+        Button1.Size = New Size(84, 42)
+        Button1.TabIndex = 3
+        Button1.Text = "Degiro scan"
+        Button1.UseVisualStyleBackColor = True
         ' 
         ' FrmMain
         ' 
@@ -281,5 +292,6 @@ Partial Class FrmMain
     Friend WithEvents Label1 As Label
     Friend WithEvents ListBox1 As ListBox
     Friend WithEvents TmerStartStop As Timer
+    Friend WithEvents Button1 As Button
 
 End Class
