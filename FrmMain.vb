@@ -35,8 +35,7 @@ Public Class FrmMain
     Private ledBlink As Boolean = False
 
     Dim assetsToTrack As New List(Of AssetInfos) From {
-        assetInfo("3OIL"),
-        assetInfo("3OIS")
+        assetInfo("3USL")
     }
 
     Private Sub Timer1_Tick(sender As Object, e As EventArgs) Handles TmrUI.Tick

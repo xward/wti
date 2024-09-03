@@ -155,6 +155,8 @@ Module Structures
         Dim futurUrl As String
         Dim degiroOrderUrl As String
         Dim degireId As Integer
+
+        Dim marketClose As Date
     End Structure
 
 
@@ -173,6 +175,7 @@ Module Structures
                     .degireId = 18744180
                 }
             Case "3OIS"
+                ' https://www.tradingview.com/chart/vjhxMR0Z/?symbol=MIL%3A3OIS
                 Return New AssetInfos With {
                     .ISIN = "XS2819844387",
                     .name = "WTI 3X Short",
@@ -184,6 +187,20 @@ Module Structures
                     .degiroOrderUrl = "https://trader.degiro.nl/trader/?appMode=order#/markets?newOrder&action=buy&productId=30311482",
                     .degireId = 30311482
                 }
+
+            Case "3USL"
+                Return New AssetInfos With {
+             .ISIN = "IE00B7Y34M31",
+             .name = "SP500 3X",
+             .fullName = "WISDOMTREE S&P 500 3X DAILY LEVERAG",
+             .tradingViewUrl = "https://www.tradingview.com/chart/vjhxMR0Z/?symbol=MIL%3A3USL",
+             .ticker = "3USL",
+             .leverage = 3,
+             .isShort = False,
+             .degiroOrderUrl = "-",
+             .degireId = 0
+         }
+                ' .marketClose 15h45 utc  17h45 heure fr
         End Select
         Return New AssetInfos With {.ticker = "nothing"}
     End Function

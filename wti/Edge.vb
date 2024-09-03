@@ -26,6 +26,7 @@ Namespace Edge
         DEGIRO_TRANSACTIONS
     End Enum
 
+
     Module Edge
         ' tab = window
         ' only one process of edge for all edge tabs or windows
@@ -33,12 +34,15 @@ Namespace Edge
         Const EDGE_PATH As String = "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
         Public edgeProcess As Process
         Const PROCESS_POST_PAUSE As Integer = 2500
+        Public edgeWindowRect As New Rectangle(0, 0, 1200, 800)
 
         Public Sub ensureRunning()
             updateEdgeProcess()
             If edgeProcess Is Nothing Then
                 edgeProcess = System.Diagnostics.Process.Start(EDGE_PATH)
                 Pause(PROCESS_POST_PAUSE)
+                User32.setPos(edgeProcess.MainWindowHandle, edgeWindowRect.X, edgeWindowRect.Y, edgeWindowRect.Width, edgeWindowRect.Height)
+
             End If
             bringToFront()
             Pause(200)
@@ -68,15 +72,13 @@ Namespace Edge
         ' return true on success
 
         Public Function switchTab(tab As TabEnum) As Boolean
-            Dim edgeRectPositionRect As New Rectangle(0, 0, 1200, 800)
-
             Select Case tab
                 Case TabEnum.DEGIRO_POSITONS
                     If switchTab("portefeuille") Then
                         Dim rect As Rectangle = User32.getWindowPos(edgeProcess.MainWindowHandle)
-                        If rect.ToString <> edgeRectPositionRect.ToString Then
+                        If rect.ToString <> edgeWindowRect.ToString Then
                             User32.bringToFront(edgeProcess.MainWindowHandle)
-                            User32.setPos(edgeProcess.MainWindowHandle, edgeRectPositionRect.X, edgeRectPositionRect.Y, edgeRectPositionRect.Width, edgeRectPositionRect.Height)
+                            User32.setPos(edgeProcess.MainWindowHandle, edgeWindowRect.X, edgeWindowRect.Y, edgeWindowRect.Width, edgeWindowRect.Height)
                         End If
                         Return True
                     Else
@@ -96,9 +98,9 @@ Namespace Edge
 
         Public Function switchTab(name As String) As Boolean
             bringToFront()
-            Pause(100)
+            Pause(200)
 
-            Dim keyPause As Integer = 25
+            Dim keyPause As Integer = 100
 
             InputManager.Keyboard.KeyDown(Keys.ControlKey)
             Pause(keyPause)
@@ -109,7 +111,7 @@ Namespace Edge
             InputManager.Keyboard.KeyUp(Keys.LShiftKey)
             Pause(keyPause)
             InputManager.Keyboard.KeyUp(Keys.ControlKey)
-            Pause(100)
+            Pause(200)
 
 
             ' paste

@@ -48,6 +48,7 @@ Module TradingView
         'maybe the current tab opened is one of them
         For Each asset As AssetInfos In assets
             If Edge.currentEdgeWindowTitleInclude(asset.ticker) Then
+                Edge.updateEdgeProcess()
                 setFromTitle(asset)
                 skipAsset = asset
             End If
