@@ -684,6 +684,13 @@ Namespace Degiro
 
         End Sub
 
+        ' for sp500 Module
+
+        ' what we have as advantage:
+        ' - below or above global trend
+        ' - si ca descend va ca remonter, on sait juste pas quand
+        ' - en cas de fuckup ca reviendra, mais peut etre après un long moment
+
 
         Public Sub newTradeFromTransactions(transactionAchat As DegiroTransaction, transactionVente As DegiroTransaction)
             Dim trade As New DegiroTrade With {
