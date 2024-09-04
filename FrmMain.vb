@@ -15,12 +15,13 @@ Public Class FrmMain
 
 
     ' place sell order, update order, delete order
+    ' manage order too far from objective
 
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         ' init ui
         Me.Left = My.Computer.Screen.Bounds.Size.Width - Me.Width
 
-        Degiro.loadPastTransactions()
+        Degiro.loadPastData()
 
         ' Edge init
         Edge.ensureRunning()
@@ -29,7 +30,6 @@ Public Class FrmMain
         ' update ester rate
         Ester.fetchRateFromBCE()
         esterLabel.Text = "ester: " & Ester.rate
-
 
     End Sub
 

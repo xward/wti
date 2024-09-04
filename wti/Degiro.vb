@@ -17,15 +17,19 @@ Namespace Degiro
 
         Public orders As New List(Of DegiroOrder)
         Public positions As New List(Of DegiroPosition)
+        Private previousTransactions As New List(Of DegiroTransaction)
         Public transactions As New List(Of DegiroTransaction)
+        Public previousTrades As New List(Of DegiroTrade)
         Public trades As New List(Of DegiroTrade)
 
         Public lastUpdate As Date
 
 
-        Public Sub loadPastTransactions()
-            transactions = transactionsFromFiles()
-            trades = tradesFromFiles()
+        Public Sub loadPastData()
+            ' load all transaction without being in a completed trade
+            previousTransactions = transactionsFromFiles()
+            ' load full-completed trades
+            previousTrades = tradesFromFiles()
         End Sub
 
         Public Sub updateAll()
@@ -48,14 +52,12 @@ Namespace Degiro
             body = KMOut.selectAllCopy()
             updateOrders(body)
 
-            ' todo: transaction history
             Edge.switchTab(Edge.TabEnum.DEGIRO_TRANSACTIONS)
             body = KMOut.selectAllCopy()
             updateTransactions(body)
 
-
-            ' todo: create trade aggreagation
-
+            ' create trade aggreagation
+            produceTradesStructuresFromEverything()
 
             lastUpdate = Date.UtcNow()
 
@@ -358,11 +360,14 @@ Namespace Degiro
         Public Sub updateTransactions(body As String)
             transactions.Clear()
 
+            ' do we need to clone ?
+            transactions = previousTransactions
+
+            dbg.info("transaction from file count=" & transactions.Count)
 
             Dim lineStep As Integer = 0
 
             Dim transaction As DegiroTransaction
-
 
             For Each l As String In body.Split(vbCrLf)
                 Dim split As String() = l.Trim.Split({" ", "	"}, StringSplitOptions.None)
@@ -498,7 +503,35 @@ Namespace Degiro
         ' | Données prix de : Infront Financial Technology; Euronext Chi-X Bats
 
 
+        ' and save files with it, update transaction files name too
+        Public Sub produceTradesStructuresFromEverything()
 
+            'create trades from past transactions, orders
+
+            trades.Clear()
+            trades = previousTrades
+
+            dbg.info("trade from file count=" & trades.Count)
+
+            ' all transactions belongs to transaction with no trade completed
+            ' from transaction, resolve to new trades and complete them
+            ' if some, drop transaction from transactions
+
+            ' from ventes transaction, find achat transaction associated, create completed trades from it, delete transaction use in that
+            ' update file name of transaction in completed trade as attachedToTrade
+
+
+            ' from sell orders, find achat transaction associated, create incompleted trade from it,  delete transaction used in that, should have no transaction left (or not!)
+            ' we may have achat transaction without sell orders
+
+            ' from buy order, create incompleted trade from it
+
+
+
+            ' post check : from trade with buy done but sell not done, we should find exactly the same thing as the portefeuille, alerte else
+
+
+        End Sub
 
 
 

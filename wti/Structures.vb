@@ -2,10 +2,7 @@
 Imports System.Reflection
 
 Module Structures
-
-
     'please take care  to sell trade with this strat
-
 
     Public status As StatusEnum = StatusEnum.OFFLINE
 
@@ -41,8 +38,6 @@ Module Structures
         Dim limit As Double
         Dim stopPrice As Double
     End Structure
-
-
 
     Public Structure DegiroPosition
         'unused
@@ -86,6 +81,7 @@ Module Structures
         Dim l As New List(Of DegiroTransaction)
 
         For Each filePath As String In Directory.GetFiles(SLN & "/degiroTransactions/")
+            If filePath.Contains("attachedToTrade") Then Continue For
             Dim t As DegiroTransaction = deserializeTransaction(File.ReadAllText(filePath))
             dbg.info("Load transaction " & StructToString(t))
             l.Add(t)
@@ -144,6 +140,7 @@ Module Structures
         Dim sellFee As Double
         Dim sellDate As Date
     End Structure
+
 
     Public Function tradesFromFiles() As List(Of DegiroTrade)
         Dim l As New List(Of DegiroTrade)
@@ -208,11 +205,18 @@ Module Structures
         Dim degiroOrderUrl As String
         Dim degireId As Integer
 
-        Dim marketClose As Date
+        Dim marketOpen As Date
+        Dim marketUTCClose As Date
     End Structure
 
 
     Public Function assetInfo(assetTicker As String) As AssetInfos
+
+        ' on galatica
+        ' https://www.tradingview.com/chart/2OrM2Knv/?symbol=IE00B7Y34M31
+        'on ghost 
+        ' https://www.tradingview.com/chart/vjhxMR0Z/?symbol=MIL%3A3USL
+
         Select Case assetTicker
             Case "3OIL"
                 Return New AssetInfos With {
@@ -242,17 +246,18 @@ Module Structures
 
             Case "3USL"
                 Return New AssetInfos With {
-             .ISIN = "IE00B7Y34M31",
-             .name = "SP500 3X",
-             .fullName = "WISDOMTREE S&P 500 3X DAILY LEVERAG",
-             .tradingViewUrl = "https://www.tradingview.com/chart/vjhxMR0Z/?symbol=MIL%3A3USL",
-             .ticker = "3USL",
-             .leverage = 3,
-             .isShort = False,
-             .degiroOrderUrl = "-",
-             .degireId = 0
-         }
-                ' .marketClose 15h45 utc  17h45 heure fr
+                    .ISIN = "IE00B7Y34M31",
+                    .name = "SP500 3X",
+                    .fullName = "WISDOMTREE S&P 500 3X DAILY LEVERAG",
+                    .tradingViewUrl = "https://www.tradingview.com/chart/vjhxMR0Z/?symbol=MIL%3A3USL",
+                    .ticker = "3USL",
+                    .leverage = 3,
+                    .isShort = False,
+                    .degiroOrderUrl = "https://trader.degiro.nl/trader/?appMode=order#/markets?newOrder&action=buy&productId=4995112",
+                    .degireId = 4995112,
+                    .marketOpen = Date.Parse("01/01/2024 07:00"),
+                    .marketUTCClose = Date.Parse("01/01/2024 15:45")
+                }
         End Select
         Return New AssetInfos With {.ticker = "nothing"}
     End Function
