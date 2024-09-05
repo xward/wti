@@ -211,12 +211,6 @@ Module Structures
 
 
     Public Function assetInfo(assetTicker As String) As AssetInfos
-
-        ' on galatica
-        ' https://www.tradingview.com/chart/2OrM2Knv/?symbol=IE00B7Y34M31
-        'on ghost 
-        ' https://www.tradingview.com/chart/vjhxMR0Z/?symbol=MIL%3A3USL
-
         Select Case assetTicker
             Case "3OIL"
                 Return New AssetInfos With {
@@ -231,12 +225,20 @@ Module Structures
                     .degireId = 18744180
                 }
             Case "3OIS"
+                Dim tradingViewUrl As String = ""
+                Select Case CST.HOST_NAME
+                    Case CST.CST.hostNameEnum.GALACTICA
+                        tradingViewUrl = "https://www.tradingview.com/chart/2OrM2Knv/?symbol=MIL%3A3OIS"
+                    Case CST.CST.hostNameEnum.GHOST
+                        tradingViewUrl = "https://www.tradingview.com/chart/vjhxMR0Z/?symbol=MIL%3A3OIS"
+                End Select
+
                 ' https://www.tradingview.com/chart/vjhxMR0Z/?symbol=MIL%3A3OIS
                 Return New AssetInfos With {
                     .ISIN = "XS2819844387",
                     .name = "WTI 3X Short",
                     .fullName = "WISDOMTREE WTI CRUDE OIL 3X DAILY SHO",
-                    .tradingViewUrl = "https://www.tradingview.com/chart/2OrM2Knv/?symbol=MIL%3A3OIS",
+                    .tradingViewUrl = tradingViewUrl,
                     .ticker = "3OIS",
                     .leverage = 3,
                     .isShort = True,
@@ -245,11 +247,19 @@ Module Structures
                 }
 
             Case "3USL"
+                Dim tradingViewUrl As String = ""
+                Select Case CST.HOST_NAME
+                    Case CST.CST.hostNameEnum.GALACTICA
+                        tradingViewUrl = "https://www.tradingview.com/chart/2OrM2Knv/?symbol=MIL%3A3USL"
+                    Case CST.CST.hostNameEnum.GHOST
+                        tradingViewUrl = "https://www.tradingview.com/chart/vjhxMR0Z/?symbol=MIL%3A3USL"
+                End Select
+
                 Return New AssetInfos With {
                     .ISIN = "IE00B7Y34M31",
                     .name = "SP500 3X",
                     .fullName = "WISDOMTREE S&P 500 3X DAILY LEVERAG",
-                    .tradingViewUrl = "https://www.tradingview.com/chart/vjhxMR0Z/?symbol=MIL%3A3USL",
+                    .tradingViewUrl = tradingViewUrl,
                     .ticker = "3USL",
                     .leverage = 3,
                     .isShort = False,

@@ -47,6 +47,7 @@ Partial Class FrmMain
         Label1 = New Label()
         TmerKeyIput = New Timer(components)
         TmerAutoStart = New Timer(components)
+        LblSay = New Label()
         StatusStrip.SuspendLayout()
         CType(PictureLedRedOff, ComponentModel.ISupportInitialize).BeginInit()
         CType(PictureLedRedOn, ComponentModel.ISupportInitialize).BeginInit()
@@ -191,6 +192,7 @@ Partial Class FrmMain
         ' 
         ' BottomPanel
         ' 
+        BottomPanel.Controls.Add(LblSay)
         BottomPanel.Controls.Add(Button1)
         BottomPanel.Controls.Add(BtnTest)
         BottomPanel.Dock = DockStyle.Bottom
@@ -257,6 +259,17 @@ Partial Class FrmMain
         TmerAutoStart.Enabled = True
         TmerAutoStart.Interval = 5000
         ' 
+        ' LblSay
+        ' 
+        LblSay.AutoSize = True
+        LblSay.Font = New Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point, CByte(0))
+        LblSay.ForeColor = SystemColors.ActiveCaption
+        LblSay.Location = New Point(76, 48)
+        LblSay.Name = "LblSay"
+        LblSay.Size = New Size(94, 21)
+        LblSay.TabIndex = 4
+        LblSay.Text = "Label says ..."
+        ' 
         ' FrmMain
         ' 
         AutoScaleDimensions = New SizeF(7F, 15F)
@@ -281,6 +294,7 @@ Partial Class FrmMain
         CType(PictureLedGreenOn, ComponentModel.ISupportInitialize).EndInit()
         CType(DataGridViewAssetPrices, ComponentModel.ISupportInitialize).EndInit()
         BottomPanel.ResumeLayout(False)
+        BottomPanel.PerformLayout()
         TopPanel.ResumeLayout(False)
         TopPanel.PerformLayout()
         ResumeLayout(False)
@@ -310,5 +324,6 @@ Partial Class FrmMain
     Friend WithEvents Button1 As Button
     Friend WithEvents runType As ToolStripStatusLabel
     Friend WithEvents TmerAutoStart As Timer
+    Friend WithEvents LblSay As Label
 
 End Class

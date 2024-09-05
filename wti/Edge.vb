@@ -159,6 +159,7 @@ Namespace Edge
             Return Nothing
         End Function
 
+
         'Public Function findEdgeContainingName(name As String) As Process
         '    Return findEdgeContainingOneNames(New List(Of String)({name}))
         'End Function

@@ -13,20 +13,18 @@ Public Class FrmMain
     ' simulation, place fake order, fetch fake order/position/transaction, output results to file
     ' implem 4%/1.5% algo with
 
-
     ' place sell order, update order, delete order
     ' manage order too far from objective
 
+    ' reg sp500, fetch sp500/sp5003x ratio on yahoo, produce above/below trend val/perc from live sp5003x
+
+    ' --------------------------------------------------------------------------------------------------------
+
+    'set to nothing if nothing to do at start is running compiled
+    Dim ACTION_AT_AUTO_START As String = "COLLECT"
+
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-        ' init ui
-        Me.Left = My.Computer.Screen.Bounds.Size.Width - Me.Width
-
-        If CST.COMPILED Then
-            runType.Text = "RUN"
-        Else
-            runType.Text = "DEBUG"
-        End If
-
+        CST.init()
 
         Degiro.loadPastData()
 
@@ -37,6 +35,28 @@ Public Class FrmMain
         ' update ester rate
         Ester.fetchRateFromBCE()
         esterLabel.Text = "ester: " & Ester.rate
+
+        initUI()
+    End Sub
+
+    Public Sub initUI()
+        If CST.COMPILED Then runType.Text = "RUN" Else runType.Text = "DEBUG"
+
+        ' Me
+        Me.Top = 0
+        Me.Left = Edge.edgeWindowRect.Width - 15
+        Me.Width = My.Computer.Screen.Bounds.Size.Width - Me.Left
+
+        ' 32 on galactica
+        Me.Height = My.Computer.Screen.Bounds.Size.Height - 32
+
+
+        If IsNothing(ACTION_AT_AUTO_START) Then
+            LblSay.Text = ""
+        Else
+            statusLed.BackgroundImage = PictureLedGreenOn.Image
+            LblSay.Text = "About to auto-start with action " & ACTION_AT_AUTO_START
+        End If
 
     End Sub
 
@@ -117,6 +137,8 @@ Public Class FrmMain
         End If
         If GetAsyncKeyState(Keys.F3) And GetAsyncKeyState(Keys.ControlKey) Then
             status = StatusEnum.OFFLINE
+            'prevent auto start at boot
+            TmerAutoStart.Enabled = False
         End If
     End Sub
 
