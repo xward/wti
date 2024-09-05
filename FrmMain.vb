@@ -21,6 +21,13 @@ Public Class FrmMain
         ' init ui
         Me.Left = My.Computer.Screen.Bounds.Size.Width - Me.Width
 
+        If CST.COMPILED Then
+            runType.Text = "RUN"
+        Else
+            runType.Text = "DEBUG"
+        End If
+
+
         Degiro.loadPastData()
 
         ' Edge init
@@ -33,8 +40,11 @@ Public Class FrmMain
 
     End Sub
 
+    Private Sub TmerAutoStart_Tick(sender As Object, e As EventArgs) Handles TmerAutoStart.Tick
+        If CST.COMPILED Then status = StatusEnum.COLLECT
+    End Sub
 
-    Dim lastFetch As Date = Date.UtcNow
+    Dim lastCollect As Date = Date.UtcNow
 
     Private ledBlink As Boolean = False
 
@@ -62,7 +72,7 @@ Public Class FrmMain
 
 
         If status = StatusEnum.COLLECT Then
-            Dim diff As Integer = Math.Round(Date.UtcNow.Subtract(lastFetch).TotalSeconds)
+            Dim diff As Integer = Math.Round(Date.UtcNow.Subtract(lastCollect).TotalSeconds)
 
             Label1.Text = "next price update " & (5 - diff) & " secs"
 
@@ -71,7 +81,7 @@ Public Class FrmMain
                 Label1.Text = "updating ..."
                 dbg.info("updating prices from trading view ...")
                 fetchPrice(assetsToTrack)
-                lastFetch = Date.UtcNow
+                lastCollect = Date.UtcNow
                 TmrUI.Enabled = True
             End If
         End If
@@ -101,7 +111,7 @@ Public Class FrmMain
         'Edge.createTabIfNotExist("youtube", "https://www.youtube.com/", Edge.OpenModeEnum.AS_WINDOW, New Rectangle(3, 3, 500, 500))
     End Sub
 
-    Private Sub Timer1_Tick_1(sender As Object, e As EventArgs) Handles TmerStartStop.Tick
+    Private Sub Timer1_Tick_1(sender As Object, e As EventArgs) Handles TmerKeyIput.Tick
         If GetAsyncKeyState(Keys.F2) And GetAsyncKeyState(Keys.ControlKey) Then
             status = StatusEnum.COLLECT
         End If
@@ -118,4 +128,6 @@ Public Class FrmMain
 
         ' Degiro.updateAll()
     End Sub
+
+
 End Class

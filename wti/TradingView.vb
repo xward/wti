@@ -80,7 +80,7 @@ Module TradingView
         ' 280403 162431|23.56
         ' 04/28/2024 1:50:00 PM|28.35
 
-        Dim fileName As String = SLN & "/dataFromThePast/" & infos.ticker & "_" & Date.UtcNow.Year & "_" & Date.UtcNow.Month.ToString("00") & ".tv.txt"
+        Dim fileName As String = CST.SLN & "/dataFromThePast/" & infos.ticker & "_" & Date.UtcNow.Year & "_" & Date.UtcNow.Month.ToString("00") & ".tv.txt"
 
         Dim price As AssetPrice = getPrice(infos)
 

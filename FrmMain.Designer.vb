@@ -30,6 +30,7 @@ Partial Class FrmMain
         degiroLabel = New ToolStripStatusLabel()
         esterLabel = New ToolStripStatusLabel()
         StatusStrip = New StatusStrip()
+        runType = New ToolStripStatusLabel()
         PictureLedRedOff = New PictureBox()
         PictureLedRedOn = New PictureBox()
         PictureLedGreenOff = New PictureBox()
@@ -39,12 +40,13 @@ Partial Class FrmMain
         price = New DataGridViewTextBoxColumn()
         todayChange = New DataGridViewTextBoxColumn()
         BottomPanel = New Panel()
+        Button1 = New Button()
         BtnTest = New Button()
         TopPanel = New Panel()
         ListBox1 = New ListBox()
         Label1 = New Label()
-        TmerStartStop = New Timer(components)
-        Button1 = New Button()
+        TmerKeyIput = New Timer(components)
+        TmerAutoStart = New Timer(components)
         StatusStrip.SuspendLayout()
         CType(PictureLedRedOff, ComponentModel.ISupportInitialize).BeginInit()
         CType(PictureLedRedOn, ComponentModel.ISupportInitialize).BeginInit()
@@ -96,11 +98,19 @@ Partial Class FrmMain
         ' 
         ' StatusStrip
         ' 
-        StatusStrip.Items.AddRange(New ToolStripItem() {statusLed, statusLabel, degiroLabel, esterLabel})
+        StatusStrip.Items.AddRange(New ToolStripItem() {statusLed, statusLabel, runType, degiroLabel, esterLabel})
         StatusStrip.Location = New Point(0, 739)
         StatusStrip.Name = "StatusStrip"
         StatusStrip.Size = New Size(649, 32)
         StatusStrip.TabIndex = 4
+        ' 
+        ' runType
+        ' 
+        runType.BackColor = SystemColors.ButtonFace
+        runType.Font = New Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point, CByte(0))
+        runType.Name = "runType"
+        runType.Size = New Size(60, 27)
+        runType.Text = "DEBUG"
         ' 
         ' PictureLedRedOff
         ' 
@@ -189,6 +199,15 @@ Partial Class FrmMain
         BottomPanel.Size = New Size(649, 211)
         BottomPanel.TabIndex = 12
         ' 
+        ' Button1
+        ' 
+        Button1.Location = New Point(550, 137)
+        Button1.Name = "Button1"
+        Button1.Size = New Size(84, 42)
+        Button1.TabIndex = 3
+        Button1.Text = "Degiro scan"
+        Button1.UseVisualStyleBackColor = True
+        ' 
         ' BtnTest
         ' 
         BtnTest.Location = New Point(477, 137)
@@ -229,18 +248,14 @@ Partial Class FrmMain
         Label1.TabIndex = 0
         Label1.Text = "Label1"
         ' 
-        ' TmerStartStop
+        ' TmerKeyIput
         ' 
-        TmerStartStop.Enabled = True
+        TmerKeyIput.Enabled = True
         ' 
-        ' Button1
+        ' TmerAutoStart
         ' 
-        Button1.Location = New Point(550, 137)
-        Button1.Name = "Button1"
-        Button1.Size = New Size(84, 42)
-        Button1.TabIndex = 3
-        Button1.Text = "Degiro scan"
-        Button1.UseVisualStyleBackColor = True
+        TmerAutoStart.Enabled = True
+        TmerAutoStart.Interval = 5000
         ' 
         ' FrmMain
         ' 
@@ -257,7 +272,7 @@ Partial Class FrmMain
         Controls.Add(PictureLedRedOff)
         Controls.Add(StatusStrip)
         Name = "FrmMain"
-        Text = "WTI"
+        Text = "not WTI"
         StatusStrip.ResumeLayout(False)
         StatusStrip.PerformLayout()
         CType(PictureLedRedOff, ComponentModel.ISupportInitialize).EndInit()
@@ -291,7 +306,9 @@ Partial Class FrmMain
     Friend WithEvents TopPanel As Panel
     Friend WithEvents Label1 As Label
     Friend WithEvents ListBox1 As ListBox
-    Friend WithEvents TmerStartStop As Timer
+    Friend WithEvents TmerKeyIput As Timer
     Friend WithEvents Button1 As Button
+    Friend WithEvents runType As ToolStripStatusLabel
+    Friend WithEvents TmerAutoStart As Timer
 
 End Class

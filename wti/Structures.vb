@@ -80,7 +80,7 @@ Module Structures
     Public Function transactionsFromFiles() As List(Of DegiroTransaction)
         Dim l As New List(Of DegiroTransaction)
 
-        For Each filePath As String In Directory.GetFiles(SLN & "/degiroTransactions/")
+        For Each filePath As String In Directory.GetFiles(CST.SLN & "/degiroTransactions/")
             If filePath.Contains("attachedToTrade") Then Continue For
             Dim t As DegiroTransaction = deserializeTransaction(File.ReadAllText(filePath))
             dbg.info("Load transaction " & StructToString(t))
@@ -91,7 +91,7 @@ Module Structures
     End Function
 
     Public Function transactionToFilePath(t As DegiroTransaction) As String
-        Return SLN & "/degiroTransactions/" & dateToPrettySortableString(t.dat) & " " &
+        Return CST.SLN & "/degiroTransactions/" & dateToPrettySortableString(t.dat) & " " &
             t.ticker & " " & t.action & " quantity=" & t.quantity & " pru=" & t.pru & "€.transaction.degiro.txt"
     End Function
 
@@ -145,7 +145,7 @@ Module Structures
     Public Function tradesFromFiles() As List(Of DegiroTrade)
         Dim l As New List(Of DegiroTrade)
 
-        For Each filePath As String In Directory.GetFiles(SLN & "/degiroTrades/")
+        For Each filePath As String In Directory.GetFiles(CST.SLN & "/degiroTrades/")
             Dim t As DegiroTrade = deserializeTrade(File.ReadAllText(filePath))
             dbg.info("Load trade " & StructToString(t))
             l.Add(t)
@@ -155,7 +155,7 @@ Module Structures
     End Function
 
     Public Function tradeToFilePath(t As DegiroTrade) As String
-        Return SLN & "/degiroTrades/" & dateToPrettySortableString(t.sellDate) &
+        Return CST.SLN & "/degiroTrades/" & dateToPrettySortableString(t.sellDate) &
             t.ticker & " quantity=" & t.quantity & " pru=" & t.pru & "€.transaction.degiro.txt"
     End Function
 
@@ -286,5 +286,5 @@ Module Structures
     '    Return o.ticker & " " & o.isin & " " & o.dat.ToString & " " & o.orderAction & " " & o.quantity & " " & o.limit & " " & o.stopPrice
     'End Function
 
-    Public SLN As String = Path.GetFullPath(Path.GetDirectoryName(System.Windows.Forms.Application.ExecutablePath) & "/../../..")
+
 End Module
