@@ -6,6 +6,8 @@ Namespace CST
 		Public SLN As String = Path.GetFullPath(Path.GetDirectoryName(System.Windows.Forms.Application.ExecutablePath) & "/../../..")
 		Public COMPILED As Boolean = Not (Debugger.IsAttached)
 
+		Public SCREEN As Rectangle = New Rectangle(0, 0, My.Computer.Screen.Bounds.Size.Width, My.Computer.Screen.Bounds.Size.Height - 32)
+
 		Public HOST_NAME As hostNameEnum
 
 		Public Enum hostNameEnum

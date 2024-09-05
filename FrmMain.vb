@@ -45,10 +45,10 @@ Public Class FrmMain
         ' Me
         Me.Top = 0
         Me.Left = Edge.edgeWindowRect.Width - 15
-        Me.Width = My.Computer.Screen.Bounds.Size.Width - Me.Left
+        Me.Width = CST.SCREEN.Width - Me.Left
 
         ' 32 on galactica
-        Me.Height = My.Computer.Screen.Bounds.Size.Height - 32
+        Me.Height = CST.SCREEN.Height
 
 
         If IsNothing(ACTION_AT_AUTO_START) Then

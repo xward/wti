@@ -34,7 +34,7 @@ Namespace Edge
         Const EDGE_PATH As String = "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
         Public edgeProcess As Process
         Const PROCESS_POST_PAUSE As Integer = 2500
-        Public edgeWindowRect As New Rectangle(0, 0, 1200, 800)
+        Public edgeWindowRect As New Rectangle(0, 0, 1200, CST.SCREEN.Height)
 
         Public Sub ensureRunning()
             updateEdgeProcess()
