@@ -20,6 +20,12 @@ Public Class FrmMain
 
     ' --------------------------------------------------------------------------------------------------------
 
+    ' si il y a du platinium, wti, copper en position ... auto-sell-stop-loss-2%, texto lors de la detection, texto lors de la vente avec resultat
+    ' si qté pair prend en charge, si impair touche pas ?
+
+
+    ' --------------------------------------------------------------------------------------------------------
+
     'set to nothing if nothing to do at start is running compiled
     Dim ACTION_AT_AUTO_START As String = "COLLECT"
 
@@ -60,7 +66,7 @@ Public Class FrmMain
         If fullScreenMode Then Me.Height = CST.SCREEN.Height
 
 
-        If IsNothing(ACTION_AT_AUTO_START) Then
+        If IsNothing(ACTION_AT_AUTO_START) Or Not CST.COMPILED Then
             LblSay.Text = ""
         Else
             statusLed.BackgroundImage = PictureLedGreenOn.Image
@@ -71,6 +77,8 @@ Public Class FrmMain
 
     Private Sub TmerAutoStart_Tick(sender As Object, e As EventArgs) Handles TmerAutoStart.Tick
         If CST.COMPILED Then status = StatusEnum.COLLECT
+
+        TmerAutoStart.Enabled = False
     End Sub
 
     Dim lastCollect As Date = Date.UtcNow
@@ -152,10 +160,30 @@ Public Class FrmMain
     End Sub
 
     Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
-        Edge.switchTab(Edge.TabEnum.DEGIRO_TRANSACTIONS)
-        Dim body As String = KMOut.selectAllCopy()
+        'Edge.switchTab(Edge.TabEnum.DEGIRO_POSITONS)
+        'Dim body As String = KMOut.selectAllCopy()
 
-        Degiro.updateTransactions(body)
+        ''Degiro.updateTransactions(body)
+
+
+        'Degiro.updateAccountDataFromBody(body)
+        'Degiro.updatePositions(body)
+
+
+        Dim t1 As New List(Of String)
+        t1.Add("coucou")
+
+
+        Dim t2 As New List(Of String)
+        For Each s As String In t1
+            t2.Add(s)
+        Next
+
+        t2.Add("")
+
+        dbg.info(t1.Count)
+        dbg.info(t2.Count)
+
 
         ' Degiro.updateAll()
     End Sub

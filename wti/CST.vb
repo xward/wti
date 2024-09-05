@@ -19,11 +19,11 @@ Namespace CST
 			Select Case My.Computer.Name
 				Case "DESKTOP-58FECV7"
 					HOST_NAME = hostNameEnum.GALACTICA
-				Case Else
+				Case "GHOST"
 					HOST_NAME = hostNameEnum.GHOST
 			End Select
 
-			dbg.info("Running on " & HOST_NAME.ToString)
+			dbg.info("Running on computer " & HOST_NAME.ToString)
 		End Sub
 
 	End Module

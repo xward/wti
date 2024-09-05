@@ -28,16 +28,31 @@ Namespace Degiro
 
         Public lastUpdate As Date
 
+
+        Public Function cloneTransactionList(transactions As List(Of DegiroTransaction))
+            Dim ret As New List(Of DegiroTransaction)
+            For Each t In transactions
+                ret.Add(t)
+            Next
+            Return ret
+        End Function
+
+        Public Function cloneTradeList(transactions As List(Of DegiroTrade))
+            Dim ret As New List(Of DegiroTrade)
+            For Each t In transactions
+                ret.Add(t)
+            Next
+            Return ret
+        End Function
+
         Public Sub loadPastFromFiles()
             ' load all transactions without being in a completed trade
             previousTransactions = transactionsFromFiles()
-            transactions = previousTransactions
+            transactions = cloneTransactionList(previousTransactions)
             ' load full-completed trades
             previousTrades = tradesFromFiles()
-            trades = previousTrades
+            trades = cloneTradeList(previousTrades)
         End Sub
-
-
 
         Public Sub loadPastData()
             loadPastFromFiles()
@@ -151,25 +166,21 @@ Namespace Degiro
             positions.Clear()
 
             For Each l As String In body.Split(vbCrLf)
-                If Not l.Contains(" | ") Or Not l.Contains("€") Then Continue For
+                If Not l.Contains(" | ") Then Continue For
 
-                Dim split As String() = l.Split({" ", "	"}, StringSplitOptions.None)
-                If split.Length <> 16 Then Continue For
-                'For Each s As String In split
-                '    dbg.info(">" & s & "<")
-                'Next
+                Dim split As List(Of String) = splitLine(l)
+
+                ' printListOfString(split)
+                If split.Count <> 14 Then Continue For
+
                 If split.ElementAt(1) <> "|" Then Continue For
-                If split.ElementAt(4) <> "€" Then Continue For
-                If split.ElementAt(6) <> "EUR" Then Continue For
-
-                dbg.info("position: " & l)
 
                 Dim position As DegiroPosition = New DegiroPosition With {
                                   .ticker = split.ElementAt(0),
                                   .isin = split.ElementAt(2),
                                   .quantity = Integer.Parse(split.ElementAt(3)),
-                                  .totalValue = parseMoney(split.ElementAt(7)),
-                                  .pru = parseMoney(split.ElementAt(8))
+                                  .totalValue = parseMoney(split.ElementAt(6)),
+                                  .pru = parseMoney(split.ElementAt(7))
                                   }
 
                 dbg.info(" ->: " & StructToString(position))
@@ -259,27 +270,24 @@ Namespace Degiro
             orders.Clear()
 
             For Each l As String In body.Split(vbCrLf)
-                If Not l.Contains(" | ") Or Not l.Contains("€") Then Continue For
+                If Not l.Contains(" | ") Then Continue For
 
-                Dim split As String() = l.Split({" ", "	"}, StringSplitOptions.None)
-                'dbg.info(split.Length)
-                If split.Length <> 16 Then Continue For
-                'For Each s As String In split
-                '    dbg.info(">" & s & "<")
-                'Next
+                Dim split As List(Of String) = splitLine(l)
+
+                'printListOfString(split)
+                If split.Count <> 13 Then Continue For
                 If split.ElementAt(3) <> "|" Then Continue For
 
-                dbg.info("order: " & l)
-
                 Dim daySplit As String() = split.ElementAt(0).Split("/")
+                ' 30/08/2024 16:49:27 3OIL | IE00BMTM6B32 MIL Vente 5 33,00 — 165,00 5 0
                 Dim order As DegiroOrder = New DegiroOrder With {
                                .ticker = split.ElementAt(2),
                                .isin = split.ElementAt(4),
                                .dat = Date.Parse(daySplit.ElementAt(1) & "/" & daySplit.ElementAt(0) & "/" & daySplit.ElementAt(2) & " " & split.ElementAt(1)),
                                .orderAction = split.ElementAt(6),
                                .quantity = split.ElementAt(7),
-                               .limit = parseMoney(split.ElementAt(9)),
-                               .stopPrice = parseMoney(split.ElementAt(11))
+                               .limit = parseMoney(split.ElementAt(8)),
+                               .stopPrice = parseMoney(split.ElementAt(9))
                               }
 
                 orders.Add(order)
@@ -371,6 +379,21 @@ Namespace Degiro
 
         ' transactions
 
+        Public Function splitLine(l As String) As List(Of String)
+            l = l.Replace("$", "").Replace("€", "").Trim
+            Dim tmpSplit As String() = l.Split({" ", "	"}, StringSplitOptions.None)
+            Dim split As New List(Of String)
+            For Each s As String In tmpSplit
+                If s.Trim.Length > 0 Then split.Add(s)
+            Next
+            Return split
+        End Function
+
+        Public Sub printListOfString(l As List(Of String))
+            dbg.info("elem count= " & l.Count & " " & String.Join(" ", l))
+        End Sub
+
+
         Public Sub updateTransactions(body As String)
             transactions.Clear()
 
@@ -384,11 +407,40 @@ Namespace Degiro
             Dim transaction As DegiroTransaction
 
             For Each l As String In body.Split(vbCrLf)
-                Dim split As String() = l.Trim.Split({" ", "	"}, StringSplitOptions.None)
+                Dim split As List(Of String) = splitLine(l)
 
-                ' dbg.info("STEP" & lineStep & " " & l & " " & split.Length)
+                ' dbg.info("STEP" & lineStep)
+                ' printListOfString(split)
 
-                If split.Length = 6 AndAlso lineStep = 0 AndAlso split.ElementAt(3) = "|" Then
+                ' mono line
+                If split.Count = 15 AndAlso split.ElementAt(3) = "|" Then
+                    Dim daySplit As String() = split.ElementAt(0).Split("/")
+
+                    ' 18/08/2020 16:10:07 CSCO | US17275R1023 NDQ Achat 1 42,00 -42,00 -35,17 1,1943 -0,04 -0,50 -35,70
+                    transaction = New DegiroTransaction With {
+                        .ticker = split.ElementAt(2),
+                        .dat = Date.Parse(daySplit.ElementAt(1) & "/" & daySplit.ElementAt(0) & "/" & daySplit.ElementAt(2) & " " & split.ElementAt(1)),
+                        .isin = split.ElementAt(4),
+                        .action = split.ElementAt(6),
+                        .quantity = Integer.Parse(split.ElementAt(7)),
+                        .quantityFragmentSold = 0,
+                        .pru = Math.Abs(parseMoney(split.ElementAt(10)) / Integer.Parse(split.ElementAt(7))),
+                        .fee = Math.Abs(parseMoney(split.ElementAt(13)))
+                    }
+
+                    'save to file if not found
+                    If Not File.Exists(transactionToFilePath(transaction)) And Not File.Exists(completedTransactionToFilePath(transaction)) Then
+                        File.WriteAllText(transactionToFilePath(transaction), serializeTransaction(transaction))
+                    End If
+
+                    transactions.Add(transaction)
+                    dbg.info(" ->: " & StructToString(transaction))
+
+                End If
+
+
+                ' multi line
+                If split.Count = 6 AndAlso lineStep = 0 AndAlso split.ElementAt(3) = "|" Then
                     lineStep = 1
 
                     ' 27/07/2023 14:39:06
@@ -401,6 +453,7 @@ Namespace Degiro
                         .action = "",
                         .quantity = 0,
                         .pru = 2,
+                        .quantityFragmentSold = 0,
                         .fee = 3
                     }
 
@@ -411,22 +464,28 @@ Namespace Degiro
                     lineStep = 2
                     Continue For
                 End If
+                ' Achat	5	 28,50	 -142,50	 -142,50	—	—	 -3,00	 -145,50
                 If lineStep = 2 Then
+                    'For Each ss As String In split
+                    '    dbg.info(ss)
+                    'Next
+                    ' dbg.info(Math.Abs(parseMoney(split.ElementAt(4)) / Integer.Parse(split.ElementAt(1))))
                     transaction.action = split.ElementAt(0)
                     transaction.quantity = Integer.Parse(split.ElementAt(1))
-                    transaction.pru = parseMoney(split.ElementAt(3))
+                    transaction.pru = Math.Abs(parseMoney(split.ElementAt(4)) / Integer.Parse(split.ElementAt(1)))
+                    transaction.fee = Math.Abs(parseMoney(split.ElementAt(7)))
                     lineStep = 0
 
                     'save to file if not found
-                    If Not File.Exists(transactionToFilePath(transaction)) Then
+                    If Not File.Exists(transactionToFilePath(transaction)) And Not File.Exists(completedTransactionToFilePath(transaction)) Then
                         File.WriteAllText(transactionToFilePath(transaction), serializeTransaction(transaction))
                     End If
 
                     transactions.Add(transaction)
-                        dbg.info(" ->: " & StructToString(transaction))
-                        Continue For
-                    End If
-                    lineStep = 0
+                    dbg.info(" ->: " & StructToString(transaction))
+                    Continue For
+                End If
+                lineStep = 0
             Next
         End Sub
 
@@ -438,6 +497,9 @@ Namespace Degiro
         'Achat	5	€ 28,50	€ -142,50	€ -142,50	—	—	€ -3,00	€ -145,50	
         'A
         'V
+
+        ' 18/08/2020 16:10:07	CSCO | US17275R1023	NDQ		Achat	1	$ 42,00	$ -42,00	€ -35,17	1,1943	€ -0,04	€ -0,50	€ -35,70	
+
 
         'WisdomTree Natural Gas - EUR Daily Hedged
         'D
@@ -535,7 +597,7 @@ Namespace Degiro
             For Each transactionVente As DegiroTransaction In transactions
                 If transactionVente.action <> "Vente" Then Continue For
 
-                dbg.info("Trade merge: found Vente " & StructToString(transactionVente) & vbCrLf & "need to find Achats with quantity " & transactionVente.quantity)
+                dbg.info("Trade merge: found Vente " & StructToString(transactionVente) & " Now I need to find Achats with quantity " & transactionVente.quantity)
 
                 ' find Achat that fit
                 ' first filter
@@ -550,6 +612,7 @@ Namespace Degiro
                 hasBeenBuild = False
                 For Each transactionAchat As DegiroTransaction In transactionAchats
                     If transactionAchat.quantity = transactionVente.quantity Then
+                        dbg.info(" -> Fount Exact Achat ! " & StructToString(transactionAchat))
                         ' buildTrade(vente, achat)
                         hasBeenBuild = True
                         Exit For
@@ -562,6 +625,7 @@ Namespace Degiro
                 hasBeenBuild = False
                 For Each transactionAchat As DegiroTransaction In transactionAchats
                     If transactionAchat.quantity = transactionVente.quantity - transactionVente.quantityFragmentSold Then
+                        dbg.info(" -> Fount Fragment Achat ! " & StructToString(transactionAchat))
                         ' buildTrade(vente, achat)
                         hasBeenBuild = True
                         Exit For
@@ -590,7 +654,7 @@ Namespace Degiro
             If venteLeft.Count > 0 Then
                 dbg.fail(venteLeft.Count & " ventes left after trade creation :")
                 For Each t As DegiroTransaction In venteLeft
-                    dbg.info(StructToString(t))
+                    dbg.info("  >>" & StructToString(t))
                 Next
             End If
 

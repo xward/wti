@@ -85,11 +85,16 @@ Module Structures
         For Each filePath As String In Directory.GetFiles(CST.SLN & "/degiroTransactions/")
             'If filePath.Contains("attachedToTrade") Then Continue For
             Dim t As DegiroTransaction = deserializeTransaction(File.ReadAllText(filePath))
-            dbg.info("Load transaction " & StructToString(t))
+            dbg.info("Load transaction from file >> " & StructToString(t))
             l.Add(t)
         Next
         dbg.info("Loaded " & l.Count & " previous transactions")
         Return l
+    End Function
+
+    Public Function completedTransactionToFilePath(t As DegiroTransaction) As String
+        Return CST.SLN & "/degiroTransactions/attachedToTrade/" & dateToPrettySortableString(t.dat) & " " &
+            t.ticker & " " & t.action & " quantity=" & t.quantity & " pru=" & t.pru & "€.transaction.degiro.txt"
     End Function
 
     Public Function transactionToFilePath(t As DegiroTransaction) As String
@@ -98,11 +103,15 @@ Module Structures
     End Function
 
     Public Function serializeTransaction(t As DegiroTransaction) As String
-        Return t.ticker & "|" & t.isin & "|" & t.dat.ToString & "|" & t.action & "|" & Math.Abs(t.quantity) & "|" & t.quantityFragmentSold & " " & t.pru & "|" & t.fee
+        Return t.ticker & "|" & t.isin & "|" & t.dat.ToString & "|" & t.action & "|" & Math.Abs(t.quantity) & "|" & t.quantityFragmentSold & "|" & t.pru & "|" & t.fee
     End Function
 
     Public Function deserializeTransaction(s As String) As DegiroTransaction
+        dbg.info(s)
         Dim split As String() = s.Split("|")
+
+        ' CSCO|US17275R1023|8/18/2020 4:10:07 PM|Achat|1|0|35.17|-0.5
+
         Return New DegiroTransaction With {
             .ticker = split.ElementAt(0),
             .isin = split.ElementAt(1),
@@ -150,7 +159,7 @@ Module Structures
 
         For Each filePath As String In Directory.GetFiles(CST.SLN & "/degiroTrades/")
             Dim t As DegiroTrade = deserializeTrade(File.ReadAllText(filePath))
-            dbg.info("Load trade " & StructToString(t))
+            dbg.info("Load trade from file >> " & StructToString(t))
             l.Add(t)
         Next
         dbg.info("Loaded " & l.Count & " previous trades")

@@ -12,7 +12,7 @@
         If Double.TryParse(cleaned, val) Then
             Return val
         Else
-            dbg.fail("fail to parse money number " & s)
+            dbg.fail("fail to parse money number >" & s & "<")
         End If
         Return Nothing
     End Function
