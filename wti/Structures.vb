@@ -69,6 +69,8 @@ Module Structures
         Dim action As String
 
         Dim quantity As Integer
+        'in case of Achat, amount that as been sold in another transaction
+        Dim quantityFragmentSold As Integer
         'how much you bought it
         Dim pru As Double
 
@@ -96,7 +98,7 @@ Module Structures
     End Function
 
     Public Function serializeTransaction(t As DegiroTransaction) As String
-        Return t.ticker & "|" & t.isin & "|" & t.dat.ToString & "|" & t.action & "|" & t.quantity & "|" & t.pru & "|" & t.fee
+        Return t.ticker & "|" & t.isin & "|" & t.dat.ToString & "|" & t.action & "|" & Math.Abs(t.quantity) & "|" & t.quantityFragmentSold & " " & t.pru & "|" & t.fee
     End Function
 
     Public Function deserializeTransaction(s As String) As DegiroTransaction
@@ -106,9 +108,10 @@ Module Structures
             .isin = split.ElementAt(1),
             .dat = Date.Parse(split.ElementAt(2)),
             .action = split.ElementAt(3),
-            .quantity = Integer.Parse(split.ElementAt(4)),
-            .pru = Double.Parse(split.ElementAt(5)),
-            .fee = Double.Parse(split.ElementAt(6))
+            .quantity = Math.Abs(Integer.Parse(split.ElementAt(4))),
+            .quantityFragmentSold = Integer.Parse(split.ElementAt(5)),
+            .pru = Double.Parse(split.ElementAt(6)),
+            .fee = Double.Parse(split.ElementAt(7))
             }
     End Function
 

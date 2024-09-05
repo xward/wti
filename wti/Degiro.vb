@@ -17,19 +17,28 @@ Namespace Degiro
 
         Public orders As New List(Of DegiroOrder)
         Public positions As New List(Of DegiroPosition)
+        ' stash transactions stored in file
         Private previousTransactions As New List(Of DegiroTransaction)
+        ' final aggreation or transactions that doesn't belong to a completed trade
         Public transactions As New List(Of DegiroTransaction)
-        Public previousTrades As New List(Of DegiroTrade)
+        ' stash trades stored in file
+        Private previousTrades As New List(Of DegiroTrade)
+        ' final aggreation 
         Public trades As New List(Of DegiroTrade)
 
         Public lastUpdate As Date
 
 
         Public Sub loadPastData()
-            ' load all transaction without being in a completed trade
+            ' load all transactions without being in a completed trade
             previousTransactions = transactionsFromFiles()
+            transactions = previousTransactions
             ' load full-completed trades
             previousTrades = tradesFromFiles()
+            trades = previousTrades
+
+            ' process some merge if any
+            produceTradesStructuresFromEverything()
         End Sub
 
         Public Sub updateAll()
@@ -512,6 +521,22 @@ Namespace Degiro
             trades = previousTrades
 
             dbg.info("trade from file count=" & trades.Count)
+
+
+            For Each transactionVente As DegiroTransaction In transactions
+                If transactionVente.action <> "Vente" Then Continue For
+
+                dbg.info("Trade merge: found Vente " & StructToString(transactionVente) & vbCrLf & "need to find Achats with quantity " & transactionVente.quantity)
+
+                ' find Achat that fit
+
+                For Each transactionAchat As DegiroTransaction In transactions
+
+                Next
+
+            Next
+
+
 
             ' all transactions belongs to transaction with no trade completed
             ' from transaction, resolve to new trades and complete them

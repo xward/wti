@@ -34,19 +34,27 @@ Namespace Edge
         Const EDGE_PATH As String = "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
         Public edgeProcess As Process
         Const PROCESS_POST_PAUSE As Integer = 2500
-        Public edgeWindowRect As New Rectangle(0, 0, 1200, CST.SCREEN.Height)
+        Public edgeWindowRect As New Rectangle(0, 0, 1200, CST.COMPILED And CST.SCREEN.Height Or 800)
 
         Public Sub ensureRunning()
             updateEdgeProcess()
+
             If edgeProcess Is Nothing Then
                 edgeProcess = System.Diagnostics.Process.Start(EDGE_PATH)
                 Pause(PROCESS_POST_PAUSE)
-                User32.setPos(edgeProcess.MainWindowHandle, edgeWindowRect.X, edgeWindowRect.Y, edgeWindowRect.Width, edgeWindowRect.Height)
-
             End If
-            bringToFront()
-            Pause(200)
+            setWinPosition()
         End Sub
+
+        Public Sub setWinPosition()
+            Dim rect As Rectangle = User32.getWindowPos(edgeProcess.MainWindowHandle)
+            If rect.ToString <> edgeWindowRect.ToString Then
+                bringToFront()
+                User32.setPos(edgeProcess.MainWindowHandle, edgeWindowRect.X, edgeWindowRect.Y, edgeWindowRect.Width, edgeWindowRect.Height)
+                Pause(300)
+            End If
+        End Sub
+
 
         Public Sub createTab(url As String, Optional openMode As OpenModeEnum = OpenModeEnum.AS_TAB)
             Dim extra As String = ""
@@ -75,11 +83,8 @@ Namespace Edge
             Select Case tab
                 Case TabEnum.DEGIRO_POSITONS
                     If switchTab("portefeuille") Then
-                        Dim rect As Rectangle = User32.getWindowPos(edgeProcess.MainWindowHandle)
-                        If rect.ToString <> edgeWindowRect.ToString Then
-                            User32.bringToFront(edgeProcess.MainWindowHandle)
-                            User32.setPos(edgeProcess.MainWindowHandle, edgeWindowRect.X, edgeWindowRect.Y, edgeWindowRect.Width, edgeWindowRect.Height)
-                        End If
+                        'init position if needed
+                        setWinPosition()
                         Return True
                     Else
                         Return False

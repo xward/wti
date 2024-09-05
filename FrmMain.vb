@@ -42,13 +42,22 @@ Public Class FrmMain
     Public Sub initUI()
         If CST.COMPILED Then runType.Text = "RUN" Else runType.Text = "DEBUG"
 
+
+        Dim fullScreenMode As Boolean = CST.COMPILED
+
         ' Me
         Me.Top = 0
-        Me.Left = Edge.edgeWindowRect.Width - 15
-        Me.Width = CST.SCREEN.Width - Me.Left
+
+        If fullScreenMode Then
+            Me.Left = Edge.edgeWindowRect.Width - 15
+        Else
+            Me.Left = CST.SCREEN.Width - Me.Width
+        End If
+
+        If fullScreenMode Then Me.Width = CST.SCREEN.Width - Me.Left
 
         ' 32 on galactica
-        Me.Height = CST.SCREEN.Height
+        If fullScreenMode Then Me.Height = CST.SCREEN.Height
 
 
         If IsNothing(ACTION_AT_AUTO_START) Then
