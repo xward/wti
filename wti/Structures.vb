@@ -83,7 +83,7 @@ Module Structures
         Dim l As New List(Of DegiroTransaction)
 
         For Each filePath As String In Directory.GetFiles(CST.SLN & "/degiroTransactions/")
-            If filePath.Contains("attachedToTrade") Then Continue For
+            'If filePath.Contains("attachedToTrade") Then Continue For
             Dim t As DegiroTransaction = deserializeTransaction(File.ReadAllText(filePath))
             dbg.info("Load transaction " & StructToString(t))
             l.Add(t)

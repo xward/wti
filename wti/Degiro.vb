@@ -28,14 +28,19 @@ Namespace Degiro
 
         Public lastUpdate As Date
 
-
-        Public Sub loadPastData()
+        Public Sub loadPastFromFiles()
             ' load all transactions without being in a completed trade
             previousTransactions = transactionsFromFiles()
             transactions = previousTransactions
             ' load full-completed trades
             previousTrades = tradesFromFiles()
             trades = previousTrades
+        End Sub
+
+
+
+        Public Sub loadPastData()
+            loadPastFromFiles()
 
             ' process some merge if any
             produceTradesStructuresFromEverything()
@@ -514,6 +519,8 @@ Namespace Degiro
 
         ' and save files with it, update transaction files name too
         Public Sub produceTradesStructuresFromEverything()
+            Dim hasBeenBuild As Boolean = False
+            Dim quantityLeft As Integer = 0
 
             'create trades from past transactions, orders
 
@@ -522,6 +529,8 @@ Namespace Degiro
 
             dbg.info("trade from file count=" & trades.Count)
 
+            ' ----------------------------------------------------------------------------------------------------------
+            ' PROCESS COMPLETED
 
             For Each transactionVente As DegiroTransaction In transactions
                 If transactionVente.action <> "Vente" Then Continue For
@@ -529,13 +538,65 @@ Namespace Degiro
                 dbg.info("Trade merge: found Vente " & StructToString(transactionVente) & vbCrLf & "need to find Achats with quantity " & transactionVente.quantity)
 
                 ' find Achat that fit
-
+                ' first filter
+                Dim transactionAchats As New List(Of DegiroTransaction)
                 For Each transactionAchat As DegiroTransaction In transactions
-
+                    If transactionAchat.action <> "Achat" Or transactionAchat.ticker <> transactionVente.ticker Then Continue For
+                    transactionAchats.Add(transactionAchat)
                 Next
 
+                ' among them pick one with exact same quantity baught and sold
+
+                hasBeenBuild = False
+                For Each transactionAchat As DegiroTransaction In transactionAchats
+                    If transactionAchat.quantity = transactionVente.quantity Then
+                        ' buildTrade(vente, achat)
+                        hasBeenBuild = True
+                        Exit For
+                    End If
+                Next
+                ' go to next vente
+                If hasBeenBuild Then Continue For
+
+                ' among them pick one with exact fragment
+                hasBeenBuild = False
+                For Each transactionAchat As DegiroTransaction In transactionAchats
+                    If transactionAchat.quantity = transactionVente.quantity - transactionVente.quantityFragmentSold Then
+                        ' buildTrade(vente, achat)
+                        hasBeenBuild = True
+                        Exit For
+                    End If
+                Next
+                ' go to next vente
+                If hasBeenBuild Then Continue For
+
+                'else fragment with achats
+
+
+
+                ' buildTrade(vente, achats)
             Next
 
+            ' reload
+            loadPastFromFiles()
+
+
+            'we should now have 0 "Vente" left
+            Dim venteLeft As New List(Of DegiroTransaction)
+            For Each transactionAchat As DegiroTransaction In transactions
+                If transactionAchat.action <> "Achat" Then Continue For
+                venteLeft.Add(transactionAchat)
+            Next
+            If venteLeft.Count > 0 Then
+                dbg.fail(venteLeft.Count & " ventes left after trade creation :")
+                For Each t As DegiroTransaction In venteLeft
+                    dbg.info(StructToString(t))
+                Next
+            End If
+
+
+            ' ----------------------------------------------------------------------------------------------------------
+            ' PROCESS BUY DONE
 
 
             ' all transactions belongs to transaction with no trade completed
