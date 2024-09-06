@@ -1,4 +1,6 @@
 ﻿Imports System.IO
+Imports System.Reflection
+Imports System.Runtime
 
 Namespace Degiro
     Module Degiro
@@ -22,7 +24,147 @@ Namespace Degiro
         ' final aggreation 
         Public trades As New List(Of DegiroTrade)
 
+        'todo: display it
         Public lastUpdate As Date
+
+
+        Private SIMU_spread As Double = 0.015
+        Public Sub SIMU_init()
+            accountTotalMoula = 10000
+            accountPositionsMoula = 0
+            accountCashMoula = 10000
+            accountWinLooseMoula = 0
+
+            TradingView.SIMU_init(assetInfo("3USL"))
+
+
+            dbg.info("SIMU: intialized !")
+        End Sub
+
+        Public Sub SIMU_updateAll()
+            For Each o As DegiroOrder In orders
+                Dim price As AssetPrice = TradingView.getPrice(assetInfo(o.ticker))
+
+                If IsNothing(price) Then dbg.fail("SIMU: No price found for " & o.ticker)
+
+                Select Case o.orderAction
+                    Case "Vente"
+                        If price.price > o.limit Then
+                            accountTotalMoula += o.limit * o.quantity - 3
+                            accountPositionsMoula -= o.limit * o.quantity
+                            accountCashMoula += o.limit * o.quantity - 3
+
+                            transactions.Add(New DegiroTransaction With {
+                                .ticker = o.ticker,
+                                .action = "Vente",
+                                .quantity = o.quantity,
+                                .dat = Date.UtcNow,
+                                .fee = 3,
+                                .isin = assetInfo(o.ticker).ISIN,
+                                .pru = o.limit
+                            })
+                        End If
+
+                        If price.price < o.stopPrice Then
+                            accountTotalMoula += o.stopPrice * o.quantity - 3
+                            accountPositionsMoula -= o.stopPrice * o.quantity
+                            accountCashMoula += o.stopPrice * o.quantity - 3
+
+                            transactions.Add(New DegiroTransaction With {
+                                .ticker = o.ticker,
+                                .action = "Vente",
+                                .quantity = o.quantity,
+                                .dat = Date.UtcNow,
+                                .fee = 3,
+                                .isin = assetInfo(o.ticker).ISIN,
+                                .pru = o.stopPrice
+                            })
+                        End If
+
+                    Case "Achat"
+                        If price.price < o.limit Then
+                            accountTotalMoula -= o.limit * o.quantity * (1 + SIMU_spread) + 3
+                            accountPositionsMoula += o.limit * o.quantity
+                            accountCashMoula -= o.limit * o.quantity * (1 + SIMU_spread) + 3
+
+                            transactions.Add(New DegiroTransaction With {
+                                .ticker = o.ticker,
+                                .action = "Achat",
+                                .quantity = o.quantity,
+                                .dat = Date.UtcNow,
+                                .fee = 3,
+                                .isin = assetInfo(o.ticker).ISIN,
+                                .pru = o.limit * (1 + SIMU_spread)
+                            })
+                        End If
+                        If price.price > o.stopPrice Then
+                            accountTotalMoula -= o.stopPrice * o.quantity * (1 + SIMU_spread) + 3
+                            accountPositionsMoula += o.stopPrice * o.quantity
+                            accountCashMoula -= o.stopPrice * o.quantity * (1 + SIMU_spread) + 3
+
+                            transactions.Add(New DegiroTransaction With {
+                                .ticker = o.ticker,
+                                .action = "Achat",
+                                .quantity = o.quantity,
+                                .dat = Date.UtcNow,
+                                .fee = 3,
+                                .isin = assetInfo(o.ticker).ISIN,
+                                .pru = o.stopPrice * (1 + SIMU_spread)
+                            })
+                        End If
+                End Select
+
+            Next
+
+            produceTradesStructuresFromEverything()
+
+        End Sub
+
+        Public Sub SIMU_placeOrUpdateOrder(ticker As String, qty As Integer, orderAction As String, limit As Double, stopPrice As Double)
+
+            Dim order As DegiroOrder = Nothing
+
+            For Each o As DegiroOrder In orders
+                If o.ticker = ticker And o.quantity = qty And o.orderAction = orderAction Then
+                    order = o
+                    order.limit = limit
+                    order.stopPrice = stopPrice
+                    Exit For
+                End If
+            Next
+            If IsNothing(order) Then
+                order = New DegiroOrder With {
+                    .ticker = ticker,
+                    .dat = Date.UtcNow,
+                    .isin = assetInfo(ticker).ISIN,
+                    .limit = limit,
+                    .stopPrice = stopPrice,
+                    .orderAction = orderAction,
+                    .quantity = qty
+                }
+            End If
+            RandPause(1600, 3200)
+        End Sub
+
+        Public Sub SIMU_cancelOrder(ticker As String, qty As Integer, orderAction As String)
+            For Each o As DegiroOrder In orders
+                If o.ticker = ticker And o.quantity = qty And o.orderAction = orderAction Then
+                    orders.Remove(o)
+                    Exit For
+                End If
+            Next
+            RandPause(1600, 3200)
+        End Sub
+
+        ' --------------------------------------------------------------------------------------------------
+        ' --------------------------------------------------------------------------------------------------
+        ' REAL
+        Public Sub loadPastData()
+            loadPastFromFiles()
+
+            ' process some merge if any
+            produceTradesStructuresFromEverything()
+        End Sub
 
         Public Sub loadPastFromFiles()
             ' load all transactions without being in a completed trade
@@ -35,13 +177,8 @@ Namespace Degiro
             reloadPastFromFileRequest = False
         End Sub
 
-        Public Sub loadPastData()
-            loadPastFromFiles()
 
-            ' process some merge if any
-            produceTradesStructuresFromEverything()
-        End Sub
-
+        ' updateAll Read
         Public Sub updateAll()
             Dim start As Date = Date.UtcNow
 

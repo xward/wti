@@ -41,11 +41,13 @@ Partial Class FrmMain
         price = New DataGridViewTextBoxColumn()
         todayChange = New DataGridViewTextBoxColumn()
         BottomPanel = New Panel()
+        Panel1 = New Panel()
+        ListBoxEvents = New ListBox()
+        Label2 = New Label()
+        Label3 = New Label()
+        Label1 = New Label()
         PanelTrades = New Panel()
         LblActiveTrades = New Label()
-        Label3 = New Label()
-        Label2 = New Label()
-        Label1 = New Label()
         TopPanel = New Panel()
         MainMenuStrip = New MenuStrip()
         TradesToolStripMenuItem = New ToolStripMenuItem()
@@ -55,8 +57,8 @@ Partial Class FrmMain
         DegiroScanToolStripMenuItem = New ToolStripMenuItem()
         TmerKeyIput = New Timer(components)
         TmerAutoStart = New Timer(components)
-        Panel1 = New Panel()
-        ListBoxEvents = New ListBox()
+        SimulationToolStripMenuItem = New ToolStripMenuItem()
+        RunToolStripMenuItem = New ToolStripMenuItem()
         StatusStrip.SuspendLayout()
         CType(PictureLedRedOff, ComponentModel.ISupportInitialize).BeginInit()
         CType(PictureLedRedOn, ComponentModel.ISupportInitialize).BeginInit()
@@ -64,10 +66,10 @@ Partial Class FrmMain
         CType(PictureLedGreenOn, ComponentModel.ISupportInitialize).BeginInit()
         CType(DataGridViewAssetPrices, ComponentModel.ISupportInitialize).BeginInit()
         BottomPanel.SuspendLayout()
+        Panel1.SuspendLayout()
         PanelTrades.SuspendLayout()
         TopPanel.SuspendLayout()
         MainMenuStrip.SuspendLayout()
-        Panel1.SuspendLayout()
         SuspendLayout()
         ' 
         ' TmrUI
@@ -218,6 +220,57 @@ Partial Class FrmMain
         BottomPanel.Size = New Size(742, 239)
         BottomPanel.TabIndex = 12
         ' 
+        ' Panel1
+        ' 
+        Panel1.Controls.Add(ListBoxEvents)
+        Panel1.Controls.Add(Label2)
+        Panel1.Controls.Add(Label3)
+        Panel1.Controls.Add(Label1)
+        Panel1.Dock = DockStyle.Fill
+        Panel1.Location = New Point(462, 0)
+        Panel1.Name = "Panel1"
+        Panel1.Size = New Size(280, 239)
+        Panel1.TabIndex = 8
+        ' 
+        ' ListBoxEvents
+        ' 
+        ListBoxEvents.Dock = DockStyle.Bottom
+        ListBoxEvents.Font = New Font("Cambria", 14.25F, FontStyle.Regular, GraphicsUnit.Point, CByte(0))
+        ListBoxEvents.FormattingEnabled = True
+        ListBoxEvents.ItemHeight = 22
+        ListBoxEvents.Location = New Point(0, 125)
+        ListBoxEvents.Name = "ListBoxEvents"
+        ListBoxEvents.Size = New Size(280, 114)
+        ListBoxEvents.TabIndex = 4
+        ' 
+        ' Label2
+        ' 
+        Label2.AutoSize = True
+        Label2.Location = New Point(3, 3)
+        Label2.Name = "Label2"
+        Label2.Size = New Size(271, 17)
+        Label2.TabIndex = 5
+        Label2.Text = "sp500: 5650, trend: 5300, <red> diff: 5.6%"
+        ' 
+        ' Label3
+        ' 
+        Label3.AutoSize = True
+        Label3.Location = New Point(6, 29)
+        Label3.Name = "Label3"
+        Label3.Size = New Size(163, 34)
+        Label3.TabIndex = 6
+        Label3.Text = "wti 78$ -5% today" & vbCrLf & "platinum 76€ +3% today" & vbCrLf
+        ' 
+        ' Label1
+        ' 
+        Label1.AutoSize = True
+        Label1.ForeColor = Color.White
+        Label1.Location = New Point(3, 105)
+        Label1.Name = "Label1"
+        Label1.Size = New Size(186, 17)
+        Label1.TabIndex = 2
+        Label1.Text = "data fetch from trading view"
+        ' 
         ' PanelTrades
         ' 
         PanelTrades.AutoScroll = True
@@ -238,34 +291,6 @@ Partial Class FrmMain
         LblActiveTrades.TabIndex = 0
         LblActiveTrades.Text = "TRY_BUY 3OIL q5 pru13.31 3.2% away"
         ' 
-        ' Label3
-        ' 
-        Label3.AutoSize = True
-        Label3.Location = New Point(6, 29)
-        Label3.Name = "Label3"
-        Label3.Size = New Size(163, 34)
-        Label3.TabIndex = 6
-        Label3.Text = "wti 78$ -5% today" & vbCrLf & "platinum 76€ +3% today" & vbCrLf
-        ' 
-        ' Label2
-        ' 
-        Label2.AutoSize = True
-        Label2.Location = New Point(3, 3)
-        Label2.Name = "Label2"
-        Label2.Size = New Size(271, 17)
-        Label2.TabIndex = 5
-        Label2.Text = "sp500: 5650, trend: 5300, <red> diff: 5.6%"
-        ' 
-        ' Label1
-        ' 
-        Label1.AutoSize = True
-        Label1.ForeColor = Color.White
-        Label1.Location = New Point(3, 105)
-        Label1.Name = "Label1"
-        Label1.Size = New Size(186, 17)
-        Label1.TabIndex = 2
-        Label1.Text = "data fetch from trading view"
-        ' 
         ' TopPanel
         ' 
         TopPanel.BackColor = Color.FromArgb(CByte(12), CByte(12), CByte(12))
@@ -278,7 +303,7 @@ Partial Class FrmMain
         ' 
         ' MainMenuStrip
         ' 
-        MainMenuStrip.Items.AddRange(New ToolStripItem() {TradesToolStripMenuItem, ManualActionsToolStripMenuItem})
+        MainMenuStrip.Items.AddRange(New ToolStripItem() {TradesToolStripMenuItem, ManualActionsToolStripMenuItem, SimulationToolStripMenuItem})
         MainMenuStrip.Location = New Point(0, 0)
         MainMenuStrip.Name = "MainMenuStrip"
         MainMenuStrip.Size = New Size(742, 24)
@@ -295,7 +320,7 @@ Partial Class FrmMain
         ' ShowAllToolStripMenuItem
         ' 
         ShowAllToolStripMenuItem.Name = "ShowAllToolStripMenuItem"
-        ShowAllToolStripMenuItem.Size = New Size(117, 22)
+        ShowAllToolStripMenuItem.Size = New Size(180, 22)
         ShowAllToolStripMenuItem.Text = "show all"
         ' 
         ' ManualActionsToolStripMenuItem
@@ -326,28 +351,18 @@ Partial Class FrmMain
         TmerAutoStart.Enabled = True
         TmerAutoStart.Interval = 5000
         ' 
-        ' Panel1
+        ' SimulationToolStripMenuItem
         ' 
-        Panel1.Controls.Add(ListBoxEvents)
-        Panel1.Controls.Add(Label2)
-        Panel1.Controls.Add(Label3)
-        Panel1.Controls.Add(Label1)
-        Panel1.Dock = DockStyle.Fill
-        Panel1.Location = New Point(462, 0)
-        Panel1.Name = "Panel1"
-        Panel1.Size = New Size(280, 239)
-        Panel1.TabIndex = 8
+        SimulationToolStripMenuItem.DropDownItems.AddRange(New ToolStripItem() {RunToolStripMenuItem})
+        SimulationToolStripMenuItem.Name = "SimulationToolStripMenuItem"
+        SimulationToolStripMenuItem.Size = New Size(76, 20)
+        SimulationToolStripMenuItem.Text = "Simulation"
         ' 
-        ' ListBoxEvents
+        ' RunToolStripMenuItem
         ' 
-        ListBoxEvents.Dock = DockStyle.Bottom
-        ListBoxEvents.Font = New Font("Cambria", 14.25F, FontStyle.Regular, GraphicsUnit.Point, CByte(0))
-        ListBoxEvents.FormattingEnabled = True
-        ListBoxEvents.ItemHeight = 22
-        ListBoxEvents.Location = New Point(0, 125)
-        ListBoxEvents.Name = "ListBoxEvents"
-        ListBoxEvents.Size = New Size(280, 114)
-        ListBoxEvents.TabIndex = 4
+        RunToolStripMenuItem.Name = "RunToolStripMenuItem"
+        RunToolStripMenuItem.Size = New Size(180, 22)
+        RunToolStripMenuItem.Text = "run"
         ' 
         ' FrmMain
         ' 
@@ -374,14 +389,14 @@ Partial Class FrmMain
         CType(PictureLedGreenOn, ComponentModel.ISupportInitialize).EndInit()
         CType(DataGridViewAssetPrices, ComponentModel.ISupportInitialize).EndInit()
         BottomPanel.ResumeLayout(False)
+        Panel1.ResumeLayout(False)
+        Panel1.PerformLayout()
         PanelTrades.ResumeLayout(False)
         PanelTrades.PerformLayout()
         TopPanel.ResumeLayout(False)
         TopPanel.PerformLayout()
         MainMenuStrip.ResumeLayout(False)
         MainMenuStrip.PerformLayout()
-        Panel1.ResumeLayout(False)
-        Panel1.PerformLayout()
         ResumeLayout(False)
         PerformLayout()
     End Sub
@@ -419,5 +434,7 @@ Partial Class FrmMain
     Friend WithEvents DegiroScanToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents Panel1 As Panel
     Friend WithEvents ListBoxEvents As ListBox
+    Friend WithEvents SimulationToolStripMenuItem As ToolStripMenuItem
+    Friend WithEvents RunToolStripMenuItem As ToolStripMenuItem
 
 End Class

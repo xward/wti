@@ -220,6 +220,28 @@ Module Structures
         Dim dat As Date
     End Structure
 
+    Public Function serializeAssetPrice(price As AssetPrice) As String
+        Return price.dat.Day.ToString("00") & price.dat.Month.ToString("00") & price.dat.Year.ToString.Substring(2) & " " &
+            price.dat.Hour.ToString("00") & price.dat.Minute.ToString("00") & price.dat.Second.ToString("00") & "|" & price.price
+    End Function
+
+    Public Function deserializeAssetPrice(asset As AssetInfos, s As String) As AssetPrice
+        Dim split As String() = s.Split("|")
+
+        Dim datChunk As String = split.ElementAt(0)
+
+        'dbg.info(datChunk)
+        Dim dat As Date = Date.Parse(datChunk.Substring(2, 2) & "/" & datChunk.Substring(0, 2) & "/" & datChunk.Substring(4, 2) & " " & datChunk.Substring(7, 2) & ":" & datChunk.Substring(9, 2) & ":" & datChunk.Substring(11, 2))
+
+        'dbg.info(dat.ToString)
+
+        ' 030924 070639|29.09
+        Return New AssetPrice With {
+            .ticker = asset.ticker,
+            .price = Double.Parse(split.ElementAt(1))
+            }
+    End Function
+
     Public Structure AssetInfos
         ' if etf
         Dim ISIN As String

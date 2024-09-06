@@ -38,3 +38,7 @@ si last week ca a sur-performé -> vend une partie du capital
 si last week montée normal -> place ordre moyen
 si last week descendu -> plus order +fort
 
+
+
+
+https://www.aryatrading.com/blog/quel-est-l-impact-du-nfp-sur-le-marche-boursier

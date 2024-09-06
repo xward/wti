@@ -10,4 +10,26 @@
     ' detect major crise: 45% value loss in X temps
 
     ' fetch/update historique data long game
+
+
+
+
+    Public Sub simulateStupidAlgo()
+        Dim asset As AssetInfos = assetInfo("3USL")
+
+
+        status = StatusEnum.SIMU
+
+        While status = StatusEnum.SIMU And TradingView.SIMU_setNext(asset)
+
+            ''' DECISION
+
+
+            ''' 
+            Degiro.SIMU_updateAll()
+        End While
+
+        ' repeat !
+    End Sub
+
 End Module

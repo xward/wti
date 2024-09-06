@@ -1,5 +1,6 @@
 ﻿Imports System.Runtime.InteropServices
 Imports System.Windows.Forms.VisualStyles.VisualStyleElement.Tab
+Imports WorstTradingInitiative.CST.CST
 
 Public Class FrmMain
     ' // show asset prices
@@ -29,12 +30,17 @@ Public Class FrmMain
     'set to nothing if nothing to do at start is running compiled
     Dim ACTION_AT_AUTO_START As String = "COLLECT"
 
+    ' to test algos, replay market data and use a fake degiro broker
+    Public SIMU_MODE As Boolean = True And CST.HOST_NAME = hostNameEnum.GALACTICA
+
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         CST.init()
 
-        Degiro.loadPastData()
+        If Not SIMU_MODE Then Degiro.loadPastData()
 
-        'fake data
+        If SIMU_MODE Then Degiro.SIMU_init()
+
+        'fake data for display debugging
         If Not CST.COMPILED And status = StatusEnum.OFFLINE And False Then
             Degiro.createFakeData()
         End If
@@ -169,5 +175,9 @@ Public Class FrmMain
 
         Degiro.updateAll()
         Degiro.updateTradePanelUI()
+    End Sub
+
+    Private Sub RunToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles RunToolStripMenuItem.Click
+        simulateStupidAlgo()
     End Sub
 End Class
