@@ -31,14 +31,13 @@ Public Class FrmMain
     Dim ACTION_AT_AUTO_START As String = "COLLECT"
 
     ' to test algos, replay market data and use a fake degiro broker
-    Public SIMU_MODE As Boolean = True And CST.HOST_NAME = hostNameEnum.GALACTICA
+    Public SIMU_MODE As Boolean = False
 
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         CST.init()
 
-        If Not SIMU_MODE Then Degiro.loadPastData()
+        Degiro.loadPastData()
 
-        If SIMU_MODE Then Degiro.SIMU_init()
 
         'fake data for display debugging
         If Not CST.COMPILED And status = StatusEnum.OFFLINE And False Then

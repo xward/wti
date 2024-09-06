@@ -55,10 +55,10 @@ Partial Class FrmMain
         ManualActionsToolStripMenuItem = New ToolStripMenuItem()
         TestMeToolStripMenuItem = New ToolStripMenuItem()
         DegiroScanToolStripMenuItem = New ToolStripMenuItem()
-        TmerKeyIput = New Timer(components)
-        TmerAutoStart = New Timer(components)
         SimulationToolStripMenuItem = New ToolStripMenuItem()
         RunToolStripMenuItem = New ToolStripMenuItem()
+        TmerKeyIput = New Timer(components)
+        TmerAutoStart = New Timer(components)
         StatusStrip.SuspendLayout()
         CType(PictureLedRedOff, ComponentModel.ISupportInitialize).BeginInit()
         CType(PictureLedRedOn, ComponentModel.ISupportInitialize).BeginInit()
@@ -320,7 +320,7 @@ Partial Class FrmMain
         ' ShowAllToolStripMenuItem
         ' 
         ShowAllToolStripMenuItem.Name = "ShowAllToolStripMenuItem"
-        ShowAllToolStripMenuItem.Size = New Size(180, 22)
+        ShowAllToolStripMenuItem.Size = New Size(117, 22)
         ShowAllToolStripMenuItem.Text = "show all"
         ' 
         ' ManualActionsToolStripMenuItem
@@ -342,15 +342,6 @@ Partial Class FrmMain
         DegiroScanToolStripMenuItem.Size = New Size(135, 22)
         DegiroScanToolStripMenuItem.Text = "degiro scan"
         ' 
-        ' TmerKeyIput
-        ' 
-        TmerKeyIput.Enabled = True
-        ' 
-        ' TmerAutoStart
-        ' 
-        TmerAutoStart.Enabled = True
-        TmerAutoStart.Interval = 5000
-        ' 
         ' SimulationToolStripMenuItem
         ' 
         SimulationToolStripMenuItem.DropDownItems.AddRange(New ToolStripItem() {RunToolStripMenuItem})
@@ -362,7 +353,16 @@ Partial Class FrmMain
         ' 
         RunToolStripMenuItem.Name = "RunToolStripMenuItem"
         RunToolStripMenuItem.Size = New Size(180, 22)
-        RunToolStripMenuItem.Text = "run"
+        RunToolStripMenuItem.Text = "run sp500"
+        ' 
+        ' TmerKeyIput
+        ' 
+        TmerKeyIput.Enabled = True
+        ' 
+        ' TmerAutoStart
+        ' 
+        TmerAutoStart.Enabled = True
+        TmerAutoStart.Interval = 5000
         ' 
         ' FrmMain
         ' 

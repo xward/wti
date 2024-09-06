@@ -222,7 +222,7 @@ Module Structures
 
     Public Function serializeAssetPrice(price As AssetPrice) As String
         Return price.dat.Day.ToString("00") & price.dat.Month.ToString("00") & price.dat.Year.ToString.Substring(2) & " " &
-            price.dat.Hour.ToString("00") & price.dat.Minute.ToString("00") & price.dat.Second.ToString("00") & "|" & price.price
+            price.dat.Hour.ToString("00") & price.dat.Minute.ToString("00") & price.dat.Second.ToString("00") & "|" & price.price & "|" & price.todayChangePerc
     End Function
 
     Public Function deserializeAssetPrice(asset As AssetInfos, s As String) As AssetPrice
@@ -230,16 +230,19 @@ Module Structures
 
         Dim datChunk As String = split.ElementAt(0)
 
-        '  dbg.info(datChunk)
+        dbg.info(datChunk)
         Dim dat As Date = Date.Parse(datChunk.Substring(2, 2) & "/" & datChunk.Substring(0, 2) & "/20" & datChunk.Substring(4, 2) & " " & datChunk.Substring(7, 2) & ":" & datChunk.Substring(9, 2) & ":" & datChunk.Substring(11, 2))
 
         '  dbg.info(dat.ToString)
 
         ' 030924 070639|29.09
+        ' 030924 070639|29.09|4.5
+
         Return New AssetPrice With {
             .ticker = asset.ticker,
             .price = Double.Parse(split.ElementAt(1)),
-            .dat = dat
+            .dat = dat,
+            .todayChangePerc = ((split.Count = 3) AndAlso Double.Parse(split.ElementAt(2))) Or 0
             }
     End Function
 

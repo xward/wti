@@ -29,7 +29,16 @@ Namespace Degiro
 
 
         Private SIMU_spread As Double = 0.015
+        Private SIMU_fee As Double = 3
+
         Public Sub SIMU_init()
+            orders.Clear()
+            positions.Clear()
+            transactions.Clear()
+            previousTransactions.Clear()
+            trades.Clear()
+            previousTrades.Clear()
+
             accountTotalMoula = 10000
             accountPositionsMoula = 0
             accountCashMoula = 10000
@@ -42,25 +51,22 @@ Namespace Degiro
         End Sub
 
         Public Sub SIMU_updateAll()
-
-            ' from transaction create position
-            ' log achat/vente
-
             Dim executedOrders As New List(Of DegiroOrder)
+
+            ' accountPositionsMoula marche pas, il faudrait l' update =f(positions)
+
 
             For Each o As DegiroOrder In orders
                 Dim price As AssetPrice = TradingView.getPrice(assetInfo(o.ticker))
 
                 If price.price = 0 Then dbg.fail("SIMU: No price found for " & o.ticker)
 
-
-
                 Select Case o.orderAction
                     Case "Vente"
                         If o.limit <> 0 And price.price > o.limit Then
-                            accountTotalMoula += o.limit * o.quantity - 3
+                            accountTotalMoula += o.limit * o.quantity - SIMU_fee
                             accountPositionsMoula -= o.limit * o.quantity
-                            accountCashMoula += o.limit * o.quantity - 3
+                            accountCashMoula += o.limit * o.quantity - SIMU_fee
 
                             executedOrders.Add(o)
 
@@ -69,7 +75,7 @@ Namespace Degiro
                                 .action = "Vente",
                                 .quantity = o.quantity,
                                 .dat = Date.UtcNow,
-                                .fee = 3,
+                                .fee = SIMU_fee,
                                 .isin = assetInfo(o.ticker).ISIN,
                                 .pru = o.limit
                             }
@@ -81,9 +87,9 @@ Namespace Degiro
                             positions.Clear()
 
                         ElseIf o.stopPrice <> 0 And price.price < o.stopPrice Then
-                            accountTotalMoula += o.stopPrice * o.quantity - 3
+                            accountTotalMoula += o.stopPrice * o.quantity - SIMU_fee
                             accountPositionsMoula -= o.stopPrice * o.quantity
-                            accountCashMoula += o.stopPrice * o.quantity - 3
+                            accountCashMoula += o.stopPrice * o.quantity - SIMU_fee
 
                             executedOrders.Add(o)
 
@@ -92,7 +98,7 @@ Namespace Degiro
                                 .action = "Vente",
                                 .quantity = o.quantity,
                                 .dat = Date.UtcNow,
-                                .fee = 3,
+                                .fee = SIMU_fee,
                                 .isin = assetInfo(o.ticker).ISIN,
                                 .pru = o.stopPrice
                             }
@@ -106,9 +112,9 @@ Namespace Degiro
 
                     Case "Achat"
                         If o.limit <> 0 And price.price < o.limit Then
-                            accountTotalMoula -= o.limit * o.quantity * (1 + SIMU_spread) + 3
+                            accountTotalMoula -= o.limit * o.quantity * (1 + SIMU_spread) + SIMU_fee
                             accountPositionsMoula += o.limit * o.quantity
-                            accountCashMoula -= o.limit * o.quantity * (1 + SIMU_spread) + 3
+                            accountCashMoula -= o.limit * o.quantity * (1 + SIMU_spread) + SIMU_fee
 
                             executedOrders.Add(o)
 
@@ -117,7 +123,7 @@ Namespace Degiro
                                 .action = "Achat",
                                 .quantity = o.quantity,
                                 .dat = Date.UtcNow,
-                                .fee = 3,
+                                .fee = SIMU_fee,
                                 .isin = assetInfo(o.ticker).ISIN,
                                 .pru = o.limit * (1 + SIMU_spread)
                             }
@@ -133,12 +139,10 @@ Namespace Degiro
                                .currentTotalValue = o.limit * o.quantity
                                })
 
-
-
                         ElseIf o.stopPrice <> 0 And price.price > o.stopPrice Then
-                            accountTotalMoula -= o.stopPrice * o.quantity * (1 + SIMU_spread) + 3
+                            accountTotalMoula -= o.stopPrice * o.quantity * (1 + SIMU_spread) + SIMU_fee
                             accountPositionsMoula += o.stopPrice * o.quantity
-                            accountCashMoula -= o.stopPrice * o.quantity * (1 + SIMU_spread) + 3
+                            accountCashMoula -= o.stopPrice * o.quantity * (1 + SIMU_spread) + SIMU_fee
 
                             executedOrders.Add(o)
 
@@ -147,7 +151,7 @@ Namespace Degiro
                                 .action = "Achat",
                                 .quantity = o.quantity,
                                 .dat = Date.UtcNow,
-                                .fee = 3,
+                                .fee = SIMU_fee,
                                 .isin = assetInfo(o.ticker).ISIN,
                                 .pru = o.stopPrice * (1 + SIMU_spread)
                             }
@@ -175,7 +179,7 @@ Namespace Degiro
 
             accountWinLooseMoula = accountTotalMoula - 10000
 
-            produceTradesStructuresFromEverything()
+            ' produceTradesStructuresFromEverything()
 
         End Sub
 
@@ -934,7 +938,7 @@ Namespace Degiro
             'LIMIT_SELL 4FFA q21 pru18.1 limit21 cur19.3 4.6% away
             'POSITION 2FA q5 pru12 cur8.5
             'COMPLETED 3OIL q12 pru51.2 -5.1% -543.32€ 2h ago
-
+            Application.DoEvents()
         End Sub
 
 

@@ -11,11 +11,16 @@
 
     ' fetch/update historique data long game
 
-
+    ' ecart avec trend
+    ' stable depuis 2h?
+    ' ca vient de chuter
 
 
     Public Sub simulateStupidAlgo()
+        FrmMain.SIMU_MODE = True
+
         dbg.info("STARTIN SIMULATION")
+        Degiro.SIMU_init()
 
         Dim asset As AssetInfos = assetInfo("3USL")
 
@@ -23,6 +28,8 @@
 
 
         status = StatusEnum.SIMU
+
+        Dim resoldOrder As Boolean = False
 
         While status = StatusEnum.SIMU And TradingView.SIMU_setNext(asset)
 
@@ -34,7 +41,8 @@
             '    Degiro.SIMU_placeOrUpdateOrder(asset.ticker, 5, "Achat", 86, Nothing)
             'End If
 
-            If Degiro.orders.Count = 0 Then
+            If Degiro.orders.Count = 0 And Not (resoldOrder) Then
+                resoldOrder = True
                 Degiro.SIMU_placeOrUpdateOrder(asset.ticker, 5, "Vente", 89, Nothing)
             End If
 
@@ -51,6 +59,7 @@
 
         dbg.info("simu completed")
         status = StatusEnum.OFFLINE
+        FrmMain.SIMU_MODE = False
     End Sub
 
 End Module
