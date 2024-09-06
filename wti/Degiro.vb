@@ -661,7 +661,7 @@ Namespace Degiro
 
 
             ' ----------------------------------------------------------------------------------------------------------
-            ' PROCESS BUY DONE
+            ' PROCESS BUY DONE - NO SELL YET - WITH ORDER EXIST
 
 
             ' all transactions belongs to transaction with no trade completed

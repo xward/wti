@@ -21,10 +21,8 @@ Public Class FrmMain
 
     ' --------------------------------------------------------------------------------------------------------
 
-    ' move slack CST Edge to core
     ' move FrmMain to frm folder
     ' split structure
-    ' wti/marketDataFetch folder create, move Ester, TradingView
 
     ' --------------------------------------------------------------------------------------------------------
 
