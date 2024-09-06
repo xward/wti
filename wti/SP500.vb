@@ -11,9 +11,9 @@
 
     ' fetch/update historique data long game
 
-    ' ecart avec trend
-    ' stable depuis 2h?
-    ' ca vient de chuter
+    ' 3. ecart avec trend
+    ' 2. stable depuis 2h?
+    ' 1. ca vient de chuter de x% en y temps
 
 
     ' fake degiro lack: a bit of refacto

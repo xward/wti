@@ -4,10 +4,12 @@ Imports WorstTradingInitiative.CST.CST
 
 Public Class FrmMain
     ' // show asset prices
-    ' orders, position, transaction, merged as trade
-    ' show trades, with current price, how far I am
+    ' // orders, position, transaction, merged as trade
+    ' // show trades, with current price, how far I am
 
-    ' replay simulation, place fake order, fetch fake order/position/transaction, output results to file
+    ' // replay simulation, place fake order, fetch fake order/position/transaction, output results to file
+    ' live visual graphs 3mo+5d
+    ' analyze pattern tools (chute, stable ...)
     ' implem 4%/1.5% algo with
 
     ' place sell order, update order, delete order
@@ -61,7 +63,10 @@ Public Class FrmMain
         Me.Top = 0
         If fullScreenMode Then Me.Left = Edge.edgeWindowRect.Width - 15 Else Me.Left = CST.SCREEN.Width - Me.Width
         If fullScreenMode Then Me.Width = CST.SCREEN.Width - Me.Left
-        If fullScreenMode Then Me.Height = CST.SCREEN.Height
+        Me.Height = CST.SCREEN.Height
+
+
+        PanelGraphTop.Height = TopPanel.Height / 2
 
         ' auto start
         If IsNothing(ACTION_AT_AUTO_START) Or Not CST.COMPILED Then
