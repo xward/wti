@@ -45,7 +45,6 @@ Partial Class FrmMain
         LblActiveTrades = New Label()
         Label3 = New Label()
         Label2 = New Label()
-        ListBox1 = New ListBox()
         Label1 = New Label()
         TopPanel = New Panel()
         MainMenuStrip = New MenuStrip()
@@ -56,6 +55,8 @@ Partial Class FrmMain
         DegiroScanToolStripMenuItem = New ToolStripMenuItem()
         TmerKeyIput = New Timer(components)
         TmerAutoStart = New Timer(components)
+        Panel1 = New Panel()
+        ListBoxEvents = New ListBox()
         StatusStrip.SuspendLayout()
         CType(PictureLedRedOff, ComponentModel.ISupportInitialize).BeginInit()
         CType(PictureLedRedOn, ComponentModel.ISupportInitialize).BeginInit()
@@ -66,6 +67,7 @@ Partial Class FrmMain
         PanelTrades.SuspendLayout()
         TopPanel.SuspendLayout()
         MainMenuStrip.SuspendLayout()
+        Panel1.SuspendLayout()
         SuspendLayout()
         ' 
         ' TmrUI
@@ -207,11 +209,8 @@ Partial Class FrmMain
         ' 
         ' BottomPanel
         ' 
+        BottomPanel.Controls.Add(Panel1)
         BottomPanel.Controls.Add(PanelTrades)
-        BottomPanel.Controls.Add(Label3)
-        BottomPanel.Controls.Add(Label2)
-        BottomPanel.Controls.Add(ListBox1)
-        BottomPanel.Controls.Add(Label1)
         BottomPanel.Dock = DockStyle.Bottom
         BottomPanel.ForeColor = Color.White
         BottomPanel.Location = New Point(0, 483)
@@ -242,7 +241,7 @@ Partial Class FrmMain
         ' Label3
         ' 
         Label3.AutoSize = True
-        Label3.Location = New Point(468, 30)
+        Label3.Location = New Point(6, 29)
         Label3.Name = "Label3"
         Label3.Size = New Size(163, 34)
         Label3.TabIndex = 6
@@ -251,26 +250,17 @@ Partial Class FrmMain
         ' Label2
         ' 
         Label2.AutoSize = True
-        Label2.Location = New Point(468, 3)
+        Label2.Location = New Point(3, 3)
         Label2.Name = "Label2"
         Label2.Size = New Size(271, 17)
         Label2.TabIndex = 5
         Label2.Text = "sp500: 5650, trend: 5300, <red> diff: 5.6%"
         ' 
-        ' ListBox1
-        ' 
-        ListBox1.FormattingEnabled = True
-        ListBox1.ItemHeight = 17
-        ListBox1.Location = New Point(468, 117)
-        ListBox1.Name = "ListBox1"
-        ListBox1.Size = New Size(271, 106)
-        ListBox1.TabIndex = 3
-        ' 
         ' Label1
         ' 
         Label1.AutoSize = True
         Label1.ForeColor = Color.White
-        Label1.Location = New Point(468, 97)
+        Label1.Location = New Point(3, 105)
         Label1.Name = "Label1"
         Label1.Size = New Size(186, 17)
         Label1.TabIndex = 2
@@ -318,13 +308,13 @@ Partial Class FrmMain
         ' TestMeToolStripMenuItem
         ' 
         TestMeToolStripMenuItem.Name = "TestMeToolStripMenuItem"
-        TestMeToolStripMenuItem.Size = New Size(180, 22)
+        TestMeToolStripMenuItem.Size = New Size(135, 22)
         TestMeToolStripMenuItem.Text = "test me"
         ' 
         ' DegiroScanToolStripMenuItem
         ' 
         DegiroScanToolStripMenuItem.Name = "DegiroScanToolStripMenuItem"
-        DegiroScanToolStripMenuItem.Size = New Size(180, 22)
+        DegiroScanToolStripMenuItem.Size = New Size(135, 22)
         DegiroScanToolStripMenuItem.Text = "degiro scan"
         ' 
         ' TmerKeyIput
@@ -335,6 +325,29 @@ Partial Class FrmMain
         ' 
         TmerAutoStart.Enabled = True
         TmerAutoStart.Interval = 5000
+        ' 
+        ' Panel1
+        ' 
+        Panel1.Controls.Add(ListBoxEvents)
+        Panel1.Controls.Add(Label2)
+        Panel1.Controls.Add(Label3)
+        Panel1.Controls.Add(Label1)
+        Panel1.Dock = DockStyle.Fill
+        Panel1.Location = New Point(462, 0)
+        Panel1.Name = "Panel1"
+        Panel1.Size = New Size(280, 239)
+        Panel1.TabIndex = 8
+        ' 
+        ' ListBoxEvents
+        ' 
+        ListBoxEvents.Dock = DockStyle.Bottom
+        ListBoxEvents.Font = New Font("Cambria", 14.25F, FontStyle.Regular, GraphicsUnit.Point, CByte(0))
+        ListBoxEvents.FormattingEnabled = True
+        ListBoxEvents.ItemHeight = 22
+        ListBoxEvents.Location = New Point(0, 125)
+        ListBoxEvents.Name = "ListBoxEvents"
+        ListBoxEvents.Size = New Size(280, 114)
+        ListBoxEvents.TabIndex = 4
         ' 
         ' FrmMain
         ' 
@@ -361,13 +374,14 @@ Partial Class FrmMain
         CType(PictureLedGreenOn, ComponentModel.ISupportInitialize).EndInit()
         CType(DataGridViewAssetPrices, ComponentModel.ISupportInitialize).EndInit()
         BottomPanel.ResumeLayout(False)
-        BottomPanel.PerformLayout()
         PanelTrades.ResumeLayout(False)
         PanelTrades.PerformLayout()
         TopPanel.ResumeLayout(False)
         TopPanel.PerformLayout()
         MainMenuStrip.ResumeLayout(False)
         MainMenuStrip.PerformLayout()
+        Panel1.ResumeLayout(False)
+        Panel1.PerformLayout()
         ResumeLayout(False)
         PerformLayout()
     End Sub
@@ -392,7 +406,6 @@ Partial Class FrmMain
     Friend WithEvents runType As ToolStripStatusLabel
     Friend WithEvents TmerAutoStart As Timer
     Friend WithEvents ToolStripStatusSays As ToolStripStatusLabel
-    Friend WithEvents ListBox1 As ListBox
     Friend WithEvents Label1 As Label
     Friend WithEvents Label3 As Label
     Friend WithEvents Label2 As Label
@@ -404,5 +417,7 @@ Partial Class FrmMain
     Friend WithEvents ManualActionsToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents TestMeToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents DegiroScanToolStripMenuItem As ToolStripMenuItem
+    Friend WithEvents Panel1 As Panel
+    Friend WithEvents ListBoxEvents As ListBox
 
 End Class

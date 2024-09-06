@@ -87,11 +87,11 @@ Module TradingView
         Dim line As String = price.dat.Day.ToString("00") & price.dat.Month.ToString("00") & price.dat.Year.ToString.Substring(2) & " " &
             price.dat.Hour.ToString("00") & price.dat.Minute.ToString("00") & price.dat.Second.ToString("00") & "|" & price.price & vbCrLf
 
-        FrmMain.ListBox1.Items.Add(infos.ticker & " " & line)
-        FrmMain.ListBox1.SelectedIndex = FrmMain.ListBox1.Items.Count - 1
+        FrmMain.ListBoxEvents.Items.Add(infos.ticker & " " & line)
+        FrmMain.ListBoxEvents.SelectedIndex = FrmMain.ListBoxEvents.Items.Count - 1
 
-        If FrmMain.ListBox1.Items.Count > 30 Then
-            FrmMain.ListBox1.Items.RemoveAt(0)
+        If FrmMain.ListBoxEvents.Items.Count > 30 Then
+            FrmMain.ListBoxEvents.Items.RemoveAt(0)
         End If
 
         If File.Exists(fileName) Then
