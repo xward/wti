@@ -34,6 +34,11 @@ Public Class FrmMain
 
         Degiro.loadPastData()
 
+        'fake data
+        If Not CST.COMPILED And status = StatusEnum.OFFLINE And False Then
+            Degiro.createFakeData()
+        End If
+
         ' Edge init
         Edge.ensureRunning()
         Edge.printAllEdge()
@@ -43,41 +48,44 @@ Public Class FrmMain
         esterLabel.Text = "ester: " & Ester.rate
 
         initUI()
+
     End Sub
 
     Public Sub initUI()
         If CST.COMPILED Then runType.Text = "RUN" Else runType.Text = "DEBUG"
 
-
         Dim fullScreenMode As Boolean = CST.COMPILED
 
         ' Me
         Me.Top = 0
-
-        If fullScreenMode Then
-            Me.Left = Edge.edgeWindowRect.Width - 15
-        Else
-            Me.Left = CST.SCREEN.Width - Me.Width
-        End If
-
+        If fullScreenMode Then Me.Left = Edge.edgeWindowRect.Width - 15 Else Me.Left = CST.SCREEN.Width - Me.Width
         If fullScreenMode Then Me.Width = CST.SCREEN.Width - Me.Left
-
-        ' 32 on galactica
         If fullScreenMode Then Me.Height = CST.SCREEN.Height
 
-
+        ' auto start
         If IsNothing(ACTION_AT_AUTO_START) Or Not CST.COMPILED Then
-            LblSay.Text = ""
+            ToolStripStatusSays.Text = ""
         Else
             statusLed.BackgroundImage = PictureLedGreenOn.Image
-            LblSay.Text = "About to auto-start with action " & ACTION_AT_AUTO_START
+            ToolStripStatusSays.Text = "About to auto-start with action " & ACTION_AT_AUTO_START
         End If
 
+        Degiro.updateTradePanelUI()
+    End Sub
+
+    Private Sub TmerKeyIput_Tick(sender As Object, e As EventArgs) Handles TmerKeyIput.Tick
+        If GetAsyncKeyState(Keys.F2) And My.Computer.Keyboard.CtrlKeyDown Then
+            status = StatusEnum.COLLECT
+        End If
+        If GetAsyncKeyState(Keys.F3) And My.Computer.Keyboard.CtrlKeyDown Then
+            status = StatusEnum.OFFLINE
+            'prevent auto start at boot
+            TmerAutoStart.Enabled = False
+        End If
     End Sub
 
     Private Sub TmerAutoStart_Tick(sender As Object, e As EventArgs) Handles TmerAutoStart.Tick
         If CST.COMPILED Then status = StatusEnum.COLLECT
-
         TmerAutoStart.Enabled = False
     End Sub
 
@@ -89,7 +97,7 @@ Public Class FrmMain
         assetInfo("3USL")
     }
 
-    Private Sub Timer1_Tick(sender As Object, e As EventArgs) Handles TmrUI.Tick
+    Private Sub TmrUI_Tick(sender As Object, e As EventArgs) Handles TmrUI.Tick
         If statusLabel.Text <> status.ToString Then statusLabel.Text = status.ToString
 
         Select Case status
@@ -113,7 +121,7 @@ Public Class FrmMain
 
             Label1.Text = "next price update " & (5 - diff) & " secs"
 
-            If diff >= 5 Then
+            If diff >= 5 And False Then
                 TmrUI.Enabled = False
                 Label1.Text = "updating ..."
                 dbg.info("updating prices from trading view ...")
@@ -136,48 +144,30 @@ Public Class FrmMain
     End Sub
 
 
-    Private Sub BtnTest_Click(sender As Object, e As EventArgs) Handles BtnTest.Click
-        ' Degiro.updateAll()
+    ' ------------------------------------------------------------------------------------------------------
+    ' Utils
+    <DllImport("user32.dll")>
+    Public Shared Function GetAsyncKeyState(ByVal vKey As System.Windows.Forms.Keys) As Short
+    End Function
 
-        ' Edge.bringToFront()
-        '  Edge.switchTab("3OIL")
 
+    Private Sub TestMeToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles TestMeToolStripMenuItem.Click
         fetchPrice(assetsToTrack)
-        'Degiro.setupWindows()
-        'Edge.createTab("ddg.gg", Edge.OpenModeEnum.AS_WINDOW)
-        'Edge.createTabIfNotExist("youtube", "https://www.youtube.com/", Edge.OpenModeEnum.AS_WINDOW, New Rectangle(3, 3, 500, 500))
     End Sub
 
-    Private Sub Timer1_Tick_1(sender As Object, e As EventArgs) Handles TmerKeyIput.Tick
-        If GetAsyncKeyState(Keys.F2) And GetAsyncKeyState(Keys.ControlKey) Then
-            status = StatusEnum.COLLECT
-        End If
-        If GetAsyncKeyState(Keys.F3) And GetAsyncKeyState(Keys.ControlKey) Then
-            status = StatusEnum.OFFLINE
-            'prevent auto start at boot
-            TmerAutoStart.Enabled = False
-        End If
-    End Sub
 
-    Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
-        Edge.switchTab(Edge.TabEnum.DEGIRO_TRANSACTIONS)
-        Dim body As String = KMOut.selectAllCopy()
+    Private Sub DegiroScanToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles DegiroScanToolStripMenuItem.Click
+        'Edge.switchTab(Edge.TabEnum.DEGIRO_TRANSACTIONS)
+        'Dim body As String = KMOut.selectAllCopy()
 
-        Degiro.updateTransactions(body)
+        'Degiro.updateTransactions(body)
 
 
         'Degiro.updateAccountDataFromBody(body)
         'Degiro.updatePositions(body)
 
 
-
-
-        ' Degiro.updateAll()
+        Degiro.updateAll()
+        Degiro.updateTradePanelUI()
     End Sub
-
-    ' ------------------------------------------------------------------------------------------------------
-    ' Utils
-    <DllImport("user32.dll")>
-    Public Shared Function GetAsyncKeyState(ByVal vKey As System.Windows.Forms.Keys) As Short
-    End Function
 End Class

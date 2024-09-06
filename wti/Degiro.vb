@@ -24,23 +24,6 @@ Namespace Degiro
 
         Public lastUpdate As Date
 
-
-        Public Function cloneTransactionList(transactions As List(Of DegiroTransaction))
-            Dim ret As New List(Of DegiroTransaction)
-            For Each t In transactions
-                ret.Add(t)
-            Next
-            Return ret
-        End Function
-
-        Public Function cloneTradeList(transactions As List(Of DegiroTrade))
-            Dim ret As New List(Of DegiroTrade)
-            For Each t In transactions
-                ret.Add(t)
-            Next
-            Return ret
-        End Function
-
         Public Sub loadPastFromFiles()
             ' load all transactions without being in a completed trade
             previousTransactions = transactionsFromFiles()
@@ -89,6 +72,7 @@ Namespace Degiro
             lastUpdate = Date.UtcNow()
 
             dbg.info("Updated degiro data within " & Math.Round(Date.UtcNow.Subtract(start).TotalMilliseconds) & "ms")
+
         End Sub
 
 
@@ -166,7 +150,7 @@ Namespace Degiro
             For Each l As String In body.Split(vbCrLf)
                 If Not l.Contains(" | ") Then Continue For
 
-                Dim split As List(Of String) = splitLine(l)
+                Dim split As List(Of String) = splitTableLine(l)
 
                 ' printListOfString(split)
                 If split.Count <> 14 Then Continue For
@@ -177,7 +161,7 @@ Namespace Degiro
                                   .ticker = split.ElementAt(0),
                                   .isin = split.ElementAt(2),
                                   .quantity = Integer.Parse(split.ElementAt(3)),
-                                  .totalValue = parseMoney(split.ElementAt(6)),
+                                  .currentTotalValue = parseMoney(split.ElementAt(6)),
                                   .pru = parseMoney(split.ElementAt(7))
                                   }
 
@@ -270,7 +254,7 @@ Namespace Degiro
             For Each l As String In body.Split(vbCrLf)
                 If Not l.Contains(" | ") Then Continue For
 
-                Dim split As List(Of String) = splitLine(l)
+                Dim split As List(Of String) = splitTableLine(l)
 
                 'printListOfString(split)
                 If split.Count <> 13 Then Continue For
@@ -362,11 +346,6 @@ Namespace Degiro
 
 
 
-
-
-        ' updateOrders as boolean
-        ' updatePositions as boolean
-
         ' placeOrder(name, amount, type as Enum of limit/stoploss/stopbuy) as Order  where name is in a know value from enum, then we will find isin, and degiro id number
 
         ' cancelOrder(order as Order) as boolean 
@@ -376,21 +355,6 @@ Namespace Degiro
         ' ==========================================================================================================
 
         ' transactions
-
-        Public Function splitLine(l As String) As List(Of String)
-            l = l.Replace("$", "").Replace("€", "").Trim
-            Dim tmpSplit As String() = l.Split({" ", "	"}, StringSplitOptions.None)
-            Dim split As New List(Of String)
-            For Each s As String In tmpSplit
-                If s.Trim.Length > 0 Then split.Add(s)
-            Next
-            Return split
-        End Function
-
-        Public Sub printListOfString(l As List(Of String))
-            dbg.info("elem count= " & l.Count & " " & String.Join(" ", l))
-        End Sub
-
 
         Public Sub updateTransactions(body As String)
             transactions.Clear()
@@ -402,10 +366,10 @@ Namespace Degiro
 
             Dim lineStep As Integer = 0
 
-            Dim transaction As DegiroTransaction
+            Dim transaction As New DegiroTransaction
 
             For Each l As String In body.Split(vbCrLf)
-                Dim split As List(Of String) = splitLine(l)
+                Dim split As List(Of String) = splitTableLine(l)
 
                 ' dbg.info("STEP" & lineStep)
                 ' printListOfString(split)
@@ -684,15 +648,11 @@ Namespace Degiro
 
         End Sub
 
-        ' for sp500 Module
-
-        ' what we have as advantage:
-        ' - below or above global trend
-        ' - si ca descend va ca remonter, on sait juste pas quand
-        ' - en cas de fuckup ca reviendra, mais peut etre après un long moment
-
 
         Public Sub newTradeFromTransactions(transactionAchat As DegiroTransaction, transactionVente As DegiroTransaction)
+            'just in case
+            If transactionAchat.ticker.Contains("Fake") Then Exit Sub
+
             Dim trade As New DegiroTrade With {
                 .ticker = transactionAchat.ticker,
                 .isin = transactionAchat.isin,
@@ -716,7 +676,7 @@ Namespace Degiro
                 File.WriteAllText(tradeToFilePath(trade), serializeTrade(trade))
                 File.Move(transactionToFilePath(transactionAchat), completedTransactionToFilePath(transactionAchat))
                 File.Move(transactionToFilePath(transactionVente), completedTransactionToFilePath(transactionVente))
-                ' SLACK
+                ' + notify SLACK
             End If
             trades.Add(trade)
             dbg.info(" new trade completed : " & StructToString(trade))
@@ -725,13 +685,140 @@ Namespace Degiro
         End Sub
 
 
+        ' ----------------------------------------------------------------------------------------------------------
+        ' UPDATE FrmMain Trade panel
+
+        Public Sub updateTradePanelUI()
+            ' FrmMain.DataGridViewTrades.Rows.Clear()
+
+            Dim activeTradeString As String = ""
+
+            dbg.info(orders.Count)
+            For Each order In orders
+                If order.orderAction <> "Achat" Then Continue For
+                If order.limit > 0 Then
+                    activeTradeString &= "LIMIT_BUY " & order.ticker & " q" & order.quantity & " limit" & order.limit & " cur" & 0 & " " & 0 & "% away" & vbCrLf
+                Else
+                    activeTradeString &= "STOP_BUY " & order.ticker & " q" & order.quantity & " stop" & order.stopPrice & " cur" & 0 & " " & 0 & "% away" & vbCrLf
+                End If
+            Next
+
+            activeTradeString &= vbCrLf
+
+            For Each order In orders
+                If order.orderAction <> "Vente" Then Continue For
+
+                If order.limit > 0 Then
+                    activeTradeString &= "LIMIT_SELL " & order.ticker & " q" & order.quantity & " limit" & order.stopPrice & " cur" & 0 & " " & 0 & "% away" & vbCrLf
+                Else
+                    activeTradeString &= "STOP_SELL " & order.ticker & " q" & order.quantity & " stop" & order.stopPrice & " cur" & 0 & " " & 0 & "% away" & vbCrLf
+                End If
+            Next
+
+            activeTradeString &= vbCrLf
+
+            For Each trade In trades
+                If Date.UtcNow.Subtract(trade.sellDate).TotalHours > 24 Then Continue For
+
+                activeTradeString &= "COMPLETED " & trade.ticker & " q" & trade.quantity & " pru" & trade.pru & " sold" & trade.sellPricePerUnit.ToString(" 0.0") & " perf" & (100 * (trade.perfPerc - 1)).ToString("0.00") & "%" & vbCrLf
+            Next
+
+            If FrmMain.LblActiveTrades.Text <> activeTradeString Then FrmMain.LblActiveTrades.Text = activeTradeString
+
+            'TRY_BUY_LIMIT 3OIL q5 limit13.31 cur14 3.2% away
+            'TRY_BUY_STOP 3OIS q5 stop13.31 cur13 0.2% away
+            'STOP_SELL 4FFA q21 pru18.1 stop18.9 cur19.3 1.2% away
+            'LIMIT_SELL 4FFA q21 pru18.1 limit21 cur19.3 4.6% away
+            'POSITION 2FA q5 pru12 cur8.5
+            'COMPLETED 3OIL q12 pru51.2 -5.1% -543.32€ 2h ago
+
+        End Sub
+
+
+        Public Sub createFakeData()
+            If CST.COMPILED Then
+                MsgBox("attempt to create fake data in compile env")
+                Exit Sub
+            End If
+
+            If status <> StatusEnum.OFFLINE Then
+                MsgBox("attempt to create fake data while global status is not offline")
+                Exit Sub
+            End If
+
+            dbg.info("CREATE FAKE ORDERS/POSITONS FOR UI")
+
+            ' lonly buy orders
+            orders.Add(New DegiroOrder With {
+                       .ticker = "Fake3OIL",
+                       .dat = Date.UtcNow.AddHours(-0.2),
+                       .limit = "25",
+                       .orderAction = "Achat",
+                       .quantity = 8
+                       })
+
+            orders.Add(New DegiroOrder With {
+                       .ticker = "Fake3USL",
+                       .dat = Date.UtcNow.AddHours(-0.05),
+                       .limit = "85",
+                       .orderAction = "Achat",
+                       .quantity = 231
+                       })
+
+            ' position with stop loss
+            positions.Add(New DegiroPosition With {
+                         .ticker = "Fake3OIS",
+                         .pru = 31.5,
+                         .quantity = 28,
+                         .currentTotalValue = 28 * 29.5
+                         })
+
+            orders.Add(New DegiroOrder With {
+                       .ticker = "Fake3OIS",
+                       .dat = Date.UtcNow.AddHours(-0.54),
+                       .stopPrice = 29,
+                       .orderAction = "Vente"
+                       })
+
+
+            ' position with limit sell
+            positions.Add(New DegiroPosition With {
+                        .ticker = "Fake3OISi",
+                        .pru = 25,
+                        .quantity = 32,
+                        .currentTotalValue = 28 * 32.5
+                        })
+
+            orders.Add(New DegiroOrder With {
+                       .ticker = "Fake3OISi",
+                       .dat = Date.UtcNow.AddHours(-321.54),
+                       .limit = 412,
+                       .orderAction = "Vente"
+                       })
+
+            ' completed trades
+
+            trades.Add(New DegiroTrade With {
+              .buyDate = Date.UtcNow.AddHours(-1321.54),
+              .buyDone = True,
+              .sellDone = True,
+              .sellDate = Date.UtcNow.AddHours(-0.4),
+              .buyFee = 3,
+              .sellFee = 3,
+              .pru = 12,
+              .sellPricePerUnit = 15,
+              .perfPerc = 1.15,
+              .quantity = 54,
+              .ticker = "FakeSIS",
+              .totalPlusValue = 412
+            })
+
+
+        End Sub
 
         ' ==========================================================================================================
         ' ==========================================================================================================
         ' ==========================================================================================================
-
-
-
 
 
         ' this is home page

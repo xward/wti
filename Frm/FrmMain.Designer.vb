@@ -31,6 +31,7 @@ Partial Class FrmMain
         esterLabel = New ToolStripStatusLabel()
         StatusStrip = New StatusStrip()
         runType = New ToolStripStatusLabel()
+        ToolStripStatusSays = New ToolStripStatusLabel()
         PictureLedRedOff = New PictureBox()
         PictureLedRedOn = New PictureBox()
         PictureLedGreenOff = New PictureBox()
@@ -40,14 +41,21 @@ Partial Class FrmMain
         price = New DataGridViewTextBoxColumn()
         todayChange = New DataGridViewTextBoxColumn()
         BottomPanel = New Panel()
-        Button1 = New Button()
-        BtnTest = New Button()
-        TopPanel = New Panel()
+        PanelTrades = New Panel()
+        LblActiveTrades = New Label()
+        Label3 = New Label()
+        Label2 = New Label()
         ListBox1 = New ListBox()
         Label1 = New Label()
+        TopPanel = New Panel()
+        MainMenuStrip = New MenuStrip()
+        TradesToolStripMenuItem = New ToolStripMenuItem()
+        ShowAllToolStripMenuItem = New ToolStripMenuItem()
+        ManualActionsToolStripMenuItem = New ToolStripMenuItem()
+        TestMeToolStripMenuItem = New ToolStripMenuItem()
+        DegiroScanToolStripMenuItem = New ToolStripMenuItem()
         TmerKeyIput = New Timer(components)
         TmerAutoStart = New Timer(components)
-        LblSay = New Label()
         StatusStrip.SuspendLayout()
         CType(PictureLedRedOff, ComponentModel.ISupportInitialize).BeginInit()
         CType(PictureLedRedOn, ComponentModel.ISupportInitialize).BeginInit()
@@ -55,7 +63,9 @@ Partial Class FrmMain
         CType(PictureLedGreenOn, ComponentModel.ISupportInitialize).BeginInit()
         CType(DataGridViewAssetPrices, ComponentModel.ISupportInitialize).BeginInit()
         BottomPanel.SuspendLayout()
+        PanelTrades.SuspendLayout()
         TopPanel.SuspendLayout()
+        MainMenuStrip.SuspendLayout()
         SuspendLayout()
         ' 
         ' TmrUI
@@ -75,48 +85,53 @@ Partial Class FrmMain
         ' statusLabel
         ' 
         statusLabel.BackColor = SystemColors.ButtonFace
-        statusLabel.Font = New Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point, CByte(0))
         statusLabel.Name = "statusLabel"
-        statusLabel.Size = New Size(70, 27)
+        statusLabel.Size = New Size(66, 27)
         statusLabel.Text = "OFFLINE"
         ' 
         ' degiroLabel
         ' 
         degiroLabel.BackColor = SystemColors.ButtonFace
-        degiroLabel.Font = New Font("Sitka Heading", 12F, FontStyle.Regular, GraphicsUnit.Point, CByte(0))
         degiroLabel.Name = "degiroLabel"
-        degiroLabel.Size = New Size(55, 27)
-        degiroLabel.Text = "degiro "
+        degiroLabel.Size = New Size(127, 27)
+        degiroLabel.Text = "<degiro stats here>"
         ' 
         ' esterLabel
         ' 
         esterLabel.BackColor = SystemColors.ButtonFace
-        esterLabel.Font = New Font("Segoe UI", 9.75F, FontStyle.Regular, GraphicsUnit.Point, CByte(0))
         esterLabel.ImageScaling = ToolStripItemImageScaling.None
         esterLabel.Name = "esterLabel"
-        esterLabel.Size = New Size(76, 27)
+        esterLabel.Size = New Size(84, 27)
         esterLabel.Text = "Ester 3.66%"
         ' 
         ' StatusStrip
         ' 
-        StatusStrip.Items.AddRange(New ToolStripItem() {statusLed, statusLabel, runType, degiroLabel, esterLabel})
-        StatusStrip.Location = New Point(0, 739)
+        StatusStrip.Font = New Font("Cambria", 11.25F, FontStyle.Regular, GraphicsUnit.Point, CByte(0))
+        StatusStrip.Items.AddRange(New ToolStripItem() {statusLed, statusLabel, runType, degiroLabel, esterLabel, ToolStripStatusSays})
+        StatusStrip.Location = New Point(0, 722)
         StatusStrip.Name = "StatusStrip"
-        StatusStrip.Size = New Size(649, 32)
+        StatusStrip.Padding = New Padding(1, 0, 16, 0)
+        StatusStrip.Size = New Size(742, 32)
         StatusStrip.TabIndex = 4
         ' 
         ' runType
         ' 
         runType.BackColor = SystemColors.ButtonFace
-        runType.Font = New Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point, CByte(0))
         runType.Name = "runType"
-        runType.Size = New Size(60, 27)
+        runType.Size = New Size(55, 27)
         runType.Text = "DEBUG"
+        ' 
+        ' ToolStripStatusSays
+        ' 
+        ToolStripStatusSays.BackColor = SystemColors.Control
+        ToolStripStatusSays.Name = "ToolStripStatusSays"
+        ToolStripStatusSays.Size = New Size(35, 27)
+        ToolStripStatusSays.Text = "says"
         ' 
         ' PictureLedRedOff
         ' 
         PictureLedRedOff.Image = CType(resources.GetObject("PictureLedRedOff.Image"), Image)
-        PictureLedRedOff.Location = New Point(921, 583)
+        PictureLedRedOff.Location = New Point(1053, 661)
         PictureLedRedOff.Name = "PictureLedRedOff"
         PictureLedRedOff.Size = New Size(32, 32)
         PictureLedRedOff.SizeMode = PictureBoxSizeMode.AutoSize
@@ -127,7 +142,7 @@ Partial Class FrmMain
         ' PictureLedRedOn
         ' 
         PictureLedRedOn.Image = CType(resources.GetObject("PictureLedRedOn.Image"), Image)
-        PictureLedRedOn.Location = New Point(959, 583)
+        PictureLedRedOn.Location = New Point(1096, 661)
         PictureLedRedOn.Name = "PictureLedRedOn"
         PictureLedRedOn.Size = New Size(32, 32)
         PictureLedRedOn.SizeMode = PictureBoxSizeMode.AutoSize
@@ -138,7 +153,7 @@ Partial Class FrmMain
         ' PictureLedGreenOff
         ' 
         PictureLedGreenOff.Image = CType(resources.GetObject("PictureLedGreenOff.Image"), Image)
-        PictureLedGreenOff.Location = New Point(921, 621)
+        PictureLedGreenOff.Location = New Point(1053, 703)
         PictureLedGreenOff.Name = "PictureLedGreenOff"
         PictureLedGreenOff.Size = New Size(32, 32)
         PictureLedGreenOff.SizeMode = PictureBoxSizeMode.AutoSize
@@ -149,7 +164,7 @@ Partial Class FrmMain
         ' PictureLedGreenOn
         ' 
         PictureLedGreenOn.Image = CType(resources.GetObject("PictureLedGreenOn.Image"), Image)
-        PictureLedGreenOn.Location = New Point(959, 621)
+        PictureLedGreenOn.Location = New Point(1096, 703)
         PictureLedGreenOn.Name = "PictureLedGreenOn"
         PictureLedGreenOn.Size = New Size(32, 32)
         PictureLedGreenOn.SizeMode = PictureBoxSizeMode.AutoSize
@@ -165,10 +180,10 @@ Partial Class FrmMain
         DataGridViewAssetPrices.AllowUserToResizeRows = False
         DataGridViewAssetPrices.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize
         DataGridViewAssetPrices.Columns.AddRange(New DataGridViewColumn() {ticker, price, todayChange})
-        DataGridViewAssetPrices.Location = New Point(814, 411)
+        DataGridViewAssetPrices.Location = New Point(930, 465)
         DataGridViewAssetPrices.Name = "DataGridViewAssetPrices"
         DataGridViewAssetPrices.ReadOnly = True
-        DataGridViewAssetPrices.Size = New Size(344, 90)
+        DataGridViewAssetPrices.Size = New Size(393, 102)
         DataGridViewAssetPrices.TabIndex = 10
         DataGridViewAssetPrices.Visible = False
         ' 
@@ -192,63 +207,125 @@ Partial Class FrmMain
         ' 
         ' BottomPanel
         ' 
-        BottomPanel.Controls.Add(LblSay)
-        BottomPanel.Controls.Add(Button1)
-        BottomPanel.Controls.Add(BtnTest)
+        BottomPanel.Controls.Add(PanelTrades)
+        BottomPanel.Controls.Add(Label3)
+        BottomPanel.Controls.Add(Label2)
+        BottomPanel.Controls.Add(ListBox1)
+        BottomPanel.Controls.Add(Label1)
         BottomPanel.Dock = DockStyle.Bottom
-        BottomPanel.Location = New Point(0, 528)
+        BottomPanel.ForeColor = Color.White
+        BottomPanel.Location = New Point(0, 483)
         BottomPanel.Name = "BottomPanel"
-        BottomPanel.Size = New Size(649, 211)
+        BottomPanel.Size = New Size(742, 239)
         BottomPanel.TabIndex = 12
         ' 
-        ' Button1
+        ' PanelTrades
         ' 
-        Button1.Location = New Point(550, 137)
-        Button1.Name = "Button1"
-        Button1.Size = New Size(84, 42)
-        Button1.TabIndex = 3
-        Button1.Text = "Degiro scan"
-        Button1.UseVisualStyleBackColor = True
+        PanelTrades.AutoScroll = True
+        PanelTrades.Controls.Add(LblActiveTrades)
+        PanelTrades.Dock = DockStyle.Left
+        PanelTrades.Location = New Point(0, 0)
+        PanelTrades.Name = "PanelTrades"
+        PanelTrades.Size = New Size(462, 239)
+        PanelTrades.TabIndex = 7
         ' 
-        ' BtnTest
+        ' LblActiveTrades
         ' 
-        BtnTest.Location = New Point(477, 137)
-        BtnTest.Name = "BtnTest"
-        BtnTest.Size = New Size(67, 42)
-        BtnTest.TabIndex = 2
-        BtnTest.Text = "test me"
-        BtnTest.UseVisualStyleBackColor = True
+        LblActiveTrades.AutoSize = True
+        LblActiveTrades.Font = New Font("Cascadia Mono", 9.75F)
+        LblActiveTrades.Location = New Point(3, 3)
+        LblActiveTrades.Name = "LblActiveTrades"
+        LblActiveTrades.Size = New Size(280, 17)
+        LblActiveTrades.TabIndex = 0
+        LblActiveTrades.Text = "TRY_BUY 3OIL q5 pru13.31 3.2% away"
         ' 
-        ' TopPanel
+        ' Label3
         ' 
-        TopPanel.BackColor = Color.SlateGray
-        TopPanel.Controls.Add(ListBox1)
-        TopPanel.Controls.Add(Label1)
-        TopPanel.Dock = DockStyle.Fill
-        TopPanel.Location = New Point(0, 0)
-        TopPanel.Name = "TopPanel"
-        TopPanel.Size = New Size(649, 528)
-        TopPanel.TabIndex = 13
+        Label3.AutoSize = True
+        Label3.Location = New Point(468, 30)
+        Label3.Name = "Label3"
+        Label3.Size = New Size(163, 34)
+        Label3.TabIndex = 6
+        Label3.Text = "wti 78$ -5% today" & vbCrLf & "platinum 76€ +3% today" & vbCrLf
+        ' 
+        ' Label2
+        ' 
+        Label2.AutoSize = True
+        Label2.Location = New Point(468, 3)
+        Label2.Name = "Label2"
+        Label2.Size = New Size(271, 17)
+        Label2.TabIndex = 5
+        Label2.Text = "sp500: 5650, trend: 5300, <red> diff: 5.6%"
         ' 
         ' ListBox1
         ' 
-        ListBox1.Font = New Font("Segoe UI", 14.25F, FontStyle.Regular, GraphicsUnit.Point, CByte(0))
         ListBox1.FormattingEnabled = True
-        ListBox1.ItemHeight = 25
-        ListBox1.Location = New Point(351, 418)
+        ListBox1.ItemHeight = 17
+        ListBox1.Location = New Point(468, 117)
         ListBox1.Name = "ListBox1"
-        ListBox1.Size = New Size(295, 104)
-        ListBox1.TabIndex = 1
+        ListBox1.Size = New Size(271, 106)
+        ListBox1.TabIndex = 3
         ' 
         ' Label1
         ' 
         Label1.AutoSize = True
-        Label1.Font = New Font("Segoe UI", 15.75F, FontStyle.Regular, GraphicsUnit.Point, CByte(0))
-        Label1.Location = New Point(351, 385)
+        Label1.ForeColor = Color.White
+        Label1.Location = New Point(468, 97)
         Label1.Name = "Label1"
-        Label1.Size = New Size(73, 30)
-        Label1.TabIndex = 0
-        Label1.Text = "Label1"
+        Label1.Size = New Size(186, 17)
+        Label1.TabIndex = 2
+        Label1.Text = "data fetch from trading view"
+        ' 
+        ' TopPanel
+        ' 
+        TopPanel.BackColor = Color.FromArgb(CByte(12), CByte(12), CByte(12))
+        TopPanel.Controls.Add(MainMenuStrip)
+        TopPanel.Dock = DockStyle.Fill
+        TopPanel.Location = New Point(0, 0)
+        TopPanel.Name = "TopPanel"
+        TopPanel.Size = New Size(742, 483)
+        TopPanel.TabIndex = 13
+        ' 
+        ' MainMenuStrip
+        ' 
+        MainMenuStrip.Items.AddRange(New ToolStripItem() {TradesToolStripMenuItem, ManualActionsToolStripMenuItem})
+        MainMenuStrip.Location = New Point(0, 0)
+        MainMenuStrip.Name = "MainMenuStrip"
+        MainMenuStrip.Size = New Size(742, 24)
+        MainMenuStrip.TabIndex = 4
+        MainMenuStrip.Text = "MainMenuStrip"
+        ' 
+        ' TradesToolStripMenuItem
+        ' 
+        TradesToolStripMenuItem.DropDownItems.AddRange(New ToolStripItem() {ShowAllToolStripMenuItem})
+        TradesToolStripMenuItem.Name = "TradesToolStripMenuItem"
+        TradesToolStripMenuItem.Size = New Size(51, 20)
+        TradesToolStripMenuItem.Text = "trades"
+        ' 
+        ' ShowAllToolStripMenuItem
+        ' 
+        ShowAllToolStripMenuItem.Name = "ShowAllToolStripMenuItem"
+        ShowAllToolStripMenuItem.Size = New Size(117, 22)
+        ShowAllToolStripMenuItem.Text = "show all"
+        ' 
+        ' ManualActionsToolStripMenuItem
+        ' 
+        ManualActionsToolStripMenuItem.DropDownItems.AddRange(New ToolStripItem() {TestMeToolStripMenuItem, DegiroScanToolStripMenuItem})
+        ManualActionsToolStripMenuItem.Name = "ManualActionsToolStripMenuItem"
+        ManualActionsToolStripMenuItem.Size = New Size(100, 20)
+        ManualActionsToolStripMenuItem.Text = "manual actions"
+        ' 
+        ' TestMeToolStripMenuItem
+        ' 
+        TestMeToolStripMenuItem.Name = "TestMeToolStripMenuItem"
+        TestMeToolStripMenuItem.Size = New Size(180, 22)
+        TestMeToolStripMenuItem.Text = "test me"
+        ' 
+        ' DegiroScanToolStripMenuItem
+        ' 
+        DegiroScanToolStripMenuItem.Name = "DegiroScanToolStripMenuItem"
+        DegiroScanToolStripMenuItem.Size = New Size(180, 22)
+        DegiroScanToolStripMenuItem.Text = "degiro scan"
         ' 
         ' TmerKeyIput
         ' 
@@ -259,23 +336,12 @@ Partial Class FrmMain
         TmerAutoStart.Enabled = True
         TmerAutoStart.Interval = 5000
         ' 
-        ' LblSay
-        ' 
-        LblSay.AutoSize = True
-        LblSay.Font = New Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point, CByte(0))
-        LblSay.ForeColor = SystemColors.ActiveCaption
-        LblSay.Location = New Point(76, 48)
-        LblSay.Name = "LblSay"
-        LblSay.Size = New Size(94, 21)
-        LblSay.TabIndex = 4
-        LblSay.Text = "Label says ..."
-        ' 
         ' FrmMain
         ' 
-        AutoScaleDimensions = New SizeF(7F, 15F)
+        AutoScaleDimensions = New SizeF(8F, 17F)
         AutoScaleMode = AutoScaleMode.Font
         BackColor = Color.MidnightBlue
-        ClientSize = New Size(649, 771)
+        ClientSize = New Size(742, 754)
         Controls.Add(TopPanel)
         Controls.Add(BottomPanel)
         Controls.Add(DataGridViewAssetPrices)
@@ -284,6 +350,7 @@ Partial Class FrmMain
         Controls.Add(PictureLedRedOn)
         Controls.Add(PictureLedRedOff)
         Controls.Add(StatusStrip)
+        Font = New Font("Cambria", 11.25F, FontStyle.Regular, GraphicsUnit.Point, CByte(0))
         Name = "FrmMain"
         Text = "not WTI"
         StatusStrip.ResumeLayout(False)
@@ -295,8 +362,12 @@ Partial Class FrmMain
         CType(DataGridViewAssetPrices, ComponentModel.ISupportInitialize).EndInit()
         BottomPanel.ResumeLayout(False)
         BottomPanel.PerformLayout()
+        PanelTrades.ResumeLayout(False)
+        PanelTrades.PerformLayout()
         TopPanel.ResumeLayout(False)
         TopPanel.PerformLayout()
+        MainMenuStrip.ResumeLayout(False)
+        MainMenuStrip.PerformLayout()
         ResumeLayout(False)
         PerformLayout()
     End Sub
@@ -316,14 +387,22 @@ Partial Class FrmMain
     Friend WithEvents price As DataGridViewTextBoxColumn
     Friend WithEvents todayChange As DataGridViewTextBoxColumn
     Friend WithEvents BottomPanel As Panel
-    Friend WithEvents BtnTest As Button
     Friend WithEvents TopPanel As Panel
-    Friend WithEvents Label1 As Label
-    Friend WithEvents ListBox1 As ListBox
     Friend WithEvents TmerKeyIput As Timer
-    Friend WithEvents Button1 As Button
     Friend WithEvents runType As ToolStripStatusLabel
     Friend WithEvents TmerAutoStart As Timer
-    Friend WithEvents LblSay As Label
+    Friend WithEvents ToolStripStatusSays As ToolStripStatusLabel
+    Friend WithEvents ListBox1 As ListBox
+    Friend WithEvents Label1 As Label
+    Friend WithEvents Label3 As Label
+    Friend WithEvents Label2 As Label
+    Friend WithEvents MainMenuStrip As MenuStrip
+    Friend WithEvents TradesToolStripMenuItem As ToolStripMenuItem
+    Friend WithEvents ShowAllToolStripMenuItem As ToolStripMenuItem
+    Friend WithEvents PanelTrades As Panel
+    Friend WithEvents LblActiveTrades As Label
+    Friend WithEvents ManualActionsToolStripMenuItem As ToolStripMenuItem
+    Friend WithEvents TestMeToolStripMenuItem As ToolStripMenuItem
+    Friend WithEvents DegiroScanToolStripMenuItem As ToolStripMenuItem
 
 End Class

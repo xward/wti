@@ -21,6 +21,8 @@
         End Function
 
         Public Sub pasteText(text As String)
+            'or you could use My.Computer.Keyboard.SendKeys("coucou")
+
             Clipboard.SetText(text)
             Application.DoEvents()
             Pause(ctrlPause)

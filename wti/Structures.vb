@@ -16,6 +16,22 @@ Module Structures
     End Enum
 
     ' ----------------------------------------------------------------------------------------
+    Public Function cloneTransactionList(transactions As List(Of DegiroTransaction))
+        Dim ret As New List(Of DegiroTransaction)
+        For Each t In transactions
+            ret.Add(t)
+        Next
+        Return ret
+    End Function
+
+    Public Function cloneTradeList(transactions As List(Of DegiroTrade))
+        Dim ret As New List(Of DegiroTrade)
+        For Each t In transactions
+            ret.Add(t)
+        Next
+        Return ret
+    End Function
+
 
     'date ticker isin placeBoursiere action qté limitPrix€ 33,00 stop(€ —) valeur ouvert execution
 
@@ -49,7 +65,7 @@ Module Structures
 
         Dim quantity As Integer
         'how much is it now
-        Dim totalValue As Double
+        Dim currentTotalValue As Double
         'how much you bought it
         Dim pru As Double
 

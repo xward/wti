@@ -16,4 +16,19 @@
         End If
         Return Nothing
     End Function
+
+    Public Function splitTableLine(l As String) As List(Of String)
+        l = l.Replace("$", "").Replace("€", "").Trim
+        Dim tmpSplit As String() = l.Split({" ", "	"}, StringSplitOptions.None)
+        Dim split As New List(Of String)
+        For Each s As String In tmpSplit
+            If s.Trim.Length > 0 Then split.Add(s)
+        Next
+        Return split
+    End Function
+
+    Public Sub printListOfString(l As List(Of String))
+        dbg.info("elem count= " & l.Count & " " & String.Join(" ", l))
+    End Sub
+
 End Module
