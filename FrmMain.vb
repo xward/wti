@@ -2,7 +2,6 @@
 Imports System.Windows.Forms.VisualStyles.VisualStyleElement.Tab
 
 Public Class FrmMain
-
     ' // show asset prices
     ' orders, position, transaction, merged as trade
     ' show trades, with current price, how far I am
@@ -24,7 +23,7 @@ Public Class FrmMain
 
     ' move slack to core
     ' move FrmMain to frm folder
-
+    ' move CST to core
 
     ' --------------------------------------------------------------------------------------------------------
 

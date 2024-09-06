@@ -82,7 +82,7 @@ Module Structures
     Public Function transactionsFromFiles() As List(Of DegiroTransaction)
         Dim l As New List(Of DegiroTransaction)
 
-        For Each filePath As String In Directory.GetFiles(CST.SLN & "/degiroTransactions/")
+        For Each filePath As String In Directory.GetFiles(CST.DATA_PATH & "/degiroTransactions/")
             'If filePath.Contains("attachedToTrade") Then Continue For
             Dim t As DegiroTransaction = deserializeTransaction(File.ReadAllText(filePath))
             ' dbg.info("Load transaction from file >> " & StructToString(t))
@@ -93,12 +93,12 @@ Module Structures
     End Function
 
     Public Function completedTransactionToFilePath(t As DegiroTransaction) As String
-        Return CST.SLN & "/degiroTransactions/attachedToTrade/" & dateToPrettySortableString(t.dat) & " " &
+        Return CST.DATA_PATH & "/degiroTransactions/attachedToTrade/" & dateToPrettySortableString(t.dat) & " " &
             t.ticker & " " & t.action & " quantity=" & t.quantity & " pru=" & t.pru & "€.transaction.degiro.txt"
     End Function
 
     Public Function transactionToFilePath(t As DegiroTransaction) As String
-        Return CST.SLN & "/degiroTransactions/" & dateToPrettySortableString(t.dat) & " " &
+        Return CST.DATA_PATH & "/degiroTransactions/" & dateToPrettySortableString(t.dat) & " " &
             t.ticker & " " & t.action & " quantity=" & t.quantity & " pru=" & t.pru & "€.transaction.degiro.txt"
     End Function
 
@@ -158,7 +158,7 @@ Module Structures
     Public Function tradesFromFiles() As List(Of DegiroTrade)
         Dim l As New List(Of DegiroTrade)
 
-        For Each filePath As String In Directory.GetFiles(CST.SLN & "/degiroTrades/")
+        For Each filePath As String In Directory.GetFiles(CST.DATA_PATH & "/degiroTrades/")
             Dim t As DegiroTrade = deserializeTrade(File.ReadAllText(filePath))
             ' dbg.info("Load trade from file >> " & StructToString(t))
             l.Add(t)
@@ -168,7 +168,7 @@ Module Structures
     End Function
 
     Public Function tradeToFilePath(t As DegiroTrade) As String
-        Return CST.SLN & "/degiroTrades/" & dateToPrettySortableString(t.sellDate) &
+        Return CST.DATA_PATH & "/degiroTrades/" & dateToPrettySortableString(t.sellDate) &
             t.ticker & " quantity=" & t.quantity & " pru=" & t.pru & "€.transaction.degiro.txt"
     End Function
 
@@ -178,8 +178,6 @@ Module Structures
 
     Public Function deserializeTrade(s As String) As DegiroTrade
         Dim split As String() = s.Split("|")
-
-
 
         Return New DegiroTrade With {
             .ticker = split.ElementAt(0),

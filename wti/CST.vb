@@ -3,7 +3,10 @@ Imports System.IO
 
 Namespace CST
 	Module CST
-		Public SLN As String = Path.GetFullPath(Path.GetDirectoryName(System.Windows.Forms.Application.ExecutablePath) & "/../../..")
+		Public ROOT_PATH As String = Path.GetFullPath(Path.GetDirectoryName(System.Windows.Forms.Application.ExecutablePath) & "/../../..")
+
+		public DATA_PATH as string = ROOT_PATH
+
 		Public COMPILED As Boolean = Not (Debugger.IsAttached)
 
 		Public SCREEN As Rectangle = New Rectangle(0, 0, My.Computer.Screen.Bounds.Size.Width, My.Computer.Screen.Bounds.Size.Height - 32)
@@ -28,5 +31,3 @@ Namespace CST
 
 	End Module
 End Namespace
-
-
