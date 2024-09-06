@@ -30,14 +30,10 @@ Public Class FrmMain
     'set to nothing if nothing to do at start is running compiled
     Dim ACTION_AT_AUTO_START As String = "COLLECT"
 
-    ' to test algos, replay market data and use a fake degiro broker
-    Public SIMU_MODE As Boolean = False
-
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         CST.init()
 
         Degiro.loadPastData()
-
 
         'fake data for display debugging
         If Not CST.COMPILED And status = StatusEnum.OFFLINE And False Then

@@ -50,7 +50,7 @@ Module TradingView
 
         dbg.info(current.ticker & " curent value " & current.price & ". Today change = " & current.todayChangePerc & "%")
 
-        If previous.price <> current.price Then pushPriceToFile(asset)
+        If IsNothing(previous) OrElse previous.price <> current.price Then pushPriceToFile(asset)
     End Sub
 
     Public Function getPrice(asset As AssetInfos) As AssetPrice
@@ -110,14 +110,14 @@ Module TradingView
         ' 04/28/2024 1:50:00 PM|28.35
 
         Dim price As AssetPrice = getPrice(infos)
-        Dim line As String = serializeAssetPrice(price)
+        Dim line As String = price.Serialize()
 
         FrmMain.ListBoxEvents.Items.Add(infos.ticker & " " & line)
         FrmMain.ListBoxEvents.SelectedIndex = FrmMain.ListBoxEvents.Items.Count - 1
 
         If FrmMain.ListBoxEvents.Items.Count > 30 Then FrmMain.ListBoxEvents.Items.RemoveAt(0)
 
-        If FrmMain.SIMU_MODE Then Exit Sub
+        If status = StatusEnum.SIMU Then Exit Sub
 
         Dim fileName As String = CST.DATA_PATH & "/dataFromThePast/" & infos.ticker & "_" & Date.UtcNow.Year & "_" & Date.UtcNow.Month.ToString("00") & ".tv.txt"
 
@@ -135,7 +135,7 @@ Module TradingView
         For Each filePath As String In Directory.GetFiles(CST.DATA_PATH & "/dataFromThePast/")
             If Not filePath.Contains(asset.ticker) Then Continue For
             For Each line In File.ReadAllLines(filePath)
-                prices.Add(deserializeAssetPrice(asset, line))
+                prices.Add(AssetPrice.Deserialize(asset, line))
             Next
         Next
 

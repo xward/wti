@@ -31,7 +31,7 @@ Namespace Degiro
         Private SIMU_spread As Double = 0.015
         Private SIMU_fee As Double = 3
 
-        Public Sub SIMU_init()
+        Public Sub SIMU_init(asset As AssetInfos)
             orders.Clear()
             positions.Clear()
             transactions.Clear()
@@ -44,7 +44,7 @@ Namespace Degiro
             accountCashMoula = 10000
             accountWinLooseMoula = 0
 
-            TradingView.SIMU_init(assetInfo("3USL"))
+            TradingView.SIMU_init(asset)
 
 
             dbg.info("SIMU: intialized !")
@@ -59,7 +59,7 @@ Namespace Degiro
             For Each o As DegiroOrder In orders
                 Dim price As AssetPrice = TradingView.getPrice(assetInfo(o.ticker))
 
-                If price.price = 0 Then dbg.fail("SIMU: No price found for " & o.ticker)
+                If IsNothing(price) Then dbg.fail("SIMU: No price found for " & o.ticker)
 
                 Select Case o.orderAction
                     Case "Vente"
@@ -83,7 +83,7 @@ Namespace Degiro
                             transactions.Add(t)
                             dbg.info(" New transaction " & StructToString(t))
 
-
+                            ' dirty
                             positions.Clear()
 
                         ElseIf o.stopPrice <> 0 And price.price < o.stopPrice Then
@@ -106,6 +106,7 @@ Namespace Degiro
                             transactions.Add(t)
                             dbg.info(" New transaction " & StructToString(t))
 
+                            ' dirty
                             positions.Clear()
 
                         End If
@@ -179,7 +180,7 @@ Namespace Degiro
 
             accountWinLooseMoula = accountTotalMoula - 10000
 
-            ' produceTradesStructuresFromEverything()
+            produceTradesStructuresFromEverything()
 
         End Sub
 
@@ -745,16 +746,19 @@ Namespace Degiro
 
         Dim reloadPastFromFileRequest As Boolean = 0
 
+        Dim consummedTransactions As New List(Of DegiroTransaction)
+
         ' and save files with it, update transaction files name too
         Public Sub produceTradesStructuresFromEverything()
             Dim hasBeenBuild As Boolean = False
             Dim quantityLeft As Integer = 0
             reloadPastFromFileRequest = False
+            consummedTransactions.Clear()
 
             'create trades from past transactions, orders
 
             trades.Clear()
-            trades = previousTrades
+            trades = cloneTradeList(previousTrades)
 
             '  dbg.info("trade from file count=" & trades.Count)
 
@@ -807,6 +811,17 @@ Namespace Degiro
 
                 '   newTradeFromTransactions(transactionAchats, transactionVente)
             Next
+
+            For Each t As DegiroTransaction In consummedTransactions
+                transactions.Remove(t)
+            Next
+
+            If status = StatusEnum.SIMU Then
+                ' we need to hard copy all in-ram trade that we be reloaded from previousTrades that normally comes from file system
+                previousTrades = cloneTradeList(trades)
+
+                Exit Sub
+            End If
 
             ' reload
             If reloadPastFromFileRequest Then loadPastFromFiles()
@@ -871,6 +886,8 @@ Namespace Degiro
             trade.perfPerc = trade.sellPricePerUnit / trade.pru
             trade.totalPlusValue = 1.0 * trade.quantity * trade.sellPricePerUnit / trade.pru - trade.buyFee - trade.sellFee
 
+            consummedTransactions.Add(transactionVente)
+            consummedTransactions.Add(transactionAchat)
 
             'save to file if not found
             If Not File.Exists(tradeToFilePath(trade)) And status <> StatusEnum.SIMU Then

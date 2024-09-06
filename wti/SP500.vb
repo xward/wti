@@ -16,18 +16,19 @@
     ' ca vient de chuter
 
 
-    Public Sub simulateStupidAlgo()
-        FrmMain.SIMU_MODE = True
+    ' fake degiro lack: a bit of refacto
 
-        dbg.info("STARTIN SIMULATION")
-        Degiro.SIMU_init()
+
+    Public Sub simulateStupidAlgo()
+        status = StatusEnum.SIMU
+        dbg.info("STARTING SIMULATION")
 
         Dim asset As AssetInfos = assetInfo("3USL")
 
+        Degiro.SIMU_init(asset)
+
         Degiro.SIMU_placeOrUpdateOrder(asset.ticker, 5, "Achat", 88, Nothing)
 
-
-        status = StatusEnum.SIMU
 
         Dim resoldOrder As Boolean = False
 
@@ -59,7 +60,6 @@
 
         dbg.info("simu completed")
         status = StatusEnum.OFFLINE
-        FrmMain.SIMU_MODE = False
     End Sub
 
 End Module

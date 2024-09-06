@@ -5,18 +5,18 @@ lorsque perte sp500 50% en X temps, tapis sur leverage sp500, grosse somme, gros
 
 # [month game] Tony Casinoti
 
-achete sp500 après chute 7% / av 2 jours précédent. track stop loss 1.5, 3% above 2% positive
+achete sp500 après chute 7% / av 2 jours précédent. track stop loss 1.5%, 3% stop loss above 2% positive
 
 # [weekly/day game] Maine Cocaine
 
-achete sp500 si chute 4% en moins de 6h. track stop loss 1%, 3% above 2% positive
+achete sp500 si chute 4% en moins de 6h. track stop loss 1%, 3% stop loss above 2% positive
 
 
 # acheter commodity très haute/très basse en lev3, stop loss 3%
 wti, copper, platinum
 
 
-# DVA = fct(global trend), avec retrait d'argent
+# DVA = fct(global trend), avec eventuellement retrait d'argent
 link: https://coinacademy.fr/academie/dva-dollar-value-averaging/
 
 Selon les objectifs fixés, mon portefeuille devrait être à 450$ + 450$ * 8.3% au bout du premier mois, soit environ 487$. Imaginons maintenant trois scénarios :
