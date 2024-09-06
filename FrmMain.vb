@@ -6,13 +6,13 @@ Public Class FrmMain
     ' orders, position, transaction, merged as trade
     ' show trades, with current price, how far I am
 
-    ' simulation, place fake order, fetch fake order/position/transaction, output results to file
+    ' replay simulation, place fake order, fetch fake order/position/transaction, output results to file
     ' implem 4%/1.5% algo with
 
     ' place sell order, update order, delete order
     ' manage order too far from objective
 
-    ' reg sp500, fetch sp500/sp5003x ratio on yahoo, produce above/below trend val/perc from live sp5003x
+    ' do regression of sp500, fetch sp500/sp5003x ratio on yahoo, produce above/below trend val/perc from live sp5003x
 
     ' --------------------------------------------------------------------------------------------------------
 
@@ -21,9 +21,10 @@ Public Class FrmMain
 
     ' --------------------------------------------------------------------------------------------------------
 
-    ' move slack to core
+    ' move slack CST Edge to core
     ' move FrmMain to frm folder
-    ' move CST to core
+    ' split structure
+    ' wti/marketDataFetch folder create, move Ester, TradingView
 
     ' --------------------------------------------------------------------------------------------------------
 
