@@ -42,19 +42,29 @@ Namespace Degiro
         End Sub
 
         Public Sub SIMU_updateAll()
+
+            ' from transaction create position
+            ' log achat/vente
+
+            Dim executedOrders As New List(Of DegiroOrder)
+
             For Each o As DegiroOrder In orders
                 Dim price As AssetPrice = TradingView.getPrice(assetInfo(o.ticker))
 
-                If IsNothing(price) Then dbg.fail("SIMU: No price found for " & o.ticker)
+                If price.price = 0 Then dbg.fail("SIMU: No price found for " & o.ticker)
+
+
 
                 Select Case o.orderAction
                     Case "Vente"
-                        If price.price > o.limit Then
+                        If o.limit <> 0 And price.price > o.limit Then
                             accountTotalMoula += o.limit * o.quantity - 3
                             accountPositionsMoula -= o.limit * o.quantity
                             accountCashMoula += o.limit * o.quantity - 3
 
-                            transactions.Add(New DegiroTransaction With {
+                            executedOrders.Add(o)
+
+                            Dim t As DegiroTransaction = New DegiroTransaction With {
                                 .ticker = o.ticker,
                                 .action = "Vente",
                                 .quantity = o.quantity,
@@ -62,15 +72,22 @@ Namespace Degiro
                                 .fee = 3,
                                 .isin = assetInfo(o.ticker).ISIN,
                                 .pru = o.limit
-                            })
-                        End If
+                            }
 
-                        If price.price < o.stopPrice Then
+                            transactions.Add(t)
+                            dbg.info(" New transaction " & StructToString(t))
+
+
+                            positions.Clear()
+
+                        ElseIf o.stopPrice <> 0 And price.price < o.stopPrice Then
                             accountTotalMoula += o.stopPrice * o.quantity - 3
                             accountPositionsMoula -= o.stopPrice * o.quantity
                             accountCashMoula += o.stopPrice * o.quantity - 3
 
-                            transactions.Add(New DegiroTransaction With {
+                            executedOrders.Add(o)
+
+                            Dim t As DegiroTransaction = New DegiroTransaction With {
                                 .ticker = o.ticker,
                                 .action = "Vente",
                                 .quantity = o.quantity,
@@ -78,16 +95,24 @@ Namespace Degiro
                                 .fee = 3,
                                 .isin = assetInfo(o.ticker).ISIN,
                                 .pru = o.stopPrice
-                            })
+                            }
+
+                            transactions.Add(t)
+                            dbg.info(" New transaction " & StructToString(t))
+
+                            positions.Clear()
+
                         End If
 
                     Case "Achat"
-                        If price.price < o.limit Then
+                        If o.limit <> 0 And price.price < o.limit Then
                             accountTotalMoula -= o.limit * o.quantity * (1 + SIMU_spread) + 3
                             accountPositionsMoula += o.limit * o.quantity
                             accountCashMoula -= o.limit * o.quantity * (1 + SIMU_spread) + 3
 
-                            transactions.Add(New DegiroTransaction With {
+                            executedOrders.Add(o)
+
+                            Dim t As DegiroTransaction = New DegiroTransaction With {
                                 .ticker = o.ticker,
                                 .action = "Achat",
                                 .quantity = o.quantity,
@@ -95,14 +120,29 @@ Namespace Degiro
                                 .fee = 3,
                                 .isin = assetInfo(o.ticker).ISIN,
                                 .pru = o.limit * (1 + SIMU_spread)
-                            })
-                        End If
-                        If price.price > o.stopPrice Then
+                            }
+
+                            transactions.Add(t)
+                            dbg.info(" New transaction " & StructToString(t))
+
+
+                            positions.Add(New DegiroPosition With {
+                               .ticker = o.ticker,
+                               .pru = o.limit,
+                               .quantity = o.quantity,
+                               .currentTotalValue = o.limit * o.quantity
+                               })
+
+
+
+                        ElseIf o.stopPrice <> 0 And price.price > o.stopPrice Then
                             accountTotalMoula -= o.stopPrice * o.quantity * (1 + SIMU_spread) + 3
                             accountPositionsMoula += o.stopPrice * o.quantity
                             accountCashMoula -= o.stopPrice * o.quantity * (1 + SIMU_spread) + 3
 
-                            transactions.Add(New DegiroTransaction With {
+                            executedOrders.Add(o)
+
+                            Dim t As DegiroTransaction = New DegiroTransaction With {
                                 .ticker = o.ticker,
                                 .action = "Achat",
                                 .quantity = o.quantity,
@@ -110,11 +150,30 @@ Namespace Degiro
                                 .fee = 3,
                                 .isin = assetInfo(o.ticker).ISIN,
                                 .pru = o.stopPrice * (1 + SIMU_spread)
-                            })
+                            }
+
+                            dbg.info(" New transaction " & StructToString(t))
+
+
+                            transactions.Add(t)
+
+                            positions.Add(New DegiroPosition With {
+                                .ticker = o.ticker,
+                                .pru = o.stopPrice,
+                                .quantity = o.quantity,
+                                .currentTotalValue = o.limit * o.quantity
+                                })
+
                         End If
                 End Select
 
             Next
+
+            For Each order As DegiroOrder In executedOrders
+                orders.Remove(order)
+            Next
+
+            accountWinLooseMoula = accountTotalMoula - 10000
 
             produceTradesStructuresFromEverything()
 
@@ -132,7 +191,7 @@ Namespace Degiro
                     Exit For
                 End If
             Next
-            If IsNothing(order) Then
+            If order.quantity = 0 Then
                 order = New DegiroOrder With {
                     .ticker = ticker,
                     .dat = Date.UtcNow,
@@ -142,8 +201,9 @@ Namespace Degiro
                     .orderAction = orderAction,
                     .quantity = qty
                 }
+                orders.Add(order)
             End If
-            RandPause(1600, 3200)
+            '  RandPause(1600, 3200)
         End Sub
 
         Public Sub SIMU_cancelOrder(ticker As String, qty As Integer, orderAction As String)
@@ -253,7 +313,7 @@ Namespace Degiro
                          "| accountCashMoula       = " & accountCashMoula.ToString("   0.00") & " €" & vbCrLf &
                          "| accountWinLooseMoula   = " & accountWinLooseMoula.ToString("   0.00") & " €" & vbCrLf)
 
-            FrmMain.degiroLabel.Text = "cash: " & accountCashMoula & "€ positions: " & accountPositionsMoula & "€"
+            ' FrmMain.degiroLabel.Text = "cash: " & accountCashMoula & "€ positions: " & accountPositionsMoula & "€"
 
             'Recherche par nom, ISIN ou ticker
 
@@ -809,7 +869,7 @@ Namespace Degiro
 
 
             'save to file if not found
-            If Not File.Exists(tradeToFilePath(trade)) Then
+            If Not File.Exists(tradeToFilePath(trade)) And status <> StatusEnum.SIMU Then
                 File.WriteAllText(tradeToFilePath(trade), serializeTrade(trade))
                 File.Move(transactionToFilePath(transactionAchat), completedTransactionToFilePath(transactionAchat))
                 File.Move(transactionToFilePath(transactionVente), completedTransactionToFilePath(transactionVente))
@@ -830,13 +890,13 @@ Namespace Degiro
 
             Dim activeTradeString As String = ""
 
-            dbg.info(orders.Count)
+            ' dbg.info(orders.Count)
             For Each order In orders
                 If order.orderAction <> "Achat" Then Continue For
                 If order.limit > 0 Then
-                    activeTradeString &= "LIMIT_BUY " & order.ticker & " q" & order.quantity & " limit" & order.limit & " cur" & 0 & " " & 0 & "% away" & vbCrLf
+                    activeTradeString &= "LIMIT_BUY " & order.ticker & " q" & order.quantity & " limit" & order.limit & " cur" & TradingView.getPrice(assetInfo(order.ticker)).price & " " & 0 & "% away" & vbCrLf
                 Else
-                    activeTradeString &= "STOP_BUY " & order.ticker & " q" & order.quantity & " stop" & order.stopPrice & " cur" & 0 & " " & 0 & "% away" & vbCrLf
+                    activeTradeString &= "STOP_BUY " & order.ticker & " q" & order.quantity & " stop" & order.stopPrice & " cur" & TradingView.getPrice(assetInfo(order.ticker)).price & " " & 0 & "% away" & vbCrLf
                 End If
             Next
 
@@ -846,11 +906,17 @@ Namespace Degiro
                 If order.orderAction <> "Vente" Then Continue For
 
                 If order.limit > 0 Then
-                    activeTradeString &= "LIMIT_SELL " & order.ticker & " q" & order.quantity & " limit" & order.stopPrice & " cur" & 0 & " " & 0 & "% away" & vbCrLf
+                    activeTradeString &= "LIMIT_SELL " & order.ticker & " q" & order.quantity & " limit" & order.limit & " cur" & TradingView.getPrice(assetInfo(order.ticker)).price & " " & 0 & "% away" & vbCrLf
                 Else
-                    activeTradeString &= "STOP_SELL " & order.ticker & " q" & order.quantity & " stop" & order.stopPrice & " cur" & 0 & " " & 0 & "% away" & vbCrLf
+                    activeTradeString &= "STOP_SELL " & order.ticker & " q" & order.quantity & " stop" & order.stopPrice & " cur" & TradingView.getPrice(assetInfo(order.ticker)).price & " " & 0 & "% away" & vbCrLf
                 End If
             Next
+
+
+            For Each position In positions
+                activeTradeString &= "POSITION " & position.ticker & " q" & position.quantity & " pru" & position.pru & vbCrLf
+            Next
+
 
             activeTradeString &= vbCrLf
 

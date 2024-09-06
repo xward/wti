@@ -2,6 +2,7 @@
 Imports System.Threading
 Imports System.Windows.Forms.VisualStyles.VisualStyleElement.TextBox
 Imports System.IO
+Imports System.Runtime.InteropServices.JavaScript.JSType
 
 
 Module TradingView
@@ -21,7 +22,6 @@ Module TradingView
 
         dbg.info("SIMU: loaded " & SIMU_price.Count & " prices for asset " & asset.ticker)
 
-
     End Sub
 
 
@@ -29,10 +29,12 @@ Module TradingView
     ' return false when all price consumed
     Public Function SIMU_setNext(asset As AssetInfos) As Boolean
         If SIMU_price_index = SIMU_price.Count Then Return False
+
         Dim price As AssetPrice = SIMU_price.ElementAt(SIMU_price_index)
+        '  dbg.info("SIMU: set price to " & StructToString(price))
         setPrice(asset, price)
         SIMU_price_index += 1
-        dbg.info("SIMU: update price to " & price.price)
+        FrmMain.Label1.Text = "Replay " & SIMU_price_index & "/" & SIMU_price.Count
         Return True
     End Function
 

@@ -230,15 +230,16 @@ Module Structures
 
         Dim datChunk As String = split.ElementAt(0)
 
-        'dbg.info(datChunk)
-        Dim dat As Date = Date.Parse(datChunk.Substring(2, 2) & "/" & datChunk.Substring(0, 2) & "/" & datChunk.Substring(4, 2) & " " & datChunk.Substring(7, 2) & ":" & datChunk.Substring(9, 2) & ":" & datChunk.Substring(11, 2))
+        '  dbg.info(datChunk)
+        Dim dat As Date = Date.Parse(datChunk.Substring(2, 2) & "/" & datChunk.Substring(0, 2) & "/20" & datChunk.Substring(4, 2) & " " & datChunk.Substring(7, 2) & ":" & datChunk.Substring(9, 2) & ":" & datChunk.Substring(11, 2))
 
-        'dbg.info(dat.ToString)
+        '  dbg.info(dat.ToString)
 
         ' 030924 070639|29.09
         Return New AssetPrice With {
             .ticker = asset.ticker,
-            .price = Double.Parse(split.ElementAt(1))
+            .price = Double.Parse(split.ElementAt(1)),
+            .dat = dat
             }
     End Function
 

@@ -15,7 +15,11 @@
 
 
     Public Sub simulateStupidAlgo()
+        dbg.info("STARTIN SIMULATION")
+
         Dim asset As AssetInfos = assetInfo("3USL")
+
+        Degiro.SIMU_placeOrUpdateOrder(asset.ticker, 5, "Achat", 88, Nothing)
 
 
         status = StatusEnum.SIMU
@@ -23,13 +27,30 @@
         While status = StatusEnum.SIMU And TradingView.SIMU_setNext(asset)
 
             ''' DECISION
+            ''' 
+            Dim price As AssetPrice = TradingView.getPrice(asset)
 
+            'If Degiro.accountCashMoula > 5 * 86 Then
+            '    Degiro.SIMU_placeOrUpdateOrder(asset.ticker, 5, "Achat", 86, Nothing)
+            'End If
+
+            If Degiro.orders.Count = 0 Then
+                Degiro.SIMU_placeOrUpdateOrder(asset.ticker, 5, "Vente", 89, Nothing)
+            End If
+
+
+            Pause(5)
 
             ''' 
             Degiro.SIMU_updateAll()
+            Degiro.updateTradePanelUI()
         End While
 
-        ' repeat !
+
+        dbg.info(Degiro.transactions.Count)
+
+        dbg.info("simu completed")
+        status = StatusEnum.OFFLINE
     End Sub
 
 End Module

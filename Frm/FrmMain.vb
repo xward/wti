@@ -121,6 +121,9 @@ Public Class FrmMain
                 ledBlink = Not ledBlink
         End Select
 
+        degiroLabel.Text = "cash: " & Math.Round(Degiro.accountCashMoula * 100) / 100 & "€ positions: " & Math.Round(100 * Degiro.accountPositionsMoula) / 100 & "€"
+
+
 
         If status = StatusEnum.COLLECT Then
             Dim diff As Integer = Math.Round(Date.UtcNow.Subtract(lastCollect).TotalSeconds)
