@@ -2,9 +2,6 @@
 Imports System.Windows.Forms.VisualStyles.VisualStyleElement.Tab
 
 Public Class FrmMain
-    <DllImport("user32.dll")>
-    Public Shared Function GetAsyncKeyState(ByVal vKey As System.Windows.Forms.Keys) As Short
-    End Function
 
     ' // show asset prices
     ' orders, position, transaction, merged as trade
@@ -22,6 +19,11 @@ Public Class FrmMain
 
     ' si il y a du platinium, wti, copper en position ... auto-sell-stop-loss-2%, texto lors de la detection, texto lors de la vente avec resultat
     ' si qté pair prend en charge, si impair touche pas ?
+
+    ' --------------------------------------------------------------------------------------------------------
+
+    ' move slack to core
+    ' move FrmMain to frm folder
 
 
     ' --------------------------------------------------------------------------------------------------------
@@ -175,5 +177,9 @@ Public Class FrmMain
         ' Degiro.updateAll()
     End Sub
 
-
+    ' ------------------------------------------------------------------------------------------------------
+    ' Utils
+    <DllImport("user32.dll")>
+    Public Shared Function GetAsyncKeyState(ByVal vKey As System.Windows.Forms.Keys) As Short
+    End Function
 End Class

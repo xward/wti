@@ -2,8 +2,3 @@
 Debug
 Release
 .vs
-
-obj/WorstTradingInitiative.vbproj.nuget.dgspec.json
-obj/WorstTradingInitiative.vbproj.nuget.g.props
-obj/project.assets.json
-obj/project.nuget.cache
