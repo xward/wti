@@ -3,6 +3,7 @@ Imports System.Runtime
 Imports System.Runtime.InteropServices
 Imports System.Runtime.InteropServices.JavaScript.JSType
 Imports System.IO
+Imports System.Transactions
 
 Namespace Degiro
     Module Degiro
@@ -52,6 +53,8 @@ Namespace Degiro
             ' load full-completed trades
             previousTrades = tradesFromFiles()
             trades = cloneTradeList(previousTrades)
+
+            reloadPastFromFileRequest = False
         End Sub
 
         Public Sub loadPastData()
@@ -422,7 +425,7 @@ Namespace Degiro
                         .dat = Date.Parse(daySplit.ElementAt(1) & "/" & daySplit.ElementAt(0) & "/" & daySplit.ElementAt(2) & " " & split.ElementAt(1)),
                         .isin = split.ElementAt(4),
                         .action = split.ElementAt(6),
-                        .quantity = Integer.Parse(split.ElementAt(7)),
+                        .quantity = Math.Abs(Integer.Parse(split.ElementAt(7))),
                         .quantityFragmentSold = 0,
                         .pru = Math.Abs(parseMoney(split.ElementAt(10)) / Integer.Parse(split.ElementAt(7))),
                         .fee = Math.Abs(parseMoney(split.ElementAt(13)))
@@ -471,7 +474,7 @@ Namespace Degiro
                     'Next
                     ' dbg.info(Math.Abs(parseMoney(split.ElementAt(4)) / Integer.Parse(split.ElementAt(1))))
                     transaction.action = split.ElementAt(0)
-                    transaction.quantity = Integer.Parse(split.ElementAt(1))
+                    transaction.quantity = Math.Abs(Integer.Parse(split.ElementAt(1)))
                     transaction.pru = Math.Abs(parseMoney(split.ElementAt(4)) / Integer.Parse(split.ElementAt(1)))
                     transaction.fee = Math.Abs(parseMoney(split.ElementAt(7)))
                     lineStep = 0
@@ -579,17 +582,21 @@ Namespace Degiro
         ' | Données prix de : Infront Financial Technology; Euronext Chi-X Bats
 
 
+
+        Dim reloadPastFromFileRequest As Boolean = 0
+
         ' and save files with it, update transaction files name too
         Public Sub produceTradesStructuresFromEverything()
             Dim hasBeenBuild As Boolean = False
             Dim quantityLeft As Integer = 0
+            reloadPastFromFileRequest = False
 
             'create trades from past transactions, orders
 
             trades.Clear()
             trades = previousTrades
 
-            dbg.info("trade from file count=" & trades.Count)
+            '  dbg.info("trade from file count=" & trades.Count)
 
             ' ----------------------------------------------------------------------------------------------------------
             ' PROCESS COMPLETED
@@ -612,8 +619,8 @@ Namespace Degiro
                 hasBeenBuild = False
                 For Each transactionAchat As DegiroTransaction In transactionAchats
                     If transactionAchat.quantity = transactionVente.quantity Then
-                        dbg.info(" -> Fount Exact Achat ! " & StructToString(transactionAchat))
-                        ' buildTrade(vente, achat)
+                        dbg.info(" -> Found Exact Achat ! " & StructToString(transactionAchat))
+                        newTradeFromTransactions(transactionAchat, transactionVente)
                         hasBeenBuild = True
                         Exit For
                     End If
@@ -625,8 +632,8 @@ Namespace Degiro
                 hasBeenBuild = False
                 For Each transactionAchat As DegiroTransaction In transactionAchats
                     If transactionAchat.quantity = transactionVente.quantity - transactionVente.quantityFragmentSold Then
-                        dbg.info(" -> Fount Fragment Achat ! " & StructToString(transactionAchat))
-                        ' buildTrade(vente, achat)
+                        dbg.info(" -> Found Fragment Achat ! " & StructToString(transactionAchat))
+                        newTradeFromTransactions(transactionAchat, transactionVente)
                         hasBeenBuild = True
                         Exit For
                     End If
@@ -638,18 +645,17 @@ Namespace Degiro
 
 
 
-                ' buildTrade(vente, achats)
+                '   newTradeFromTransactions(transactionAchats, transactionVente)
             Next
 
             ' reload
-            loadPastFromFiles()
-
+            If reloadPastFromFileRequest Then loadPastFromFiles()
 
             'we should now have 0 "Vente" left
             Dim venteLeft As New List(Of DegiroTransaction)
-            For Each transactionAchat As DegiroTransaction In transactions
-                If transactionAchat.action <> "Achat" Then Continue For
-                venteLeft.Add(transactionAchat)
+            For Each transactionVente As DegiroTransaction In transactions
+                If transactionVente.action <> "Vente" Then Continue For
+                venteLeft.Add(transactionVente)
             Next
             If venteLeft.Count > 0 Then
                 dbg.fail(venteLeft.Count & " ventes left after trade creation :")
@@ -681,6 +687,39 @@ Namespace Degiro
             ' post check : from trade with buy done but sell not done, we should find exactly the same thing as the portefeuille, alerte else
 
 
+        End Sub
+
+
+        Public Sub newTradeFromTransactions(transactionAchat As DegiroTransaction, transactionVente As DegiroTransaction)
+            Dim trade As New DegiroTrade With {
+                .ticker = transactionAchat.ticker,
+                .isin = transactionAchat.isin,
+                .buyDone = True,
+                .buyFee = transactionAchat.fee,
+                .buyDate = transactionAchat.dat,
+                .quantity = transactionAchat.quantity,
+                .pru = transactionAchat.pru,
+                .sellPricePerUnit = transactionVente.pru,
+                .sellDone = True,
+                .sellFee = transactionVente.fee,
+                .sellDate = transactionVente.dat
+            }
+
+            trade.perfPerc = trade.sellPricePerUnit / trade.pru
+            trade.totalPlusValue = 1.0 * trade.quantity * trade.sellPricePerUnit / trade.pru - trade.buyFee - trade.sellFee
+
+
+            'save to file if not found
+            If Not File.Exists(tradeToFilePath(trade)) Then
+                File.WriteAllText(tradeToFilePath(trade), serializeTrade(trade))
+                File.Move(transactionToFilePath(transactionAchat), completedTransactionToFilePath(transactionAchat))
+                File.Move(transactionToFilePath(transactionVente), completedTransactionToFilePath(transactionVente))
+                ' SLACK
+            End If
+            trades.Add(trade)
+            dbg.info(" new trade completed : " & StructToString(trade))
+
+            reloadPastFromFileRequest = True
         End Sub
 
 

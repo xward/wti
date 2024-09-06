@@ -160,29 +160,16 @@ Public Class FrmMain
     End Sub
 
     Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
-        'Edge.switchTab(Edge.TabEnum.DEGIRO_POSITONS)
-        'Dim body As String = KMOut.selectAllCopy()
+        Edge.switchTab(Edge.TabEnum.DEGIRO_TRANSACTIONS)
+        Dim body As String = KMOut.selectAllCopy()
 
-        ''Degiro.updateTransactions(body)
+        Degiro.updateTransactions(body)
 
 
         'Degiro.updateAccountDataFromBody(body)
         'Degiro.updatePositions(body)
 
 
-        Dim t1 As New List(Of String)
-        t1.Add("coucou")
-
-
-        Dim t2 As New List(Of String)
-        For Each s As String In t1
-            t2.Add(s)
-        Next
-
-        t2.Add("")
-
-        dbg.info(t1.Count)
-        dbg.info(t2.Count)
 
 
         ' Degiro.updateAll()

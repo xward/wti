@@ -71,7 +71,7 @@ Module Structures
         Dim quantity As Integer
         'in case of Achat, amount that as been sold in another transaction
         Dim quantityFragmentSold As Integer
-        'how much you bought it
+        'how much you bought/sell it
         Dim pru As Double
 
         Dim fee As Double
@@ -85,10 +85,10 @@ Module Structures
         For Each filePath As String In Directory.GetFiles(CST.SLN & "/degiroTransactions/")
             'If filePath.Contains("attachedToTrade") Then Continue For
             Dim t As DegiroTransaction = deserializeTransaction(File.ReadAllText(filePath))
-            dbg.info("Load transaction from file >> " & StructToString(t))
+            ' dbg.info("Load transaction from file >> " & StructToString(t))
             l.Add(t)
         Next
-        dbg.info("Loaded " & l.Count & " previous transactions")
+        dbg.info("Loaded " & l.Count & " transactions from file")
         Return l
     End Function
 
@@ -103,11 +103,10 @@ Module Structures
     End Function
 
     Public Function serializeTransaction(t As DegiroTransaction) As String
-        Return t.ticker & "|" & t.isin & "|" & t.dat.ToString & "|" & t.action & "|" & Math.Abs(t.quantity) & "|" & t.quantityFragmentSold & "|" & t.pru & "|" & t.fee
+        Return t.ticker & "|" & t.isin & "|" & t.dat.ToString & "|" & t.action & "|" & t.quantity & "|" & t.quantityFragmentSold & "|" & t.pru & "|" & t.fee
     End Function
 
     Public Function deserializeTransaction(s As String) As DegiroTransaction
-        dbg.info(s)
         Dim split As String() = s.Split("|")
 
         ' CSCO|US17275R1023|8/18/2020 4:10:07 PM|Achat|1|0|35.17|-0.5
@@ -145,7 +144,9 @@ Module Structures
         Dim pru As Double
 
         ' SELLING
-        Dim sellPrice As Double
+        Dim sellPricePerUnit As Double
+        Dim perfPerc As Double
+        Dim totalPlusValue As Double
 
         ' SELL DONE
         Dim sellDone As Boolean
@@ -159,10 +160,10 @@ Module Structures
 
         For Each filePath As String In Directory.GetFiles(CST.SLN & "/degiroTrades/")
             Dim t As DegiroTrade = deserializeTrade(File.ReadAllText(filePath))
-            dbg.info("Load trade from file >> " & StructToString(t))
+            ' dbg.info("Load trade from file >> " & StructToString(t))
             l.Add(t)
         Next
-        dbg.info("Loaded " & l.Count & " previous trades")
+        dbg.info("Loaded " & l.Count & " trades from file")
         Return l
     End Function
 
@@ -172,23 +173,28 @@ Module Structures
     End Function
 
     Public Function serializeTrade(t As DegiroTrade) As String
-        Return t.ticker & "|" & t.isin & "|" & t.buyDone & "|" & t.buyFee & "|" & t.buyDate.ToString & "|" & t.quantity & "|" & t.pru & "|" & t.sellPrice & "|" & t.sellDone & "|" & t.sellFee & "|" & t.sellDate.ToString
+        Return t.ticker & "|" & t.isin & "|" & t.buyDone & "|" & t.buyFee & "|" & t.buyDate.ToString & "|" & t.quantity & "|" & t.pru & "|" & t.sellPricePerUnit & "|" & t.perfPerc & "|" & t.totalPlusValue & "|" & t.sellDone & "|" & t.sellFee & "|" & t.sellDate.ToString
     End Function
 
     Public Function deserializeTrade(s As String) As DegiroTrade
         Dim split As String() = s.Split("|")
+
+
+
         Return New DegiroTrade With {
             .ticker = split.ElementAt(0),
             .isin = split.ElementAt(1),
             .buyDone = Boolean.Parse(split.ElementAt(2)),
-            .buyFee = Boolean.Parse(split.ElementAt(3)),
+            .buyFee = Double.Parse(split.ElementAt(3)),
             .buyDate = Date.Parse(split.ElementAt(4)),
             .quantity = Integer.Parse(split.ElementAt(5)),
             .pru = Double.Parse(split.ElementAt(6)),
-            .sellPrice = Double.Parse(split.ElementAt(7)),
-            .sellDone = Boolean.Parse(split.ElementAt(8)),
-            .sellFee = Double.Parse(split.ElementAt(9)),
-            .sellDate = Date.Parse(split.ElementAt(10))
+            .sellPricePerUnit = Double.Parse(split.ElementAt(7)),
+            .perfPerc = Double.Parse(split.ElementAt(8)),
+            .totalPlusValue = Double.Parse(split.ElementAt(9)),
+            .sellDone = Boolean.Parse(split.ElementAt(10)),
+            .sellFee = Double.Parse(split.ElementAt(11)),
+            .sellDate = Date.Parse(split.ElementAt(12))
             }
     End Function
 
