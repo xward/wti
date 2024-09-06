@@ -1,9 +1,4 @@
-﻿Imports System.Reflection.Metadata
-Imports System.Runtime
-Imports System.Runtime.InteropServices
-Imports System.Runtime.InteropServices.JavaScript.JSType
-Imports System.IO
-Imports System.Transactions
+﻿Imports System.IO
 
 Namespace Degiro
     Module Degiro
