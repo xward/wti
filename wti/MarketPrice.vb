@@ -6,8 +6,8 @@ Module MarketPrice
     Public Sub setPrice(asset As AssetInfos, price As AssetPrice)
         Dim previous As AssetPrice = getPrice(asset)
 
-        Dim assHistory As AssetHistory = assetHistory(asset)
-        assHistory.prices.Add(price)
+        Dim assHistory As AssetHistory = getAssetHistory(asset)
+        assHistory.addPrice(price)
 
         Dim current As AssetPrice = getPrice(asset)
 
@@ -17,10 +17,14 @@ Module MarketPrice
     End Sub
 
     Public Function getPrice(asset As AssetInfos) As AssetPrice
-        Return assetHistory(asset).currentPrice
+        Return getAssetHistory(asset).currentPrice
     End Function
 
-    Public Function assetHistory(asset As AssetInfos) As AssetHistory
+    'Public Function allPricesAfter(asset As AssetInfos, dat As Date) As List(Of AssetPrice)
+    '    Return getAssetHistory(asset).allPricesAfter(dat)
+    'End Function
+
+    Public Function getAssetHistory(asset As AssetInfos) As AssetHistory
         For Each a As AssetHistory In assetsPriceHistory
             If a.asset.ticker = asset.ticker Then Return a
         Next
@@ -34,11 +38,11 @@ Module MarketPrice
     ' Replay
 
     Public Sub replayInit(asset As AssetInfos)
-        assetHistory(asset).initReplay()
+        getAssetHistory(asset).initReplay()
     End Sub
 
     Public Function replayNext(asset As AssetInfos) As Boolean
-        Return assetHistory(asset).replayNext()
+        Return getAssetHistory(asset).replayNext()
     End Function
 
     ' -------------------------------------------------------------------------------------------------------------------------------------

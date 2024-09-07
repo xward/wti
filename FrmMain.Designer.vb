@@ -50,11 +50,8 @@ Partial Class FrmMain
         PanelTrades = New Panel()
         LblActiveTrades = New Label()
         TopPanel = New Panel()
+        PanelGraphBottom = New Panel()
         PanelGraphTop = New Panel()
-        PanelGraphTopLeft = New Panel()
-        PictureBoxTopGraph = New PictureBox()
-        PanelGraphTopLeftBottom = New Panel()
-        PanelGraphTopRight = New Panel()
         MainMenuStrip = New MenuStrip()
         TradesToolStripMenuItem = New ToolStripMenuItem()
         ShowAllToolStripMenuItem = New ToolStripMenuItem()
@@ -67,7 +64,6 @@ Partial Class FrmMain
         RunToolStripMenuItem = New ToolStripMenuItem()
         TmerKeyIput = New Timer(components)
         TmerAutoStart = New Timer(components)
-        PanelGraphBottom = New Panel()
         StatusStrip.SuspendLayout()
         CType(PictureLedRedOff, ComponentModel.ISupportInitialize).BeginInit()
         CType(PictureLedRedOn, ComponentModel.ISupportInitialize).BeginInit()
@@ -78,9 +74,6 @@ Partial Class FrmMain
         Panel1.SuspendLayout()
         PanelTrades.SuspendLayout()
         TopPanel.SuspendLayout()
-        PanelGraphTop.SuspendLayout()
-        PanelGraphTopLeft.SuspendLayout()
-        CType(PictureBoxTopGraph, ComponentModel.ISupportInitialize).BeginInit()
         MainMenuStrip.SuspendLayout()
         SuspendLayout()
         ' 
@@ -322,53 +315,25 @@ Partial Class FrmMain
         TopPanel.Size = New Size(754, 739)
         TopPanel.TabIndex = 13
         ' 
+        ' PanelGraphBottom
+        ' 
+        PanelGraphBottom.BackColor = Color.Transparent
+        PanelGraphBottom.BorderStyle = BorderStyle.FixedSingle
+        PanelGraphBottom.Dock = DockStyle.Fill
+        PanelGraphBottom.Location = New Point(0, 329)
+        PanelGraphBottom.Name = "PanelGraphBottom"
+        PanelGraphBottom.Size = New Size(754, 410)
+        PanelGraphBottom.TabIndex = 6
+        ' 
         ' PanelGraphTop
         ' 
         PanelGraphTop.BackColor = Color.Transparent
         PanelGraphTop.BorderStyle = BorderStyle.FixedSingle
-        PanelGraphTop.Controls.Add(PanelGraphTopLeft)
-        PanelGraphTop.Controls.Add(PanelGraphTopRight)
         PanelGraphTop.Dock = DockStyle.Top
         PanelGraphTop.Location = New Point(0, 24)
         PanelGraphTop.Name = "PanelGraphTop"
         PanelGraphTop.Size = New Size(754, 305)
         PanelGraphTop.TabIndex = 5
-        ' 
-        ' PanelGraphTopLeft
-        ' 
-        PanelGraphTopLeft.Controls.Add(PictureBoxTopGraph)
-        PanelGraphTopLeft.Controls.Add(PanelGraphTopLeftBottom)
-        PanelGraphTopLeft.Dock = DockStyle.Fill
-        PanelGraphTopLeft.Location = New Point(0, 0)
-        PanelGraphTopLeft.Name = "PanelGraphTopLeft"
-        PanelGraphTopLeft.Size = New Size(681, 303)
-        PanelGraphTopLeft.TabIndex = 2
-        ' 
-        ' PictureBoxTopGraph
-        ' 
-        PictureBoxTopGraph.BackColor = Color.DimGray
-        PictureBoxTopGraph.Dock = DockStyle.Fill
-        PictureBoxTopGraph.Location = New Point(0, 0)
-        PictureBoxTopGraph.Name = "PictureBoxTopGraph"
-        PictureBoxTopGraph.Size = New Size(681, 263)
-        PictureBoxTopGraph.TabIndex = 2
-        PictureBoxTopGraph.TabStop = False
-        ' 
-        ' PanelGraphTopLeftBottom
-        ' 
-        PanelGraphTopLeftBottom.Dock = DockStyle.Bottom
-        PanelGraphTopLeftBottom.Location = New Point(0, 263)
-        PanelGraphTopLeftBottom.Name = "PanelGraphTopLeftBottom"
-        PanelGraphTopLeftBottom.Size = New Size(681, 40)
-        PanelGraphTopLeftBottom.TabIndex = 0
-        ' 
-        ' PanelGraphTopRight
-        ' 
-        PanelGraphTopRight.Dock = DockStyle.Right
-        PanelGraphTopRight.Location = New Point(681, 0)
-        PanelGraphTopRight.Name = "PanelGraphTopRight"
-        PanelGraphTopRight.Size = New Size(71, 303)
-        PanelGraphTopRight.TabIndex = 1
         ' 
         ' MainMenuStrip
         ' 
@@ -444,16 +409,6 @@ Partial Class FrmMain
         ' 
         TmerAutoStart.Interval = 5000
         ' 
-        ' PanelGraphBottom
-        ' 
-        PanelGraphBottom.BackColor = Color.Transparent
-        PanelGraphBottom.BorderStyle = BorderStyle.FixedSingle
-        PanelGraphBottom.Dock = DockStyle.Fill
-        PanelGraphBottom.Location = New Point(0, 329)
-        PanelGraphBottom.Name = "PanelGraphBottom"
-        PanelGraphBottom.Size = New Size(754, 410)
-        PanelGraphBottom.TabIndex = 6
-        ' 
         ' FrmMain
         ' 
         AutoScaleDimensions = New SizeF(8F, 17F)
@@ -485,9 +440,6 @@ Partial Class FrmMain
         PanelTrades.PerformLayout()
         TopPanel.ResumeLayout(False)
         TopPanel.PerformLayout()
-        PanelGraphTop.ResumeLayout(False)
-        PanelGraphTopLeft.ResumeLayout(False)
-        CType(PictureBoxTopGraph, ComponentModel.ISupportInitialize).EndInit()
         MainMenuStrip.ResumeLayout(False)
         MainMenuStrip.PerformLayout()
         ResumeLayout(False)
@@ -533,10 +485,6 @@ Partial Class FrmMain
     Friend WithEvents ToolStripStatusLabelDrawFps As ToolStripStatusLabel
     Friend WithEvents StartCOLLECTToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents GraphRenderToolStripMenuItem As ToolStripMenuItem
-    Friend WithEvents PanelGraphTopRight As Panel
-    Friend WithEvents PanelGraphTopLeft As Panel
-    Friend WithEvents PictureBoxTopGraph As PictureBox
-    Friend WithEvents PanelGraphTopLeftBottom As Panel
     Friend WithEvents PanelGraphBottom As Panel
 
 End Class

@@ -33,7 +33,6 @@
         Dim resoldOrder As Boolean = False
 
         While status = StatusEnum.SIMU And replayNext(sp5003x)
-
             FrmMain.bottomGraph.render()
 
             ''' DECISION
@@ -49,8 +48,6 @@
                 Degiro.SIMU_placeOrUpdateOrder(sp5003x.ticker, 5, "Vente", 89, Nothing)
             End If
 
-
-            Pause(5)
 
             ''' 
             Degiro.SIMU_updateAll()
