@@ -23,20 +23,22 @@
         status = StatusEnum.SIMU
         dbg.info("STARTING SIMULATION")
 
-        Degiro.SIMU_init(sp5003x)
+        Degiro.SIMU_init()
+
+        replayInit(sp5003x)
 
         Degiro.SIMU_placeOrUpdateOrder(sp5003x.ticker, 5, "Achat", 88, Nothing)
 
 
         Dim resoldOrder As Boolean = False
 
-        While status = StatusEnum.SIMU And TradingView.SIMU_setNext(sp5003x)
+        While status = StatusEnum.SIMU And replayNext(sp5003x)
 
             FrmMain.bottomGraph.render()
 
             ''' DECISION
             ''' 
-            Dim price As AssetPrice = TradingView.getPrice(sp5003x)
+            Dim price As AssetPrice = getPrice(sp5003x)
 
             'If Degiro.accountCashMoula > 5 * 86 Then
             '    Degiro.SIMU_placeOrUpdateOrder(asset.ticker, 5, "Achat", 86, Nothing)

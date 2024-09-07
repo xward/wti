@@ -7,10 +7,18 @@ Public Class AssetHistory
 
     Public prices As New List(Of AssetPrice)
 
+    Private doingReplay As Boolean = False
+    Private replayIndex As Integer
+
 
     Public Sub New(asset As AssetInfos)
         Me.asset = asset
+        loadFromDataFromThePathFiles()
     End Sub
+
+    Public Overrides Function ToString() As String
+        Return StructToString(Me)
+    End Function
 
     Public Sub loadFromDataFromThePathFiles()
         prices.Clear()
@@ -26,7 +34,24 @@ Public Class AssetHistory
     End Sub
 
     Public Function currentPrice() As AssetPrice
-        Return prices.Last
+        If doingReplay Then
+            Return prices.ElementAt(replayIndex)
+        Else
+            Return prices.Last
+        End If
+    End Function
+
+    ' todo: optional startDate
+    Public Sub initReplay()
+        doingReplay = True
+        replayIndex = 0
+    End Sub
+
+    Public Function replayNext() As Boolean
+        ' thus we will never use the last value
+        If replayIndex = prices.Count - 1 Then Return False
+        replayIndex += 1
+        Return True
     End Function
 
 End Class

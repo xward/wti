@@ -1,78 +1,6 @@
-﻿Imports System.Security.Policy
-Imports System.Threading
-Imports System.Windows.Forms.VisualStyles.VisualStyleElement.TextBox
-Imports System.IO
-Imports System.Runtime.InteropServices.JavaScript.JSType
-
-
-Module TradingView
+﻿Module TradingView
     'fetch current prices from trading view
     ' futur (?): do it from a watchlist instead of one asset per edge tab
-
-    Private assetsPrice As New List(Of AssetPrice)
-
-    Private assetsPriceHistory As New List(Of AssetHistory)
-
-    ' all prices for one asset
-    Private SIMU_price As New List(Of AssetPrice)
-    Private SIMU_price_index As Integer = 0
-
-    Public Sub SIMU_init(asset As AssetInfos)
-        SIMU_price = loadAllPrices(asset)
-        SIMU_price_index = 0
-
-        dbg.info("SIMU: loaded " & SIMU_price.Count & " prices for asset " & asset.ticker)
-
-    End Sub
-
-
-    'optional start date
-    ' return false when all price consumed
-    Public Function SIMU_setNext(asset As AssetInfos) As Boolean
-        If SIMU_price_index = SIMU_price.Count Then Return False
-
-        Dim price As AssetPrice = SIMU_price.ElementAt(SIMU_price_index)
-        '  dbg.info("SIMU: set price to " & StructToString(price))
-        setPrice(asset, price)
-        SIMU_price_index += 1
-        FrmMain.Label1.Text = "Replay " & SIMU_price_index & "/" & SIMU_price.Count
-        Return True
-    End Function
-
-
-    Public Sub setPrice(asset As AssetInfos, price As AssetPrice)
-        Dim previous As AssetPrice = getPrice(asset)
-
-        ' a bit dirty
-        If Not IsNothing(previous) Then assetsPrice.Remove(previous)
-        assetsPrice.Add(price)
-
-        Dim current As AssetPrice = getPrice(asset)
-
-        dbg.info(current.ticker & " curent value " & current.price & ". Today change = " & current.todayChangePerc & "%")
-
-        If IsNothing(previous) OrElse previous.price <> current.price Then pushPriceToFile(asset)
-    End Sub
-
-    Public Function getPrice(asset As AssetInfos) As AssetPrice
-        'For Each p As AssetPrice In assetsPrice
-        '    If p.ticker = asset.ticker Then Return p
-        'Next
-
-        For Each a As AssetHistory In assetsPriceHistory
-            If a.asset.ticker = asset.ticker Then Return a
-        Next
-
-        Return Nothing
-    End Function
-
-    'Public Sub fetchPrice(assetTickers As String())
-    '    Dim assets As New List(Of AssetInfos)
-    '    For Each ticker As String In assetTickers
-    '        assets.Add(assetInfo(ticker))
-    '    Next
-    '    fetchPrice(assets)
-    'End Sub
 
     Public Sub fetchPrice(assets As List(Of AssetInfos))
         Dim start As Date = Date.UtcNow
@@ -98,7 +26,6 @@ Module TradingView
         dbg.info("Updated price of " & assets.Count & " assets within " & Math.Round(Date.UtcNow.Subtract(start).TotalMilliseconds) & "ms")
     End Sub
 
-
     Public Sub fetchPrice(assetTicker As String)
         fetchPrice(assetInfo(assetTicker))
     End Sub
@@ -108,44 +35,6 @@ Module TradingView
         l.Add(asset)
         fetchPrice(l)
     End Sub
-
-    Public Sub pushPriceToFile(infos As AssetInfos)
-
-        ' 280403 162431|23.56
-        ' 04/28/2024 1:50:00 PM|28.35
-
-        Dim price As AssetPrice = getPrice(infos)
-        Dim line As String = price.Serialize()
-
-        FrmMain.ListBoxLogEvents.Items.Add(infos.ticker & " " & line)
-        FrmMain.ListBoxLogEvents.SelectedIndex = FrmMain.ListBoxLogEvents.Items.Count - 1
-
-        If FrmMain.ListBoxLogEvents.Items.Count > 30 Then FrmMain.ListBoxLogEvents.Items.RemoveAt(0)
-
-        If status = StatusEnum.SIMU Then Exit Sub
-
-        Dim fileName As String = CST.DATA_PATH & "/dataFromThePast/" & infos.ticker & "_" & Date.UtcNow.Year & "_" & Date.UtcNow.Month.ToString("00") & ".tv.txt"
-
-        If File.Exists(fileName) Then
-            File.AppendAllText(fileName, line & vbCrLf)
-        Else
-            'one file per month
-            File.WriteAllText(fileName, line & vbCrLf)
-        End If
-
-    End Sub
-
-    Public Function loadAllPrices(asset As AssetInfos) As List(Of AssetPrice)
-        Dim prices As New List(Of AssetPrice)
-        For Each filePath As String In Directory.GetFiles(CST.DATA_PATH & "/dataFromThePast/")
-            If Not filePath.Contains(asset.ticker) Then Continue For
-            For Each line In File.ReadAllLines(filePath)
-                prices.Add(AssetPrice.Deserialize(asset, line))
-            Next
-        Next
-
-        Return prices
-    End Function
 
 
     Private Sub setFromTitle(asset As AssetInfos)
@@ -165,7 +54,7 @@ Module TradingView
                 dbg.fail("Can't parse tradiview price of " & title)
             End Try
 
-            setPrice(asset, New AssetPrice With {.ticker = asset.ticker, .price = val, .todayChangePerc = todayChangePerc, .dat = DateTime.UtcNow()})
+            MarketPrice.setPrice(asset, New AssetPrice With {.ticker = asset.ticker, .price = val, .todayChangePerc = todayChangePerc, .dat = DateTime.UtcNow()})
 
             'currentPrice.Item(infos.ticker) = New AssetPrice With {.ticker = infos.ticker, .price = val, .todayChangePerc = todayChangePerc, .dat = DateTime.UtcNow()}
 

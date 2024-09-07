@@ -7,10 +7,6 @@
     Public Sub New()
     End Sub
 
-    'Public Sub New(asset As AssetInfos, s As String)
-    '    Deserialize(asset, s)
-    'End Sub
-
     Public Overrides Function ToString() As String
         Return StructToString(Me)
     End Function
