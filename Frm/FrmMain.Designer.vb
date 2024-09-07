@@ -243,12 +243,12 @@ Partial Class FrmMain
         ' ListBoxEvents
         ' 
         ListBoxEvents.Dock = DockStyle.Bottom
-        ListBoxEvents.Font = New Font("Cambria", 14.25F, FontStyle.Regular, GraphicsUnit.Point, CByte(0))
+        ListBoxEvents.Font = New Font("Cambria", 12F, FontStyle.Regular, GraphicsUnit.Point, CByte(0))
         ListBoxEvents.FormattingEnabled = True
-        ListBoxEvents.ItemHeight = 22
-        ListBoxEvents.Location = New Point(0, 125)
+        ListBoxEvents.ItemHeight = 19
+        ListBoxEvents.Location = New Point(0, 140)
         ListBoxEvents.Name = "ListBoxEvents"
-        ListBoxEvents.Size = New Size(292, 114)
+        ListBoxEvents.Size = New Size(292, 99)
         ListBoxEvents.TabIndex = 4
         ' 
         ' Label2

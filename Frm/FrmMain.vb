@@ -59,6 +59,8 @@ Public Class FrmMain
 
         Dim fullScreenMode As Boolean = CST.COMPILED
 
+        Me.Width = CST.SCREEN.Width - Edge.edgeWindowRect.Width
+
         ' Me
         Me.Top = 0
         If fullScreenMode Then Me.Left = Edge.edgeWindowRect.Width - 15 Else Me.Left = CST.SCREEN.Width - Me.Width
