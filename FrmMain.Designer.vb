@@ -411,7 +411,6 @@ Partial Class FrmMain
         ' 
         ' TmerAutoStart
         ' 
-        TmerAutoStart.Enabled = True
         TmerAutoStart.Interval = 5000
         ' 
         ' FrmMain

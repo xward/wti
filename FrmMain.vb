@@ -74,6 +74,7 @@ Public Class FrmMain
         If CST.COMPILED And CommandLineArgs.Count > 0 AndAlso CommandLineArgs(0) = "COLLECT" Then
             statusLed.BackgroundImage = PictureLedGreenOn.Image
             ToolStripStatusSays.Text = "About to auto-start with action COLLECT"
+            TmerAutoStart.Enabled = True
         End If
 
         GraphDraw.currentAsset = sp5003x
@@ -94,6 +95,7 @@ Public Class FrmMain
     End Sub
 
     Private Sub TmerAutoStart_Tick(sender As Object, e As EventArgs) Handles TmerAutoStart.Tick
+        ToolStripStatusSays.Text = "COLLECT begins"
         If CST.COMPILED Then status = StatusEnum.COLLECT
         TmerAutoStart.Enabled = False
     End Sub
@@ -133,7 +135,7 @@ Public Class FrmMain
 
             Label1.Text = "next price update " & (5 - diff) & " secs"
 
-            If diff >= 5 And False Then
+            If diff >= 5 Then
                 TmrUI.Enabled = False
                 Label1.Text = "updating ..."
                 dbg.info("updating prices from trading view ...")
