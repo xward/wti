@@ -31,7 +31,8 @@
         Dim resoldOrder As Boolean = False
 
         While status = StatusEnum.SIMU And TradingView.SIMU_setNext(sp5003x)
-            GraphDraw.render()
+
+            FrmMain.bottomGraph.render()
 
             ''' DECISION
             ''' 

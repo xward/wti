@@ -1,7 +1,7 @@
 ﻿Imports System.IO
 Imports System.Reflection
 
-Module Structures
+Public Module Structures
     'please take care  to sell trade with this strat
 
     Public status As StatusEnum = StatusEnum.OFFLINE
@@ -214,47 +214,6 @@ Module Structures
     End Function
 
 
-    Public Class AssetPrice
-        Public ticker As String
-        Public price As Double
-        Public todayChangePerc As Double
-        Public dat As Date
-
-        Public Sub New()
-
-        End Sub
-
-        'Public Sub New(asset As AssetInfos, s As String)
-        '    Deserialize(asset, s)
-        'End Sub
-
-        Public Overrides Function ToString() As String
-            Return StructToString(Me)
-        End Function
-
-        Public Function Serialize() As String
-            Return Me.dat.Day.ToString("00") & Me.dat.Month.ToString("00") & Me.dat.Year.ToString.Substring(2) & " " &
-           Me.dat.Hour.ToString("00") & Me.dat.Minute.ToString("00") & Me.dat.Second.ToString("00") & "|" & Me.price & "|" & Me.todayChangePerc
-        End Function
-
-        Public Shared Function Deserialize(asset As AssetInfos, s As String) As AssetPrice
-            Dim split As String() = s.Split("|")
-
-            Dim datChunk As String = split.ElementAt(0)
-
-            ' dbg.info(datChunk)
-            Dim dat As Date = Date.Parse(datChunk.Substring(2, 2) & "/" & datChunk.Substring(0, 2) & "/20" & datChunk.Substring(4, 2) & " " & datChunk.Substring(7, 2) & ":" & datChunk.Substring(9, 2) & ":" & datChunk.Substring(11, 2))
-
-            Return New AssetPrice With {
-                .ticker = asset.ticker,
-                .price = Double.Parse(split.ElementAt(1)),
-                .dat = dat,
-                .todayChangePerc = ((split.Count = 3) AndAlso Double.Parse(split.ElementAt(2))) Or 0
-            }
-        End Function
-    End Class
-
-
     Public Structure AssetInfos
         ' if etf
         Dim ISIN As String
@@ -274,6 +233,7 @@ Module Structures
 
         Dim marketOpen As Date
         Dim marketUTCClose As Date
+        Dim lineColor As Color
     End Structure
 
 
@@ -333,7 +293,8 @@ Module Structures
                     .degiroOrderUrl = "https://trader.degiro.nl/trader/?appMode=order#/markets?newOrder&action=buy&productId=4995112",
                     .degireId = 4995112,
                     .marketOpen = Date.Parse("01/01/2024 07:00"),
-                    .marketUTCClose = Date.Parse("01/01/2024 15:45")
+                    .marketUTCClose = Date.Parse("01/01/2024 15:45"),
+                    .lineColor = Color.AliceBlue
                 }
         End Select
         Return New AssetInfos With {.ticker = "nothing"}

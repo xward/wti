@@ -27,6 +27,7 @@ Public Class FrmMain
     ' split structure
     ' move struct as class
     ' harmonixe assetInfo vs ticker string as fct inputs
+    ' move imgages to ressource explorer
 
     ' --------------------------------------------------------------------------------------------------------
 
@@ -56,6 +57,10 @@ Public Class FrmMain
 
     End Sub
 
+
+    Public bottomGraph As New Graph
+
+
     Public Sub initUI()
         If CST.COMPILED Then runType.Text = "RUN" Else runType.Text = "DEBUG"
 
@@ -79,12 +84,9 @@ Public Class FrmMain
             TmerAutoStart.Enabled = True
         End If
 
-        GraphDraw.currentAsset = sp5003x
+        bottomGraph.init(PanelGraphBottom, sp5003x)
 
         Degiro.updateTradePanelUI()
-
-        'render once
-        GraphDraw.render()
     End Sub
 
     Private Sub TmerKeyIput_Tick(sender As Object, e As EventArgs) Handles TmerKeyIput.Tick
@@ -112,6 +114,8 @@ Public Class FrmMain
     Dim assetsToTrack As New List(Of AssetInfos) From {
         assetInfo("3USL")
     }
+
+    Private frmMainResized As Boolean = False
 
     Private Sub TmrUI_Tick(sender As Object, e As EventArgs) Handles TmrUI.Tick
         If statusLabel.Text <> status.ToString Then statusLabel.Text = status.ToString
@@ -155,6 +159,12 @@ Public Class FrmMain
 
         checkShutDown()
 
+        If frmMainResized Then
+            bottomGraph.render()
+
+            frmMainResized = False
+        End If
+
         Application.DoEvents()
     End Sub
 
@@ -193,7 +203,7 @@ Public Class FrmMain
     End Sub
 
     Private Sub GraphRenderToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles GraphRenderToolStripMenuItem.Click
-        GraphDraw.render()
+        bottomGraph.render()
     End Sub
 
 
@@ -215,5 +225,9 @@ Public Class FrmMain
 
     Private Sub RunToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles RunToolStripMenuItem.Click
         simulateStupidAlgo()
+    End Sub
+
+    Private Sub FrmMain_Resize(sender As Object, e As EventArgs) Handles Me.Resize
+        frmMainResized = True
     End Sub
 End Class

@@ -50,10 +50,11 @@ Partial Class FrmMain
         PanelTrades = New Panel()
         LblActiveTrades = New Label()
         TopPanel = New Panel()
-        PanelGraphBottom = New Panel()
-        PictureBoxBottomGraph = New PictureBox()
         PanelGraphTop = New Panel()
+        PanelGraphTopLeft = New Panel()
         PictureBoxTopGraph = New PictureBox()
+        PanelGraphTopLeftBottom = New Panel()
+        PanelGraphTopRight = New Panel()
         MainMenuStrip = New MenuStrip()
         TradesToolStripMenuItem = New ToolStripMenuItem()
         ShowAllToolStripMenuItem = New ToolStripMenuItem()
@@ -61,11 +62,12 @@ Partial Class FrmMain
         TestMeToolStripMenuItem = New ToolStripMenuItem()
         DegiroScanToolStripMenuItem = New ToolStripMenuItem()
         StartCOLLECTToolStripMenuItem = New ToolStripMenuItem()
+        GraphRenderToolStripMenuItem = New ToolStripMenuItem()
         SimulationToolStripMenuItem = New ToolStripMenuItem()
         RunToolStripMenuItem = New ToolStripMenuItem()
         TmerKeyIput = New Timer(components)
         TmerAutoStart = New Timer(components)
-        GraphRenderToolStripMenuItem = New ToolStripMenuItem()
+        PanelGraphBottom = New Panel()
         StatusStrip.SuspendLayout()
         CType(PictureLedRedOff, ComponentModel.ISupportInitialize).BeginInit()
         CType(PictureLedRedOn, ComponentModel.ISupportInitialize).BeginInit()
@@ -76,9 +78,8 @@ Partial Class FrmMain
         Panel1.SuspendLayout()
         PanelTrades.SuspendLayout()
         TopPanel.SuspendLayout()
-        PanelGraphBottom.SuspendLayout()
-        CType(PictureBoxBottomGraph, ComponentModel.ISupportInitialize).BeginInit()
         PanelGraphTop.SuspendLayout()
+        PanelGraphTopLeft.SuspendLayout()
         CType(PictureBoxTopGraph, ComponentModel.ISupportInitialize).BeginInit()
         MainMenuStrip.SuspendLayout()
         SuspendLayout()
@@ -321,46 +322,53 @@ Partial Class FrmMain
         TopPanel.Size = New Size(754, 739)
         TopPanel.TabIndex = 13
         ' 
-        ' PanelGraphBottom
-        ' 
-        PanelGraphBottom.BackColor = Color.Transparent
-        PanelGraphBottom.BorderStyle = BorderStyle.FixedSingle
-        PanelGraphBottom.Controls.Add(PictureBoxBottomGraph)
-        PanelGraphBottom.Dock = DockStyle.Fill
-        PanelGraphBottom.Location = New Point(0, 329)
-        PanelGraphBottom.Name = "PanelGraphBottom"
-        PanelGraphBottom.Size = New Size(754, 410)
-        PanelGraphBottom.TabIndex = 6
-        ' 
-        ' PictureBoxBottomGraph
-        ' 
-        PictureBoxBottomGraph.Dock = DockStyle.Fill
-        PictureBoxBottomGraph.Location = New Point(0, 0)
-        PictureBoxBottomGraph.Name = "PictureBoxBottomGraph"
-        PictureBoxBottomGraph.Size = New Size(752, 408)
-        PictureBoxBottomGraph.TabIndex = 0
-        PictureBoxBottomGraph.TabStop = False
-        ' 
         ' PanelGraphTop
         ' 
         PanelGraphTop.BackColor = Color.Transparent
         PanelGraphTop.BorderStyle = BorderStyle.FixedSingle
-        PanelGraphTop.Controls.Add(PictureBoxTopGraph)
+        PanelGraphTop.Controls.Add(PanelGraphTopLeft)
+        PanelGraphTop.Controls.Add(PanelGraphTopRight)
         PanelGraphTop.Dock = DockStyle.Top
         PanelGraphTop.Location = New Point(0, 24)
         PanelGraphTop.Name = "PanelGraphTop"
         PanelGraphTop.Size = New Size(754, 305)
         PanelGraphTop.TabIndex = 5
         ' 
+        ' PanelGraphTopLeft
+        ' 
+        PanelGraphTopLeft.Controls.Add(PictureBoxTopGraph)
+        PanelGraphTopLeft.Controls.Add(PanelGraphTopLeftBottom)
+        PanelGraphTopLeft.Dock = DockStyle.Fill
+        PanelGraphTopLeft.Location = New Point(0, 0)
+        PanelGraphTopLeft.Name = "PanelGraphTopLeft"
+        PanelGraphTopLeft.Size = New Size(681, 303)
+        PanelGraphTopLeft.TabIndex = 2
+        ' 
         ' PictureBoxTopGraph
         ' 
-        PictureBoxTopGraph.BackColor = Color.Silver
+        PictureBoxTopGraph.BackColor = Color.DimGray
         PictureBoxTopGraph.Dock = DockStyle.Fill
         PictureBoxTopGraph.Location = New Point(0, 0)
         PictureBoxTopGraph.Name = "PictureBoxTopGraph"
-        PictureBoxTopGraph.Size = New Size(752, 303)
-        PictureBoxTopGraph.TabIndex = 0
+        PictureBoxTopGraph.Size = New Size(681, 263)
+        PictureBoxTopGraph.TabIndex = 2
         PictureBoxTopGraph.TabStop = False
+        ' 
+        ' PanelGraphTopLeftBottom
+        ' 
+        PanelGraphTopLeftBottom.Dock = DockStyle.Bottom
+        PanelGraphTopLeftBottom.Location = New Point(0, 263)
+        PanelGraphTopLeftBottom.Name = "PanelGraphTopLeftBottom"
+        PanelGraphTopLeftBottom.Size = New Size(681, 40)
+        PanelGraphTopLeftBottom.TabIndex = 0
+        ' 
+        ' PanelGraphTopRight
+        ' 
+        PanelGraphTopRight.Dock = DockStyle.Right
+        PanelGraphTopRight.Location = New Point(681, 0)
+        PanelGraphTopRight.Name = "PanelGraphTopRight"
+        PanelGraphTopRight.Size = New Size(71, 303)
+        PanelGraphTopRight.TabIndex = 1
         ' 
         ' MainMenuStrip
         ' 
@@ -394,20 +402,26 @@ Partial Class FrmMain
         ' TestMeToolStripMenuItem
         ' 
         TestMeToolStripMenuItem.Name = "TestMeToolStripMenuItem"
-        TestMeToolStripMenuItem.Size = New Size(180, 22)
+        TestMeToolStripMenuItem.Size = New Size(195, 22)
         TestMeToolStripMenuItem.Text = "test me"
         ' 
         ' DegiroScanToolStripMenuItem
         ' 
         DegiroScanToolStripMenuItem.Name = "DegiroScanToolStripMenuItem"
-        DegiroScanToolStripMenuItem.Size = New Size(180, 22)
+        DegiroScanToolStripMenuItem.Size = New Size(195, 22)
         DegiroScanToolStripMenuItem.Text = "degiro scan"
         ' 
         ' StartCOLLECTToolStripMenuItem
         ' 
         StartCOLLECTToolStripMenuItem.Name = "StartCOLLECTToolStripMenuItem"
-        StartCOLLECTToolStripMenuItem.Size = New Size(180, 22)
+        StartCOLLECTToolStripMenuItem.Size = New Size(195, 22)
         StartCOLLECTToolStripMenuItem.Text = "start COLLECT"
+        ' 
+        ' GraphRenderToolStripMenuItem
+        ' 
+        GraphRenderToolStripMenuItem.Name = "GraphRenderToolStripMenuItem"
+        GraphRenderToolStripMenuItem.Size = New Size(195, 22)
+        GraphRenderToolStripMenuItem.Text = "Render graph one time"
         ' 
         ' SimulationToolStripMenuItem
         ' 
@@ -430,11 +444,15 @@ Partial Class FrmMain
         ' 
         TmerAutoStart.Interval = 5000
         ' 
-        ' GraphRenderToolStripMenuItem
+        ' PanelGraphBottom
         ' 
-        GraphRenderToolStripMenuItem.Name = "GraphRenderToolStripMenuItem"
-        GraphRenderToolStripMenuItem.Size = New Size(180, 22)
-        GraphRenderToolStripMenuItem.Text = "graph render"
+        PanelGraphBottom.BackColor = Color.Transparent
+        PanelGraphBottom.BorderStyle = BorderStyle.FixedSingle
+        PanelGraphBottom.Dock = DockStyle.Fill
+        PanelGraphBottom.Location = New Point(0, 329)
+        PanelGraphBottom.Name = "PanelGraphBottom"
+        PanelGraphBottom.Size = New Size(754, 410)
+        PanelGraphBottom.TabIndex = 6
         ' 
         ' FrmMain
         ' 
@@ -467,9 +485,8 @@ Partial Class FrmMain
         PanelTrades.PerformLayout()
         TopPanel.ResumeLayout(False)
         TopPanel.PerformLayout()
-        PanelGraphBottom.ResumeLayout(False)
-        CType(PictureBoxBottomGraph, ComponentModel.ISupportInitialize).EndInit()
         PanelGraphTop.ResumeLayout(False)
+        PanelGraphTopLeft.ResumeLayout(False)
         CType(PictureBoxTopGraph, ComponentModel.ISupportInitialize).EndInit()
         MainMenuStrip.ResumeLayout(False)
         MainMenuStrip.PerformLayout()
@@ -513,11 +530,13 @@ Partial Class FrmMain
     Friend WithEvents SimulationToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents RunToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents PanelGraphTop As Panel
-    Friend WithEvents PanelGraphBottom As Panel
-    Friend WithEvents PictureBoxBottomGraph As PictureBox
-    Friend WithEvents PictureBoxTopGraph As PictureBox
     Friend WithEvents ToolStripStatusLabelDrawFps As ToolStripStatusLabel
     Friend WithEvents StartCOLLECTToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents GraphRenderToolStripMenuItem As ToolStripMenuItem
+    Friend WithEvents PanelGraphTopRight As Panel
+    Friend WithEvents PanelGraphTopLeft As Panel
+    Friend WithEvents PictureBoxTopGraph As PictureBox
+    Friend WithEvents PanelGraphTopLeftBottom As Panel
+    Friend WithEvents PanelGraphBottom As Panel
 
 End Class

@@ -9,8 +9,9 @@ Module TradingView
     'fetch current prices from trading view
     ' futur (?): do it from a watchlist instead of one asset per edge tab
 
-    Private priceList As New List(Of AssetPrice)
+    Private assetsPrice As New List(Of AssetPrice)
 
+    Private assetsPriceHistory As New List(Of AssetHistory)
 
     ' all prices for one asset
     Private SIMU_price As New List(Of AssetPrice)
@@ -43,8 +44,8 @@ Module TradingView
         Dim previous As AssetPrice = getPrice(asset)
 
         ' a bit dirty
-        If Not IsNothing(previous) Then priceList.Remove(previous)
-        priceList.Add(price)
+        If Not IsNothing(previous) Then assetsPrice.Remove(previous)
+        assetsPrice.Add(price)
 
         Dim current As AssetPrice = getPrice(asset)
 
@@ -54,20 +55,24 @@ Module TradingView
     End Sub
 
     Public Function getPrice(asset As AssetInfos) As AssetPrice
-        For Each p As AssetPrice In priceList
-            If p.ticker = asset.ticker Then Return p
+        'For Each p As AssetPrice In assetsPrice
+        '    If p.ticker = asset.ticker Then Return p
+        'Next
+
+        For Each a As AssetHistory In assetsPriceHistory
+            If a.asset.ticker = asset.ticker Then Return a
         Next
 
         Return Nothing
     End Function
 
-    Public Sub fetchPrice(assetTickers As String())
-        Dim assets As New List(Of AssetInfos)
-        For Each ticker As String In assetTickers
-            assets.Add(assetInfo(ticker))
-        Next
-        fetchPrice(assets)
-    End Sub
+    'Public Sub fetchPrice(assetTickers As String())
+    '    Dim assets As New List(Of AssetInfos)
+    '    For Each ticker As String In assetTickers
+    '        assets.Add(assetInfo(ticker))
+    '    Next
+    '    fetchPrice(assets)
+    'End Sub
 
     Public Sub fetchPrice(assets As List(Of AssetInfos))
         Dim start As Date = Date.UtcNow
