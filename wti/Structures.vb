@@ -33,6 +33,7 @@ Module Structures
     End Function
 
 
+
     'date ticker isin placeBoursiere action qté limitPrix€ 33,00 stop(€ —) valeur ouvert execution
 
     Public Structure DegiroOrder

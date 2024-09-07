@@ -52,6 +52,8 @@ Public Class FrmMain
 
         initUI()
 
+
+
     End Sub
 
     Public Sub initUI()
@@ -80,6 +82,9 @@ Public Class FrmMain
         GraphDraw.currentAsset = sp5003x
 
         Degiro.updateTradePanelUI()
+
+        'render once
+        GraphDraw.render()
     End Sub
 
     Private Sub TmerKeyIput_Tick(sender As Object, e As EventArgs) Handles TmerKeyIput.Tick
@@ -146,9 +151,29 @@ Public Class FrmMain
         End If
 
 
-        If status <> StatusEnum.SIMU Then GraphDraw.render()
+        ' If status <> StatusEnum.SIMU Then GraphDraw.render()
+
+        checkShutDown()
 
         Application.DoEvents()
+    End Sub
+
+    Public Sub checkShutDown()
+        If Not CST.COMPILED Then Exit Sub
+        Dim now As Date = Date.UtcNow
+        If now.DayOfWeek <> DayOfWeek.Saturday And now.DayOfWeek <> DayOfWeek.Sunday Then Exit Sub
+
+        'market close ?
+        If now.Hour < 19 Then Exit Sub
+
+        ' SLACK
+
+        'shutdown !
+        status = StatusEnum.OFFLINE
+        ToolStripStatusSays.Text = "Going shutdown"
+        Process.Start("ShutDown", "/s")
+        Pause(1000)
+        End
     End Sub
 
 
@@ -162,6 +187,15 @@ Public Class FrmMain
     Private Sub TestMeToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles TestMeToolStripMenuItem.Click
         fetchPrice(assetsToTrack)
     End Sub
+
+    Private Sub StartCOLLECTToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles StartCOLLECTToolStripMenuItem.Click
+        status = StatusEnum.COLLECT
+    End Sub
+
+    Private Sub GraphRenderToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles GraphRenderToolStripMenuItem.Click
+        GraphDraw.render()
+    End Sub
+
 
 
     Private Sub DegiroScanToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles DegiroScanToolStripMenuItem.Click

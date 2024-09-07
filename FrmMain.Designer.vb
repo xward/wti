@@ -32,6 +32,7 @@ Partial Class FrmMain
         StatusStrip = New StatusStrip()
         runType = New ToolStripStatusLabel()
         ToolStripStatusSays = New ToolStripStatusLabel()
+        ToolStripStatusLabelDrawFps = New ToolStripStatusLabel()
         PictureLedRedOff = New PictureBox()
         PictureLedRedOn = New PictureBox()
         PictureLedGreenOff = New PictureBox()
@@ -59,10 +60,12 @@ Partial Class FrmMain
         ManualActionsToolStripMenuItem = New ToolStripMenuItem()
         TestMeToolStripMenuItem = New ToolStripMenuItem()
         DegiroScanToolStripMenuItem = New ToolStripMenuItem()
+        StartCOLLECTToolStripMenuItem = New ToolStripMenuItem()
         SimulationToolStripMenuItem = New ToolStripMenuItem()
         RunToolStripMenuItem = New ToolStripMenuItem()
         TmerKeyIput = New Timer(components)
         TmerAutoStart = New Timer(components)
+        GraphRenderToolStripMenuItem = New ToolStripMenuItem()
         StatusStrip.SuspendLayout()
         CType(PictureLedRedOff, ComponentModel.ISupportInitialize).BeginInit()
         CType(PictureLedRedOn, ComponentModel.ISupportInitialize).BeginInit()
@@ -119,7 +122,7 @@ Partial Class FrmMain
         ' StatusStrip
         ' 
         StatusStrip.Font = New Font("Cambria", 11.25F, FontStyle.Regular, GraphicsUnit.Point, CByte(0))
-        StatusStrip.Items.AddRange(New ToolStripItem() {statusLed, statusLabel, runType, degiroLabel, esterLabel, ToolStripStatusSays})
+        StatusStrip.Items.AddRange(New ToolStripItem() {statusLed, statusLabel, runType, degiroLabel, esterLabel, ToolStripStatusSays, ToolStripStatusLabelDrawFps})
         StatusStrip.Location = New Point(0, 978)
         StatusStrip.Name = "StatusStrip"
         StatusStrip.Padding = New Padding(1, 0, 16, 0)
@@ -139,6 +142,13 @@ Partial Class FrmMain
         ToolStripStatusSays.Name = "ToolStripStatusSays"
         ToolStripStatusSays.Size = New Size(35, 27)
         ToolStripStatusSays.Text = "says"
+        ' 
+        ' ToolStripStatusLabelDrawFps
+        ' 
+        ToolStripStatusLabelDrawFps.BackColor = Color.Transparent
+        ToolStripStatusLabelDrawFps.Name = "ToolStripStatusLabelDrawFps"
+        ToolStripStatusLabelDrawFps.Size = New Size(40, 27)
+        ToolStripStatusLabelDrawFps.Text = "-- fps"
         ' 
         ' PictureLedRedOff
         ' 
@@ -243,7 +253,7 @@ Partial Class FrmMain
         ' ListBoxLogEvents
         ' 
         ListBoxLogEvents.Dock = DockStyle.Bottom
-        ListBoxLogEvents.Font = New Font("Cambria", 12.0F, FontStyle.Regular, GraphicsUnit.Point, CByte(0))
+        ListBoxLogEvents.Font = New Font("Cambria", 12F, FontStyle.Regular, GraphicsUnit.Point, CByte(0))
         ListBoxLogEvents.FormattingEnabled = True
         ListBoxLogEvents.ItemHeight = 19
         ListBoxLogEvents.Location = New Point(0, 140)
@@ -344,6 +354,7 @@ Partial Class FrmMain
         ' 
         ' PictureBoxTopGraph
         ' 
+        PictureBoxTopGraph.BackColor = Color.Silver
         PictureBoxTopGraph.Dock = DockStyle.Fill
         PictureBoxTopGraph.Location = New Point(0, 0)
         PictureBoxTopGraph.Name = "PictureBoxTopGraph"
@@ -375,7 +386,7 @@ Partial Class FrmMain
         ' 
         ' ManualActionsToolStripMenuItem
         ' 
-        ManualActionsToolStripMenuItem.DropDownItems.AddRange(New ToolStripItem() {TestMeToolStripMenuItem, DegiroScanToolStripMenuItem})
+        ManualActionsToolStripMenuItem.DropDownItems.AddRange(New ToolStripItem() {TestMeToolStripMenuItem, DegiroScanToolStripMenuItem, StartCOLLECTToolStripMenuItem, GraphRenderToolStripMenuItem})
         ManualActionsToolStripMenuItem.Name = "ManualActionsToolStripMenuItem"
         ManualActionsToolStripMenuItem.Size = New Size(100, 20)
         ManualActionsToolStripMenuItem.Text = "manual actions"
@@ -383,14 +394,20 @@ Partial Class FrmMain
         ' TestMeToolStripMenuItem
         ' 
         TestMeToolStripMenuItem.Name = "TestMeToolStripMenuItem"
-        TestMeToolStripMenuItem.Size = New Size(135, 22)
+        TestMeToolStripMenuItem.Size = New Size(180, 22)
         TestMeToolStripMenuItem.Text = "test me"
         ' 
         ' DegiroScanToolStripMenuItem
         ' 
         DegiroScanToolStripMenuItem.Name = "DegiroScanToolStripMenuItem"
-        DegiroScanToolStripMenuItem.Size = New Size(135, 22)
+        DegiroScanToolStripMenuItem.Size = New Size(180, 22)
         DegiroScanToolStripMenuItem.Text = "degiro scan"
+        ' 
+        ' StartCOLLECTToolStripMenuItem
+        ' 
+        StartCOLLECTToolStripMenuItem.Name = "StartCOLLECTToolStripMenuItem"
+        StartCOLLECTToolStripMenuItem.Size = New Size(180, 22)
+        StartCOLLECTToolStripMenuItem.Text = "start COLLECT"
         ' 
         ' SimulationToolStripMenuItem
         ' 
@@ -413,9 +430,15 @@ Partial Class FrmMain
         ' 
         TmerAutoStart.Interval = 5000
         ' 
+        ' GraphRenderToolStripMenuItem
+        ' 
+        GraphRenderToolStripMenuItem.Name = "GraphRenderToolStripMenuItem"
+        GraphRenderToolStripMenuItem.Size = New Size(180, 22)
+        GraphRenderToolStripMenuItem.Text = "graph render"
+        ' 
         ' FrmMain
         ' 
-        AutoScaleDimensions = New SizeF(8.0F, 17.0F)
+        AutoScaleDimensions = New SizeF(8F, 17F)
         AutoScaleMode = AutoScaleMode.Font
         BackColor = Color.MidnightBlue
         ClientSize = New Size(754, 1010)
@@ -493,5 +516,8 @@ Partial Class FrmMain
     Friend WithEvents PanelGraphBottom As Panel
     Friend WithEvents PictureBoxBottomGraph As PictureBox
     Friend WithEvents PictureBoxTopGraph As PictureBox
+    Friend WithEvents ToolStripStatusLabelDrawFps As ToolStripStatusLabel
+    Friend WithEvents StartCOLLECTToolStripMenuItem As ToolStripMenuItem
+    Friend WithEvents GraphRenderToolStripMenuItem As ToolStripMenuItem
 
 End Class
