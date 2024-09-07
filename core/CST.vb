@@ -5,7 +5,7 @@ Namespace CST
 	Module CST
 		Public ROOT_PATH As String = Path.GetFullPath(Path.GetDirectoryName(System.Windows.Forms.Application.ExecutablePath) & "/../../..")
 
-		public DATA_PATH as string = ROOT_PATH
+		Public DATA_PATH As String = ROOT_PATH & "/data"
 
 		Public COMPILED As Boolean = Not (Debugger.IsAttached)
 

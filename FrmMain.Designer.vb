@@ -42,7 +42,7 @@ Partial Class FrmMain
         todayChange = New DataGridViewTextBoxColumn()
         BottomPanel = New Panel()
         Panel1 = New Panel()
-        ListBoxEvents = New ListBox()
+        ListBoxLogEvents = New ListBox()
         Label2 = New Label()
         Label3 = New Label()
         Label1 = New Label()
@@ -230,7 +230,7 @@ Partial Class FrmMain
         ' 
         ' Panel1
         ' 
-        Panel1.Controls.Add(ListBoxEvents)
+        Panel1.Controls.Add(ListBoxLogEvents)
         Panel1.Controls.Add(Label2)
         Panel1.Controls.Add(Label3)
         Panel1.Controls.Add(Label1)
@@ -240,16 +240,16 @@ Partial Class FrmMain
         Panel1.Size = New Size(292, 239)
         Panel1.TabIndex = 8
         ' 
-        ' ListBoxEvents
+        ' ListBoxLogEvents
         ' 
-        ListBoxEvents.Dock = DockStyle.Bottom
-        ListBoxEvents.Font = New Font("Cambria", 12F, FontStyle.Regular, GraphicsUnit.Point, CByte(0))
-        ListBoxEvents.FormattingEnabled = True
-        ListBoxEvents.ItemHeight = 19
-        ListBoxEvents.Location = New Point(0, 140)
-        ListBoxEvents.Name = "ListBoxEvents"
-        ListBoxEvents.Size = New Size(292, 99)
-        ListBoxEvents.TabIndex = 4
+        ListBoxLogEvents.Dock = DockStyle.Bottom
+        ListBoxLogEvents.Font = New Font("Cambria", 12.0F, FontStyle.Regular, GraphicsUnit.Point, CByte(0))
+        ListBoxLogEvents.FormattingEnabled = True
+        ListBoxLogEvents.ItemHeight = 19
+        ListBoxLogEvents.Location = New Point(0, 140)
+        ListBoxLogEvents.Name = "ListBoxLogEvents"
+        ListBoxLogEvents.Size = New Size(292, 99)
+        ListBoxLogEvents.TabIndex = 4
         ' 
         ' Label2
         ' 
@@ -273,7 +273,7 @@ Partial Class FrmMain
         ' 
         Label1.AutoSize = True
         Label1.ForeColor = Color.White
-        Label1.Location = New Point(3, 105)
+        Label1.Location = New Point(3, 120)
         Label1.Name = "Label1"
         Label1.Size = New Size(186, 17)
         Label1.TabIndex = 2
@@ -416,7 +416,7 @@ Partial Class FrmMain
         ' 
         ' FrmMain
         ' 
-        AutoScaleDimensions = New SizeF(8F, 17F)
+        AutoScaleDimensions = New SizeF(8.0F, 17.0F)
         AutoScaleMode = AutoScaleMode.Font
         BackColor = Color.MidnightBlue
         ClientSize = New Size(754, 1010)
@@ -487,7 +487,7 @@ Partial Class FrmMain
     Friend WithEvents TestMeToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents DegiroScanToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents Panel1 As Panel
-    Friend WithEvents ListBoxEvents As ListBox
+    Friend WithEvents ListBoxLogEvents As ListBox
     Friend WithEvents SimulationToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents RunToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents PanelGraphTop As Panel

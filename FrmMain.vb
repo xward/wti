@@ -10,7 +10,7 @@ Public Class FrmMain
     ' // replay simulation, place fake order, fetch fake order/position/transaction, output results to file
     ' live visual graphs 3mo+5d
     ' analyze pattern tools (chute, stable ...)
-    ' implem 4%/1.5% algo with
+    ' implem 4%/1.5% algo with, simulate stuffs
 
     ' place sell order, update order, delete order
     ' manage order too far from objective
@@ -23,14 +23,14 @@ Public Class FrmMain
     ' si qté pair prend en charge, si impair touche pas ?
 
     ' --------------------------------------------------------------------------------------------------------
-
-    ' move FrmMain to frm folder
+    ' refacto
     ' split structure
+    ' move struct as class
+    ' harmonixe assetInfo vs ticker string as fct inputs
 
     ' --------------------------------------------------------------------------------------------------------
 
-    'set to nothing if nothing to do at start is running compiled
-    Dim ACTION_AT_AUTO_START As String = "COLLECT"
+    Dim CommandLineArgs As System.Collections.ObjectModel.ReadOnlyCollection(Of String) = My.Application.CommandLineArgs
 
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         CST.init()
@@ -59,7 +59,7 @@ Public Class FrmMain
 
         Dim fullScreenMode As Boolean = CST.COMPILED
 
-        Me.Width = CST.SCREEN.Width - Edge.edgeWindowRect.Width
+        Me.Width = Math.Min(Me.Width, CST.SCREEN.Width - Edge.edgeWindowRect.Width)
 
         ' Me
         Me.Top = 0
@@ -70,13 +70,13 @@ Public Class FrmMain
 
         PanelGraphTop.Height = TopPanel.Height / 2
 
-        ' auto start
-        If IsNothing(ACTION_AT_AUTO_START) Or Not CST.COMPILED Then
-            ToolStripStatusSays.Text = ""
-        Else
+        ' auto start configuration
+        If CST.COMPILED And CommandLineArgs.Count > 0 AndAlso CommandLineArgs(0) = "COLLECT" Then
             statusLed.BackgroundImage = PictureLedGreenOn.Image
-            ToolStripStatusSays.Text = "About to auto-start with action " & ACTION_AT_AUTO_START
+            ToolStripStatusSays.Text = "About to auto-start with action COLLECT"
         End If
+
+        GraphDraw.currentAsset = sp5003x
 
         Degiro.updateTradePanelUI()
     End Sub
@@ -89,6 +89,7 @@ Public Class FrmMain
             status = StatusEnum.OFFLINE
             'prevent auto start at boot
             TmerAutoStart.Enabled = False
+            ToolStripStatusSays.Text = "Interrupt by user"
         End If
     End Sub
 
@@ -143,13 +144,7 @@ Public Class FrmMain
         End If
 
 
-        ' LblDegiroState.Text = Degiro.degiroState.ToString
-
-        'Label1.Text = ""
-        'For Each assetName As String In TradingView.currentPrice.Keys
-        '    Dim price As AssetPrice = CType(TradingView.currentPrice(assetName), AssetPrice)
-        '    Label1.Text &= assetName & " " & price.dat.ToString & " " & price.price & " " & price.todayChangePerc & "%" & vbCrLf
-        'Next
+        If status <> StatusEnum.SIMU Then GraphDraw.render()
 
         Application.DoEvents()
     End Sub

@@ -112,10 +112,10 @@ Module TradingView
         Dim price As AssetPrice = getPrice(infos)
         Dim line As String = price.Serialize()
 
-        FrmMain.ListBoxEvents.Items.Add(infos.ticker & " " & line)
-        FrmMain.ListBoxEvents.SelectedIndex = FrmMain.ListBoxEvents.Items.Count - 1
+        FrmMain.ListBoxLogEvents.Items.Add(infos.ticker & " " & line)
+        FrmMain.ListBoxLogEvents.SelectedIndex = FrmMain.ListBoxLogEvents.Items.Count - 1
 
-        If FrmMain.ListBoxEvents.Items.Count > 30 Then FrmMain.ListBoxEvents.Items.RemoveAt(0)
+        If FrmMain.ListBoxLogEvents.Items.Count > 30 Then FrmMain.ListBoxLogEvents.Items.RemoveAt(0)
 
         If status = StatusEnum.SIMU Then Exit Sub
 
