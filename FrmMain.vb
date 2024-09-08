@@ -53,12 +53,10 @@ Public Class FrmMain
 
         initUI()
 
-
-
     End Sub
 
 
-    Public bottomGraph As New Graph
+    Public bottomGraph As Graph 
 
 
     Public Sub initUI()
@@ -84,7 +82,7 @@ Public Class FrmMain
             TmerAutoStart.Enabled = True
         End If
 
-        bottomGraph.init(PanelGraphBottom, sp5003x)
+        bottomGraph = New Graph(PanelGraphBottom, sp5003x)
 
         Degiro.updateTradePanelUI()
     End Sub
@@ -160,7 +158,7 @@ Public Class FrmMain
         checkShutDown()
 
         If frmMainResized Then
-            bottomGraph.render()
+            If Not IsNothing(bottomGraph) Then bottomGraph.render()
 
             frmMainResized = False
         End If

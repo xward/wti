@@ -25,7 +25,16 @@ Public Class Graph
     Private defaultFont As New Font("Calibri", 14)
     Private gridPen As Pen = New Pen(Color.FromArgb(100, Color.Gray))
     Private blackPen As Pen = New Pen(Color.Black)
+    Private curvePen As Pen
 
+
+    Public Sub New(parentPanel As Panel, asset As AssetInfos)
+        Me.parentPanel = parentPanel
+        Me.asset = asset
+        init()
+    End Sub
+
+    ' mouse over show value, date, diff %
 
     ' -----------------------------------------------------------------------------------------------------------------------------
     ' Render
@@ -34,6 +43,8 @@ Public Class Graph
         checkResized()
         ' init
         paintItBlack()
+
+        toDate = Date.UtcNow()
 
         ' actual stuff
         renderAssetPrices()
@@ -47,43 +58,111 @@ Public Class Graph
         pictureBox.Image = img
         Application.DoEvents()
         elapsed = Date.UtcNow.Subtract(start).TotalMilliseconds
+
+        ' temps
+        Dim fps As Double = 1000 / Math.Max(1, elapsed)
+        FrmMain.ToolStripStatusLabelDrawFps.Text = Math.Round(elapsed) & "ms (" & Math.Round(fps) & " fps)"
     End Sub
 
 
+    ' implem AssetHistory = list of assetPrice, that load everything we know on this asset ( only what I recorded, for now ), max 4 month history for now (graph doesn't need more). Use this in simulation instead, implem min/max auto, index 5j auto 3mo auto
+    ' implem filter per date min max in assetHistory
+
+    ' find min/max of it percentage
+    ' define échelle
+
+    Private curvePadding As New Padding(0, 20, 50, 30)
+    Private curveRect As New Rectangle
+    Private minPrice As AssetPrice
+    Private maxPrice As AssetPrice
+
+    Private Function pixelY(price As AssetPrice) As Double
+        Return pixelY(price.price)
+    End Function
+    Private Function pixelY(p As Double) As Double
+        ' add padding top/bottom, graph should never touch max échelle
+        Dim innerPadding As Integer = 50
+
+        Dim minP As Double = minPrice.price
+        If minP = 0 Then minP = p
+        Dim maxP As Double = maxPrice.price
+        If maxP = 0 Then maxP = p
+
+        Dim perHOnGraph As Double = (p - minP) / (maxP - minP)
+        ' dbg.info(minP & " " & maxP & " " & " " & price.price & " ->" & perHOnGraph)
+
+        Return curveRect.Top + innerPadding + (1 - perHOnGraph) * (curveRect.Height - innerPadding * 2)
+    End Function
+
+    Private Function pixelX(price As AssetPrice) As Double
+        Return pixelX(price.dat)
+    End Function
+
+    Private Function pixelX(dat As Date) As Double
+        Dim sec As Double = -toDate.Subtract(dat).TotalSeconds
+
+        Dim minSec As Double = -toDate.Subtract(fromDate).TotalSeconds + Math.Floor(toDate.Subtract(fromDate).TotalDays) * (86400 - (asset.marketUTCClose.Subtract(asset.marketOpen).TotalSeconds))
+        Dim maxSec As Double = 0
+
+        Dim perVOnGraph As Double = (sec - minSec) / (maxSec - minSec)
+        ' dbg.info(minSec & " " & maxSec & " " & " " & sec & " ->" & perVOnGraph)
+
+        Return curveRect.Left + perVOnGraph * curveRect.Width
+    End Function
+
+    Private Function diffFromWithDateSec(dat As Date) As Double
+        Return dat.Subtract(fromDate).TotalSeconds - Math.Floor(dat.Subtract(fromDate).TotalDays) * (86400 - (asset.marketUTCClose.Subtract(asset.marketOpen).TotalSeconds))
+    End Function
+
     Private Sub renderAssetPrices()
+
+        ' g.FillRectangle(New SolidBrush(Color.Yellow), curveRect)
+
         ' current
         Dim price As AssetPrice = getPrice(asset)
         ' history
         Dim history As AssetHistory = getAssetHistory(asset)
 
 
-
         ' might get slow, can be easily optimized
         Dim allPrices As List(Of AssetPrice) = history.allPricesAfter(fromDate)
 
-        Dim minPrice As AssetPrice = allPrices.ElementAt(0)
-        Dim maxPrice As AssetPrice = allPrices.ElementAt(0)
+        minPrice = allPrices.ElementAt(0)
+        maxPrice = allPrices.ElementAt(0)
 
         For Each p As AssetPrice In allPrices
             If p.price < minPrice.price Then minPrice = p
             If p.price > maxPrice.price Then maxPrice = p
         Next
 
-
-        ' implem AssetHistory = list of assetPrice, that load everything we know on this asset ( only what I recorded, for now ), max 4 month history for now (graph doesn't need more). Use this in simulation instead, implem min/max auto, index 5j auto 3mo auto
-        ' implem filter per date min max in assetHistory
-
-        ' find min/max of it percentage
-        ' define échelle
-
-        drawHorizontalGrid(img.Height / 2, 60)
-        drawVerticalGrid(img.Width / 2, img.Width / (3 * 4))
+        g.DrawLine(gridPen, New Point(0, pixelY(minPrice)), New Point(img.Width, pixelY(minPrice)))
+        g.DrawLine(gridPen, New Point(0, pixelY(maxPrice)), New Point(img.Width, pixelY(maxPrice)))
 
 
-        labelPrice.Text = price.price
 
 
-        writeText(New Point(100, 100), allPrices.Count, Color.Black, Color.Transparent)
+
+        ' .ToString("###.##")
+
+        writeText(New Point(0, 0), asset.ticker & " - " & asset.name & "      current: " & price.price & asset.currency & " today: " & price.todayChangePerc & "% " & " min: " & minPrice.price & asset.currency & " max: " & maxPrice.price & asset.currency & " have " & allPrices.Count & " points", Color.Black, Color.Transparent)
+
+
+        For nu = 1 To allPrices.Count - 1
+            Dim nm1 As AssetPrice = allPrices.ElementAt(nu - 1)
+            Dim n As AssetPrice = allPrices.ElementAt(nu)
+
+            Dim pt1 As PointF = New PointF(pixelX(nm1), pixelY(nm1))
+            Dim pt2 As PointF = New PointF(pixelX(n), pixelY(n))
+
+            ' dbg.info(pt1.ToString)
+
+            g.DrawLine(curvePen, pt1, pt2)
+        Next
+
+
+
+
+
 
         'Dim pts As PointF()
         'pts.Append(New PointF(0, 0))
@@ -94,11 +173,16 @@ Public Class Graph
 
     End Sub
 
+    'drawHorizontalGrid(img.Height / 2, 60)
+    'drawVerticalGrid(img.Width / 2, img.Width / (3 * 4))
+
+
 
     ' -----------------------------------------------------------------------------------------------------------------------------
     ' Utils
 
     Private Sub checkResized()
+        ' todo
         If pictureBox.Size.ToString() <> img.Size.ToString() Then
             img = New Bitmap(pictureBox.Size.Width, pictureBox.Size.Height)
             g = Graphics.FromImage(img)
@@ -147,9 +231,7 @@ Public Class Graph
 
     ' -----------------------------------------------------------------------------------------------------------------------------
     ' Api
-    Public Sub init(parentPanel As Panel, asset As AssetInfos)
-        Me.parentPanel = parentPanel
-        Me.asset = asset
+    Private Sub init()
 
         fromDate = Date.UtcNow.AddDays(-5)
         toDate = Date.UtcNow
@@ -158,7 +240,7 @@ Public Class Graph
             .Parent = parentPanel
             .Width = 75
             .Dock = DockStyle.Right
-            .BackColor = Color.FromArgb(255, 15, 15, 15)
+            .BackColor = Color.Red '  Color.FromArgb(255, 15, 15, 15)
         End With
 
         With labelPrice
@@ -194,6 +276,15 @@ Public Class Graph
             .BackColor = Color.Red
         End With
 
+        curveRect.X = curvePadding.Left
+        curveRect.Y = curvePadding.Top
+        curveRect.Height = pictureBox.Height - curvePadding.Vertical
+        curveRect.Width = pictureBox.Width - curvePadding.Horizontal
+
+
+
+        curvePen = New Pen(asset.lineColor, 2)
+
         Application.DoEvents()
 
         render()
@@ -205,3 +296,16 @@ Public Class Graph
     End Sub
 
 End Class
+' draw back shadow night
+'If toDate.Subtract(fromDate).TotalDays < 8 Then
+'' todo: manage weekend
+
+'Dim f As Date = Date.Parse(Date.UtcNow.ToShortDateString & " " & asset.marketUTCClose.Hour & ":" & asset.marketUTCClose.Minute & ":00")
+'Dim t As Date = Date.Parse(Date.UtcNow.ToShortDateString & " " & asset.marketOpen.Hour & ":" & asset.marketOpen.Minute & ":00")
+
+'For day As Integer = 0 To 1
+
+'g.DrawRectangle(blackPen, New Rectangle(pixelX(f.AddDays(-day)), curveRect.Y, pixelX(t.AddDays(-day)), curveRect.Y + curveRect.Height))
+'Next
+
+'End If

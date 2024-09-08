@@ -226,6 +226,7 @@ Public Module Structures
         Dim ticker As String
         Dim leverage As Integer
         Dim isShort As Boolean
+        Dim currency As String
         ' if apply, only for raw like wti but not it's ETF version w or wo leverage
         Dim futurUrl As String
         Dim degiroOrderUrl As String
@@ -248,6 +249,7 @@ Public Module Structures
                     .ticker = "3OIL",
                     .leverage = 3,
                     .isShort = False,
+                     .currency = "€",
                     .degiroOrderUrl = "https://trader.degiro.nl/trader/?appMode=order#/markets?newOrder&action=buy&productId=18744180",
                     .degireId = 18744180
                 }
@@ -269,6 +271,7 @@ Public Module Structures
                     .ticker = "3OIS",
                     .leverage = 3,
                     .isShort = True,
+                     .currency = "€",
                     .degiroOrderUrl = "https://trader.degiro.nl/trader/?appMode=order#/markets?newOrder&action=buy&productId=30311482",
                     .degireId = 30311482
                 }
@@ -290,11 +293,12 @@ Public Module Structures
                     .ticker = "3USL",
                     .leverage = 3,
                     .isShort = False,
+                    .currency = "€",
                     .degiroOrderUrl = "https://trader.degiro.nl/trader/?appMode=order#/markets?newOrder&action=buy&productId=4995112",
                     .degireId = 4995112,
                     .marketOpen = Date.Parse("01/01/2024 07:00"),
                     .marketUTCClose = Date.Parse("01/01/2024 15:45"),
-                    .lineColor = Color.AliceBlue
+                    .lineColor = Color.Blue
                 }
         End Select
         Return New AssetInfos With {.ticker = "nothing"}
