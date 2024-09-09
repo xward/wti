@@ -1,8 +1,5 @@
 ﻿Imports System.IO
 
-Imports System.Text
-Imports System.Windows.Forms.VisualStyles.VisualStyleElement
-
 Namespace Ester
     Module Ester
         Public rate As Double = 13.37

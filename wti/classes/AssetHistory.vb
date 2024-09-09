@@ -13,16 +13,49 @@ Public Class AssetHistory
 
     Public Sub New(asset As AssetInfos)
         Me.asset = asset
-
-        If asset.persistHistory Then loadFromDataFromThePathFiles()
-
+        If asset.persistHistory Then loadDataFromPersistHistory()
+        ' load sp500 daily data, using special fonction provided from SP500 module
     End Sub
 
     Public Overrides Function ToString() As String
         Return StructToString(Me)
     End Function
 
-    Public Sub loadFromDataFromThePathFiles()
+    ' ---------------------------------------------------------------------------------------------------------------------------
+    ' API
+
+    Public Function currentPrice() As AssetPrice
+        If doingReplay Then
+            Return prices.ElementAt(replayIndex)
+        Else
+            Return prices.Last
+        End If
+    End Function
+
+    Public Sub addPrice(ByRef price As AssetPrice)
+        If IsNothing(maxPrice) OrElse price.price > maxPrice.price Then maxPrice = price
+        prices.Add(price)
+    End Sub
+
+    Public Function allPricesAfter(dat As Date) As List(Of AssetPrice)
+        Dim np As New List(Of AssetPrice)
+        If doingReplay Then
+            For Each p As AssetPrice In prices.Slice(0, replayIndex + 1)
+                If p.dat.CompareTo(dat) > 0 Then np.Add(p)
+            Next
+        Else
+            For Each p As AssetPrice In prices
+                If p.dat.CompareTo(dat) > 0 Then np.Add(p)
+            Next
+        End If
+        Return np
+    End Function
+
+
+    ' ---------------------------------------------------------------------------------------------------------------------------
+    ' DATA LOADER
+
+    Private Sub loadDataFromPersistHistory()
         prices.Clear()
 
         For Each filePath As String In Directory.GetFiles(CST.DATA_PATH & "/dataFromThePast/")
@@ -37,26 +70,26 @@ Public Class AssetHistory
         prices.Sort(New AssetPriceDateComparer)
     End Sub
 
-    Public Function currentPrice() As AssetPrice
-        If doingReplay Then
-            Return prices.ElementAt(replayIndex)
-        Else
-            Return prices.Last
-        End If
-    End Function
+    Private Sub loadFromCustomFile()
+        'daily, like sp500
+    End Sub
 
-    Public Function allPricesAfter(dat As Date) As List(Of AssetPrice)
-        Dim np As New List(Of AssetPrice)
-        If doingReplay Then
-            For Each p As AssetPrice In prices.Slice(0, replayIndex + 1)
-                If p.dat.CompareTo(dat) > 0 Then np.Add(p)
-            Next
-        Else
-            For Each p As AssetPrice In prices
-                If p.dat.CompareTo(dat) > 0 Then np.Add(p)
-            Next
-        End If
-        Return np
+    ' ---------------------------------------------------------------------------------------------------------------------------
+    ' REPLAY
+
+    ' todo: optional startDate
+    Public Sub initReplay()
+        doingReplay = True
+        replayIndex = 0
+        maxPrice = prices.First
+    End Sub
+
+    Public Function replayNext() As Boolean
+        ' thus we will never use the last value
+        If replayIndex = prices.Count - 1 Then Return False
+        replayIndex += 1
+        If currentPrice().price > maxPrice.price Then maxPrice = currentPrice()
+        Return True
     End Function
 
     'Public Function minPriceEver() As AssetPrice
@@ -78,28 +111,6 @@ Public Class AssetHistory
     '    End If
     '    Return maxPrice
     'End Function
-
-
-    Public Sub addPrice(ByRef price As AssetPrice)
-        If IsNothing(maxPrice) OrElse price.price > maxPrice.price Then maxPrice = price
-        prices.Add(price)
-    End Sub
-
-    ' todo: optional startDate
-    Public Sub initReplay()
-        doingReplay = True
-        replayIndex = 0
-        maxPrice = prices.First
-    End Sub
-
-    Public Function replayNext() As Boolean
-        ' thus we will never use the last value
-        If replayIndex = prices.Count - 1 Then Return False
-        replayIndex += 1
-        If currentPrice().price > maxPrice.price Then maxPrice = currentPrice()
-        Return True
-    End Function
-
 
 End Class
 
