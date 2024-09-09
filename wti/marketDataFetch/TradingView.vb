@@ -54,7 +54,7 @@
                 dbg.fail("Can't parse tradiview price of " & title)
             End Try
 
-            MarketPrice.setPrice(asset, New AssetPrice With {.ticker = asset.ticker, .price = val, .todayChangePerc = todayChangePerc, .dat = DateTime.UtcNow()})
+            MarketPrice.setCurrentPrice(asset, New AssetPrice With {.ticker = asset.ticker, .price = val, .todayChangePerc = todayChangePerc, .dat = DateTime.UtcNow()})
 
             'currentPrice.Item(infos.ticker) = New AssetPrice With {.ticker = infos.ticker, .price = val, .todayChangePerc = todayChangePerc, .dat = DateTime.UtcNow()}
 

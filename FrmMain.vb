@@ -9,6 +9,7 @@ Public Class FrmMain
 
     ' // replay simulation, place fake order, fetch fake order/position/transaction, output results to file
     ' live visual graphs 3mo+5d
+    ' si sp500 < 17.5% max ever -> alert slack/sms
     ' analyze pattern tools (chute, stable ...)
     ' implem 4%/1.5% algo with, simulate stuffs
 
@@ -53,10 +54,12 @@ Public Class FrmMain
 
         initUI()
 
+
+        dbg.info(getPrice(assetFromName(assetNameEnum.SP500_3X)).ToString)
+
         'my current playground
         If CST.HOST_NAME = hostNameEnum.GALACTICA Then
-            SP500Long.runAll()
-
+            SP500StrategyLab.runAll()
         End If
     End Sub
 
@@ -89,7 +92,7 @@ Public Class FrmMain
             TmerAutoStart.Enabled = True
         End If
 
-        bottomGraph = New Graph(PanelGraphBottom, sp5003x)
+        bottomGraph = New Graph(PanelGraphBottom, SP500.sp5003x)
 
         Degiro.updateTradePanelUI()
     End Sub
@@ -115,6 +118,7 @@ Public Class FrmMain
     Dim lastCollect As Date = Date.UtcNow
 
     Private ledBlink As Boolean = False
+    Private esterAlertBlink As Boolean = False
 
     Dim assetsToTrack As New List(Of AssetInfos) From {
         assetInfo("3USL")
@@ -140,9 +144,12 @@ Public Class FrmMain
                 ledBlink = Not ledBlink
         End Select
 
+        If Ester.rate < 3 Then
+            esterAlertBlink = Not esterAlertBlink
+            If esterAlertBlink Then esterLabel.BackColor = Color.IndianRed Else esterLabel.BackColor = Color.Transparent
+        End If
+
         degiroLabel.Text = "cash: " & Math.Round(Degiro.accountCashMoula * 100) / 100 & "€ positions: " & Math.Round(100 * Degiro.accountPositionsMoula) / 100 & "€"
-
-
 
         If status = StatusEnum.COLLECT Then
             Dim diff As Integer = Math.Round(Date.UtcNow.Subtract(lastCollect).TotalSeconds)
@@ -240,7 +247,7 @@ Public Class FrmMain
     End Sub
 
     Private Sub RunToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles RunToolStripMenuItem.Click
-        simulateStupidAlgo()
+        SP500.simulateStupidAlgo()
     End Sub
 
     Private Sub FrmMain_Resize(sender As Object, e As EventArgs) Handles Me.Resize

@@ -1,5 +1,5 @@
 ﻿Imports System.IO
-Namespace SP500Long
+Namespace SP500StrategyLab
     Module SP500Long
         'from data of https://www.nasdaq.com/market-activity/index/spx/historical
         ' min max, average per day over 10 years
@@ -21,12 +21,15 @@ Namespace SP500Long
 
         ' do the same for msci world
 
+        ' [ambush crises] ma préférée sans preuve so far: 
+        ' - dca sur serenity
+        ' - si sp500 baisse 15-20% (à check previous crises) par rapport max ever, on entre en crise
+        ' - si crise: stop-buy-tapis 4% (à check previous crises) sur le 3x
+        ' - quand ca a remonté 4.2x, stop-sell 3% below
+
         ' rerun for every day start all scenario, max 10year span
         ' at end with fiscalité, combien de % par an de gain au bout de 10 ans
         ' -------------------------------------------------------------------------------------------------------------------------------------------------
-
-
-
 
         Public Sub runAll()
             loadSP500Historic()
@@ -59,7 +62,10 @@ Namespace SP500Long
 
             While nextDay()
                 ' tapis !
-                If auFondduTrou() Then buy()
+                If auFondduTrou() Then
+                    dbgLog()
+                    buy()
+                End If
             End While
 
             Debug.WriteLine(vbCrLf & "Serenity/lump sum crise only après: " & history.Count / 365 & " ans: ")
@@ -98,7 +104,7 @@ Namespace SP500Long
             resetRun()
             setEarn(500, 30)
             availableCash = 500
-            'useSerenityAtRest = True
+            ' useSerenityAtRest = True
 
             While nextDay()
                 If isPAyDay() Then
@@ -110,6 +116,7 @@ Namespace SP500Long
                         ' buy(25)
                     ElseIf thisMonthGain < 0.95 Then
                         buy()
+                        ' dbgLog()
                     Else
                         ' buy(50)
                     End If

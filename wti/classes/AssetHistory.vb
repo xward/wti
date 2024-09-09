@@ -1,9 +1,6 @@
-﻿Imports System.DirectoryServices.ActiveDirectory
-Imports System.IO
-Imports System.Runtime.InteropServices.JavaScript.JSType
+﻿Imports System.IO
 
 Public Class AssetHistory
-
     Public asset As AssetInfos
 
     Private prices As New List(Of AssetPrice)
@@ -12,10 +9,13 @@ Public Class AssetHistory
     Private replayIndex As Integer
 
     Private maxPrice As AssetPrice
+    Public diffWithMaxPerc As Double
 
     Public Sub New(asset As AssetInfos)
         Me.asset = asset
-        loadFromDataFromThePathFiles()
+
+        If asset.persistHistory Then loadFromDataFromThePathFiles()
+
     End Sub
 
     Public Overrides Function ToString() As String

@@ -222,6 +222,7 @@ Public Module Structures
         Dim fullName As String
 
         Dim tradingViewUrl As String
+        Dim yahooUrl As String
         ' also called ticker
         Dim ticker As String
         Dim leverage As Integer
@@ -235,6 +236,8 @@ Public Module Structures
         Dim marketOpen As Date
         Dim marketUTCClose As Date
         Dim lineColor As Color
+
+        Dim persistHistory As Boolean
     End Structure
 
 
@@ -251,7 +254,8 @@ Public Module Structures
                     .isShort = False,
                      .currency = "€",
                     .degiroOrderUrl = "https://trader.degiro.nl/trader/?appMode=order#/markets?newOrder&action=buy&productId=18744180",
-                    .degireId = 18744180
+                    .degireId = 18744180,
+                    .persistHistory = True
                 }
             Case "3OIS"
                 Dim tradingViewUrl As String = ""
@@ -273,7 +277,8 @@ Public Module Structures
                     .isShort = True,
                      .currency = "€",
                     .degiroOrderUrl = "https://trader.degiro.nl/trader/?appMode=order#/markets?newOrder&action=buy&productId=30311482",
-                    .degireId = 30311482
+                    .degireId = 30311482,
+                    .persistHistory = True
                 }
 
             Case "3USL"
@@ -298,11 +303,49 @@ Public Module Structures
                     .degireId = 4995112,
                     .marketOpen = Date.Parse("01/01/2024 07:00"),
                     .marketUTCClose = Date.Parse("01/01/2024 15:45"),
-                    .lineColor = Color.Blue
+                    .lineColor = Color.Blue,
+                    .persistHistory = True
                 }
+            Case "SPX"
+                Return New AssetInfos With {
+                    .name = "SP500",
+                    .fullName = "S&P 500 INDEX (^SPX)",
+                    .yahooUrl = "https://finance.yahoo.com/quote/%5ESPX/",
+                    .ticker = "SPX",
+                    .leverage = 1,
+                    .isShort = False,
+                    .currency = "$",
+                    .degiroOrderUrl = "-",
+                    .degireId = 0,
+                    .lineColor = Color.Red,
+                    .persistHistory = False
+                }
+                ' close  4:51 PM EDT
+                ' open 13h30 utc
         End Select
         Return New AssetInfos With {.ticker = "nothing"}
     End Function
+
+    Public Function assetFromName(name As assetNameEnum) As AssetInfos
+        Select Case name
+            Case assetNameEnum.SP500
+                Return assetInfo("SPX")
+            Case assetNameEnum.SP500_3X
+                Return assetInfo("3USL")
+            Case assetNameEnum.WTI_3X
+                Return assetInfo("3OIL")
+            Case assetNameEnum.WTI_3X_SHORT
+                Return assetInfo("3OIS")
+        End Select
+    End Function
+
+    Public Enum assetNameEnum
+        SP500
+        SP500_3X
+        WTI_3X
+        WTI_3X_SHORT
+    End Enum
+
 
     Public Enum OrderTypeEnum
         LIMIT_SELL

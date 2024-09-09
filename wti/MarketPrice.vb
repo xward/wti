@@ -3,18 +3,17 @@ Module MarketPrice
 
     Private assetsPriceHistory As New List(Of AssetHistory)
 
-    Public Sub setPrice(asset As AssetInfos, price As AssetPrice)
+    Public Sub setCurrentPrice(asset As AssetInfos, current As AssetPrice)
         Dim previous As AssetPrice = getPrice(asset)
 
-        Dim assHistory As AssetHistory = getAssetHistory(asset)
-        assHistory.addPrice(price)
-
-        Dim current As AssetPrice = getPrice(asset)
-
-        dbg.info(current.ticker & " curent value " & current.price & ". Today change = " & current.todayChangePerc & "%")
-
         If IsNothing(previous) OrElse previous.price <> current.price Then
-            pushPriceToFile(asset)
+            Dim assHistory As AssetHistory = getAssetHistory(asset)
+            assHistory.addPrice(current)
+
+            dbg.info(current.ticker & " curent value " & current.price & ". Today change = " & current.todayChangePerc & "%")
+            If asset.persistHistory Then pushPriceToFile(asset)
+        Else
+            dbg.info(current.ticker & "price no change")
         End If
     End Sub
 

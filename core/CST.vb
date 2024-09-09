@@ -27,7 +27,7 @@ Namespace CST
 					HOST_NAME = hostNameEnum.GHOST
 			End Select
 
-			dbg.info("Running on computer " & My.Computer.Name)
+			dbg.info("Running on computer " & HOST_NAME.ToString)
 		End Sub
 
 	End Module
