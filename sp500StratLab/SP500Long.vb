@@ -17,6 +17,7 @@ Namespace SP500Long
 
         ' manage real world: fee, can't buy all cash even if I want, ester...
         ' ddos dva: changer period investisseent, perc to invest
+        ' est ce que attendre une giga crise pour lump sum mieux que dca ?  
 
         ' do the same for msci world
 
@@ -24,9 +25,13 @@ Namespace SP500Long
         ' at end with fiscalité, combien de % par an de gain au bout de 10 ans
         ' -------------------------------------------------------------------------------------------------------------------------------------------------
 
+
+
+
         Public Sub runAll()
             loadSP500Historic()
             serenityOnly()
+            serenityLumpSumSurCrise()
             runDCA()
             runDCAWeek()
             runDVAClassic()
@@ -43,6 +48,21 @@ Namespace SP500Long
             End While
 
             Debug.WriteLine(vbCrLf & "Serenity only après: " & history.Count / 365 & " ans: ")
+            dbgLog()
+        End Sub
+
+        Public Sub serenityLumpSumSurCrise()
+            resetRun()
+            setEarn(500, 30)
+            availableCash = 500
+            useSerenityAtRest = True
+
+            While nextDay()
+                ' tapis !
+                If auFondduTrou() Then buy()
+            End While
+
+            Debug.WriteLine(vbCrLf & "Serenity/lump sum crise only après: " & history.Count / 365 & " ans: ")
             dbgLog()
         End Sub
 
@@ -220,6 +240,24 @@ Namespace SP500Long
 
             Application.DoEvents()
             Return True
+        End Function
+
+        Private Function auFondduTrou() As Double
+
+            Dim dats As New List(Of String)
+            ' covid
+            dats.Add("03/20/2020")
+            'creux 2022
+            dats.Add("10/07/2022")
+
+            For Each ds As String In dats
+                Dim dat As Date = Date.Parse(ds)
+                If todaySp500.dat.Year = dat.Year And todaySp500.dat.Month = dat.Month And todaySp500.dat.Day = dat.Day Then
+                    ' dbg.info("HAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
+                    Return True
+                End If
+            Next
+            Return False
         End Function
 
         Public Sub loadSP500Historic()
