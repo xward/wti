@@ -1,3 +1,5 @@
+Imports System.Runtime.InteropServices.JavaScript.JSType
+
 Public Class Graph
     ' data source
     Public asset As AssetInfos
@@ -24,8 +26,12 @@ Public Class Graph
     ' style
     Private defaultFont As New Font("Calibri", 14)
     Private gridPen As Pen = New Pen(Color.FromArgb(100, Color.Gray))
+    Private legendPen As Pen = New Pen(Color.FromArgb(250, Color.Gray))
     Private blackPen As Pen = New Pen(Color.Black)
     Private curvePen As Pen
+
+    Private lastMouseMove As Date = Date.UtcNow
+    Private mouseOvering As New Point(-1, -1)
 
 
     Public Sub New(parentPanel As Panel, asset As AssetInfos)
@@ -35,6 +41,9 @@ Public Class Graph
     End Sub
 
     ' mouse over show value, date, diff %
+    ' remove nights
+    ' how much loss in 5 days, how much loss from max ever(only sp500 credible)
+    ' chute intensity graph (=f(% loss, time it took))
 
     ' -----------------------------------------------------------------------------------------------------------------------------
     ' Render
@@ -70,11 +79,16 @@ Public Class Graph
 
     ' find min/max of it percentage
     ' define échelle
+    ' fox how much perc horizontal to print
 
     Private curvePadding As New Padding(0, 20, 50, 30)
     Private curveRect As New Rectangle
     Private minPrice As AssetPrice
     Private maxPrice As AssetPrice
+    Private zeroPrice As AssetPrice
+    Private history As AssetHistory
+    Private allPrices As List(Of AssetPrice)
+
 
     Private Function pixelY(price As AssetPrice) As Double
         Return pixelY(price.price)
@@ -91,6 +105,9 @@ Public Class Graph
         Dim perHOnGraph As Double = (p - minP) / (maxP - minP)
         ' dbg.info(minP & " " & maxP & " " & " " & price.price & " ->" & perHOnGraph)
 
+
+        ' dbg.info(curveRect.Top + innerPadding + (1 - perHOnGraph) * (curveRect.Height - innerPadding * 2))
+
         Return curveRect.Top + innerPadding + (1 - perHOnGraph) * (curveRect.Height - innerPadding * 2)
     End Function
 
@@ -99,19 +116,28 @@ Public Class Graph
     End Function
 
     Private Function pixelX(dat As Date) As Double
-        Dim sec As Double = -toDate.Subtract(dat).TotalSeconds
+        'Dim sec As Double = -toDate.Subtract(dat).TotalSeconds
 
-        Dim minSec As Double = -toDate.Subtract(fromDate).TotalSeconds + Math.Floor(toDate.Subtract(fromDate).TotalDays) * (86400 - (asset.marketUTCClose.Subtract(asset.marketOpen).TotalSeconds))
-        Dim maxSec As Double = 0
+        'Dim minSec As Double = -toDate.Subtract(fromDate).TotalSeconds ' + Math.Floor(toDate.Subtract(fromDate).TotalDays) * (86400 - (asset.marketUTCClose.Subtract(asset.marketOpen).TotalSeconds))
+        '' Dim maxSec As Double = 0
 
-        Dim perVOnGraph As Double = (sec - minSec) / (maxSec - minSec)
+        Dim perVOnGraph As Double = diffFromWithDateSec(dat) / diffFromWithDateSec(Date.UtcNow())
         ' dbg.info(minSec & " " & maxSec & " " & " " & sec & " ->" & perVOnGraph)
+
+        ' dbg.info(Math.Floor(dat.Subtract(fromDate).TotalDays) & "  " & perVOnGraph & "  " & (86400 - (asset.marketUTCClose.Subtract(asset.marketOpen).TotalSeconds)))
 
         Return curveRect.Left + perVOnGraph * curveRect.Width
     End Function
 
+    'sec between dat and fromDate removing seconds during market close
     Private Function diffFromWithDateSec(dat As Date) As Double
-        Return dat.Subtract(fromDate).TotalSeconds - Math.Floor(dat.Subtract(fromDate).TotalDays) * (86400 - (asset.marketUTCClose.Subtract(asset.marketOpen).TotalSeconds))
+
+
+
+
+        'dbg.info(Math.Floor(dat.Subtract(fromDate).TotalDays))
+        Return dat.Subtract(fromDate).TotalSeconds ' - (0 + Math.Floor(dat.Subtract(fromDate).TotalDays)) * 54900
+        '            (Math.Floor(toDate.Subtract(dat).TotalDays) - 0) * (86400 - (asset.marketUTCClose.Subtract(asset.marketOpen).TotalSeconds))
     End Function
 
     Private Sub renderAssetPrices()
@@ -120,41 +146,53 @@ Public Class Graph
 
         ' current
         Dim price As AssetPrice = getPrice(asset)
-        ' history
-        Dim history As AssetHistory = getAssetHistory(asset)
-
 
         ' might get slow, can be easily optimized
-        Dim allPrices As List(Of AssetPrice) = history.allPricesAfter(fromDate)
+        allPrices = history.allPricesAfter(fromDate)
 
+        zeroPrice = allPrices.ElementAt(0)
+
+        'compute min/max
         minPrice = allPrices.ElementAt(0)
         maxPrice = allPrices.ElementAt(0)
-
         For Each p As AssetPrice In allPrices
             If p.price < minPrice.price Then minPrice = p
             If p.price > maxPrice.price Then maxPrice = p
         Next
+        'g.DrawLine(gridPen, New Point(0, pixelY(minPrice)), New Point(img.Width, pixelY(minPrice)))
+        'g.DrawLine(gridPen, New Point(0, pixelY(maxPrice)), New Point(img.Width, pixelY(maxPrice)))
 
-        g.DrawLine(gridPen, New Point(0, pixelY(minPrice)), New Point(img.Width, pixelY(minPrice)))
-        g.DrawLine(gridPen, New Point(0, pixelY(maxPrice)), New Point(img.Width, pixelY(maxPrice)))
+        ' vertial day separator
+        For day = 0 To -6 Step -1
+            Dim dat As Date = Date.Parse(Date.UtcNow.ToShortDateString).AddDays(day)
+            g.DrawLine(gridPen, New Point(pixelX(dat), curveRect.Y), New Point(pixelX(dat), curveRect.Y + curveRect.Height))
+
+            writeText(New Point(pixelX(dat), curveRect.Y + curveRect.Height - 20), dat.Day, legendPen.Color, Color.Transparent)
+        Next
 
 
+        ' horizontal perc separator
+        For perc As Double = 0 To -100 Step -1
+            Dim y As Double = pixelY(zeroPrice.price * (1.0 + perc / 100))
+            g.DrawLine(gridPen, New Point(curveRect.X, y), New Point(curveRect.X + curveRect.Width, y))
+            writeText(New Point(curveRect.X + curveRect.Width, y), perc & "%", legendPen.Color, Color.Transparent)
+        Next
+        For perc As Double = 1 To 200
+            Dim y As Double = pixelY(zeroPrice.price * (1.0 + perc / 100))
+            g.DrawLine(gridPen, New Point(curveRect.X, y), New Point(curveRect.X + curveRect.Width, y))
+            writeText(New Point(curveRect.X + curveRect.Width, y), perc & "%", legendPen.Color, Color.Transparent)
+        Next
 
-
-
-        ' .ToString("###.##")
-
+        'top text
         writeText(New Point(0, 0), asset.ticker & " - " & asset.name & "      current: " & price.price & asset.currency & " today: " & price.todayChangePerc & "% " & " min: " & minPrice.price & asset.currency & " max: " & maxPrice.price & asset.currency & " have " & allPrices.Count & " points", Color.Black, Color.Transparent)
 
-
+        ' asset graph curve itself
         For nu = 1 To allPrices.Count - 1
             Dim nm1 As AssetPrice = allPrices.ElementAt(nu - 1)
             Dim n As AssetPrice = allPrices.ElementAt(nu)
 
             Dim pt1 As PointF = New PointF(pixelX(nm1), pixelY(nm1))
             Dim pt2 As PointF = New PointF(pixelX(n), pixelY(n))
-
-            ' dbg.info(pt1.ToString)
 
             g.DrawLine(curvePen, pt1, pt2)
         Next
@@ -234,45 +272,48 @@ Public Class Graph
     Private Sub init()
 
         fromDate = Date.UtcNow.AddDays(-5)
-        toDate = Date.UtcNow
+        ' truncate from date
+        'fromDate = Date.Parse(fromDate.ToShortDateString).AddDays(-5)
 
-        With rightPanel
-            .Parent = parentPanel
-            .Width = 75
-            .Dock = DockStyle.Right
-            .BackColor = Color.Red '  Color.FromArgb(255, 15, 15, 15)
-        End With
+        dbg.info(fromDate)
 
-        With labelPrice
-            .Parent = rightPanel
-            .Left = 0
-            .Top = 0
-            .Font = New Font("Calibri", 14)
-        End With
+        'With rightPanel
+        '    .Parent = parentPanel
+        '    .Width = 75
+        '    .Dock = DockStyle.Right
+        '    .BackColor = Color.Red '  Color.FromArgb(255, 15, 15, 15)
+        'End With
 
-        With leftPanel
-            .Parent = parentPanel
-            .Dock = DockStyle.Fill
-            '.BackColor = Color.Red
-        End With
+        'With labelPrice
+        '    .Parent = rightPanel
+        '    .Left = 0
+        '    .Top = 0
+        '    .Font = New Font("Calibri", 14)
+        'End With
+
+        'With leftPanel
+        '    .Parent = parentPanel
+        '    .Dock = DockStyle.Fill
+        '    '.BackColor = Color.Red
+        'End With
 
         '  dock marche pas, go manual
-        With xLegend
-            .Parent = leftPanel
-            .Top = leftPanel.Height - 50
-            .Height = 50
-            .Left = 0
-            .Width = leftPanel.Width
-            .BackColor = Color.FromArgb(255, 15, 15, 15)
+        'With xLegend
+        '    .Parent = leftPanel
+        '    .Top = leftPanel.Height - 50
+        '    .Height = 50
+        '    .Left = 0
+        '    .Width = leftPanel.Width
+        '    .BackColor = Color.FromArgb(255, 15, 15, 15)
 
-        End With
+        'End With
 
         With pictureBox
-            .Parent = leftPanel
+            .Parent = parentPanel
             .Top = 0
             .Left = 0
-            .Height = leftPanel.Height - 50
-            .Width = leftPanel.Width
+            .Height = parentPanel.Height
+            .Width = parentPanel.Width
             .BackColor = Color.Red
         End With
 
@@ -283,7 +324,10 @@ Public Class Graph
 
 
 
+        AddHandler pictureBox.MouseMove, AddressOf moveOverGraph
+
         curvePen = New Pen(asset.lineColor, 2)
+        history = getAssetHistory(asset)
 
         Application.DoEvents()
 
@@ -293,6 +337,18 @@ Public Class Graph
         Me.fromDate = fromDate
         Me.toDate = toDate
         render()
+    End Sub
+
+    Public Sub moveOverGraph(sender As Object, e As MouseEventArgs)
+        ' 20 fps on mouse over max
+        If Date.UtcNow.Subtract(lastMouseMove).TotalMilliseconds < 50 Then Exit Sub
+        lastMouseMove = Date.UtcNow
+
+        mouseOvering.X = e.X
+        mouseOvering.Y = e.Y
+
+        render()
+        ' rerender?
     End Sub
 
 End Class

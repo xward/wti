@@ -13,7 +13,9 @@ Module MarketPrice
 
         dbg.info(current.ticker & " curent value " & current.price & ". Today change = " & current.todayChangePerc & "%")
 
-        If IsNothing(previous) OrElse previous.price <> current.price Then pushPriceToFile(asset)
+        If IsNothing(previous) OrElse previous.price <> current.price Then
+            pushPriceToFile(asset)
+        End If
     End Sub
 
     Public Function getPrice(asset As AssetInfos) As AssetPrice
@@ -55,14 +57,16 @@ Module MarketPrice
         Dim price As AssetPrice = getPrice(infos)
         Dim line As String = price.Serialize()
 
-        FrmMain.ListBoxLogEvents.Items.Add(infos.ticker & " " & line)
-        FrmMain.ListBoxLogEvents.SelectedIndex = FrmMain.ListBoxLogEvents.Items.Count - 1
-
-        If FrmMain.ListBoxLogEvents.Items.Count > 30 Then FrmMain.ListBoxLogEvents.Items.RemoveAt(0)
+        FrmMain.pushLineToListBox(infos.ticker & " " & line)
 
         If status = StatusEnum.SIMU Then Exit Sub
 
         Dim fileName As String = CST.DATA_PATH & "/dataFromThePast/" & infos.ticker & "_" & Date.UtcNow.Year & "_" & Date.UtcNow.Month.ToString("00") & ".tv.txt"
+
+        If CST.HOST_NAME = CST.CST.hostNameEnum.GALACTICA Then
+            FrmMain.pushLineToListBox("skip save to file because we are galactica")
+            Exit Sub
+        End If
 
         If File.Exists(fileName) Then
             File.AppendAllText(fileName, line & vbCrLf)

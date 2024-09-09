@@ -62,6 +62,7 @@ Partial Class FrmMain
         GraphRenderToolStripMenuItem = New ToolStripMenuItem()
         SimulationToolStripMenuItem = New ToolStripMenuItem()
         RunToolStripMenuItem = New ToolStripMenuItem()
+        RunSp500LongToolStripMenuItem = New ToolStripMenuItem()
         TmerKeyIput = New Timer(components)
         TmerAutoStart = New Timer(components)
         StatusStrip.SuspendLayout()
@@ -120,7 +121,7 @@ Partial Class FrmMain
         StatusStrip.Location = New Point(0, 978)
         StatusStrip.Name = "StatusStrip"
         StatusStrip.Padding = New Padding(1, 0, 16, 0)
-        StatusStrip.Size = New Size(754, 32)
+        StatusStrip.Size = New Size(765, 32)
         StatusStrip.TabIndex = 4
         ' 
         ' runType
@@ -229,7 +230,7 @@ Partial Class FrmMain
         BottomPanel.ForeColor = Color.White
         BottomPanel.Location = New Point(0, 739)
         BottomPanel.Name = "BottomPanel"
-        BottomPanel.Size = New Size(754, 239)
+        BottomPanel.Size = New Size(765, 239)
         BottomPanel.TabIndex = 12
         ' 
         ' Panel1
@@ -241,7 +242,7 @@ Partial Class FrmMain
         Panel1.Dock = DockStyle.Fill
         Panel1.Location = New Point(462, 0)
         Panel1.Name = "Panel1"
-        Panel1.Size = New Size(292, 239)
+        Panel1.Size = New Size(303, 239)
         Panel1.TabIndex = 8
         ' 
         ' ListBoxLogEvents
@@ -252,7 +253,7 @@ Partial Class FrmMain
         ListBoxLogEvents.ItemHeight = 19
         ListBoxLogEvents.Location = New Point(0, 140)
         ListBoxLogEvents.Name = "ListBoxLogEvents"
-        ListBoxLogEvents.Size = New Size(292, 99)
+        ListBoxLogEvents.Size = New Size(303, 99)
         ListBoxLogEvents.TabIndex = 4
         ' 
         ' Label2
@@ -312,7 +313,7 @@ Partial Class FrmMain
         TopPanel.Dock = DockStyle.Fill
         TopPanel.Location = New Point(0, 0)
         TopPanel.Name = "TopPanel"
-        TopPanel.Size = New Size(754, 739)
+        TopPanel.Size = New Size(765, 739)
         TopPanel.TabIndex = 13
         ' 
         ' PanelGraphBottom
@@ -322,7 +323,7 @@ Partial Class FrmMain
         PanelGraphBottom.Dock = DockStyle.Fill
         PanelGraphBottom.Location = New Point(0, 329)
         PanelGraphBottom.Name = "PanelGraphBottom"
-        PanelGraphBottom.Size = New Size(754, 410)
+        PanelGraphBottom.Size = New Size(765, 410)
         PanelGraphBottom.TabIndex = 6
         ' 
         ' PanelGraphTop
@@ -332,7 +333,7 @@ Partial Class FrmMain
         PanelGraphTop.Dock = DockStyle.Top
         PanelGraphTop.Location = New Point(0, 24)
         PanelGraphTop.Name = "PanelGraphTop"
-        PanelGraphTop.Size = New Size(754, 305)
+        PanelGraphTop.Size = New Size(765, 305)
         PanelGraphTop.TabIndex = 5
         ' 
         ' MainMenuStrip
@@ -340,7 +341,7 @@ Partial Class FrmMain
         MainMenuStrip.Items.AddRange(New ToolStripItem() {TradesToolStripMenuItem, ManualActionsToolStripMenuItem, SimulationToolStripMenuItem})
         MainMenuStrip.Location = New Point(0, 0)
         MainMenuStrip.Name = "MainMenuStrip"
-        MainMenuStrip.Size = New Size(754, 24)
+        MainMenuStrip.Size = New Size(765, 24)
         MainMenuStrip.TabIndex = 4
         MainMenuStrip.Text = "MainMenuStrip"
         ' 
@@ -390,7 +391,7 @@ Partial Class FrmMain
         ' 
         ' SimulationToolStripMenuItem
         ' 
-        SimulationToolStripMenuItem.DropDownItems.AddRange(New ToolStripItem() {RunToolStripMenuItem})
+        SimulationToolStripMenuItem.DropDownItems.AddRange(New ToolStripItem() {RunToolStripMenuItem, RunSp500LongToolStripMenuItem})
         SimulationToolStripMenuItem.Name = "SimulationToolStripMenuItem"
         SimulationToolStripMenuItem.Size = New Size(76, 20)
         SimulationToolStripMenuItem.Text = "Simulation"
@@ -398,8 +399,14 @@ Partial Class FrmMain
         ' RunToolStripMenuItem
         ' 
         RunToolStripMenuItem.Name = "RunToolStripMenuItem"
-        RunToolStripMenuItem.Size = New Size(125, 22)
+        RunToolStripMenuItem.Size = New Size(152, 22)
         RunToolStripMenuItem.Text = "run sp500"
+        ' 
+        ' RunSp500LongToolStripMenuItem
+        ' 
+        RunSp500LongToolStripMenuItem.Name = "RunSp500LongToolStripMenuItem"
+        RunSp500LongToolStripMenuItem.Size = New Size(152, 22)
+        RunSp500LongToolStripMenuItem.Text = "run sp500Long"
         ' 
         ' TmerKeyIput
         ' 
@@ -414,7 +421,7 @@ Partial Class FrmMain
         AutoScaleDimensions = New SizeF(8F, 17F)
         AutoScaleMode = AutoScaleMode.Font
         BackColor = Color.MidnightBlue
-        ClientSize = New Size(754, 1010)
+        ClientSize = New Size(765, 1010)
         Controls.Add(TopPanel)
         Controls.Add(BottomPanel)
         Controls.Add(DataGridViewAssetPrices)
@@ -486,5 +493,6 @@ Partial Class FrmMain
     Friend WithEvents StartCOLLECTToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents GraphRenderToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents PanelGraphBottom As Panel
+    Friend WithEvents RunSp500LongToolStripMenuItem As ToolStripMenuItem
 
 End Class

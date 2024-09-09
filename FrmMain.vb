@@ -53,10 +53,15 @@ Public Class FrmMain
 
         initUI()
 
+        'my current playground
+        If CST.HOST_NAME = hostNameEnum.GALACTICA Then
+            SP500Long.runAll()
+
+        End If
     End Sub
 
 
-    Public bottomGraph As Graph 
+    Public bottomGraph As Graph
 
 
     Public Sub initUI()
@@ -73,7 +78,7 @@ Public Class FrmMain
         Me.Height = CST.SCREEN.Height
 
 
-        PanelGraphTop.Height = TopPanel.Height / 2
+        PanelGraphTop.Height = 0 'TopPanel.Height / 2
 
         ' auto start configuration
         If CST.COMPILED And CommandLineArgs.Count > 0 AndAlso CommandLineArgs(0) = "COLLECT" Then
@@ -149,6 +154,9 @@ Public Class FrmMain
                 fetchPrice(assetsToTrack)
                 lastCollect = Date.UtcNow
                 TmrUI.Enabled = True
+
+                bottomGraph.render()
+
             End If
         End If
 
@@ -182,6 +190,14 @@ Public Class FrmMain
         Process.Start("ShutDown", "/s")
         Pause(1000)
         End
+    End Sub
+
+    Public Sub pushLineToListBox(str As String)
+        ListBoxLogEvents.Items.Add(str)
+        ListBoxLogEvents.SelectedIndex = ListBoxLogEvents.Items.Count - 1
+
+        If ListBoxLogEvents.Items.Count > 30 Then ListBoxLogEvents.Items.RemoveAt(0)
+
     End Sub
 
 
@@ -227,5 +243,9 @@ Public Class FrmMain
 
     Private Sub FrmMain_Resize(sender As Object, e As EventArgs) Handles Me.Resize
         frmMainResized = True
+    End Sub
+
+    Private Sub RunSp500LongToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles RunSp500LongToolStripMenuItem.Click
+
     End Sub
 End Class
