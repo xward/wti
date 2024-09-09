@@ -27,6 +27,7 @@ Module MarketPrice
     'End Function
 
     Public Function getAssetHistory(asset As AssetInfos) As AssetHistory
+
         For Each a As AssetHistory In assetsPriceHistory
             If a.asset.ticker = asset.ticker Then Return a
         Next

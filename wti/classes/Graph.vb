@@ -1,5 +1,3 @@
-Imports System.Runtime.InteropServices.JavaScript.JSType
-
 Public Class Graph
     ' data source
     Public asset As AssetInfos
@@ -148,6 +146,7 @@ Public Class Graph
         Dim price As AssetPrice = getPrice(asset)
 
         ' might get slow, can be easily optimized
+        ' todo: drop outside of market open
         allPrices = history.allPricesAfter(fromDate)
 
         zeroPrice = allPrices.ElementAt(0)
@@ -327,6 +326,8 @@ Public Class Graph
         AddHandler pictureBox.MouseMove, AddressOf moveOverGraph
 
         curvePen = New Pen(asset.lineColor, 2)
+
+
         history = getAssetHistory(asset)
 
         Application.DoEvents()

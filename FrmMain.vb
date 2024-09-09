@@ -77,6 +77,8 @@ Public Class FrmMain
         If fullScreenMode Then Me.Width = CST.SCREEN.Width - Me.Left
         Me.Height = CST.SCREEN.Height
 
+        Me.Text = "not WTI - " & CST.HOST_NAME.ToString
+
 
         PanelGraphTop.Height = 0 'TopPanel.Height / 2
 
