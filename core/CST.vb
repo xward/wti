@@ -14,6 +14,7 @@ Namespace CST
 		Public HOST_NAME As hostNameEnum
 
 		Public Enum hostNameEnum
+			UNKNOWN
 			GALACTICA
 			GHOST
 		End Enum
@@ -22,11 +23,11 @@ Namespace CST
 			Select Case My.Computer.Name
 				Case "DESKTOP-58FECV7"
 					HOST_NAME = hostNameEnum.GALACTICA
-				Case "GHOST"
+				Case "EPIA-GHOST"
 					HOST_NAME = hostNameEnum.GHOST
 			End Select
 
-			dbg.info("Running on computer " & HOST_NAME.ToString)
+			dbg.info("Running on computer " & My.Computer.Name)
 		End Sub
 
 	End Module
