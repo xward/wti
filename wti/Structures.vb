@@ -290,10 +290,12 @@ Public Module Structures
                         tradingViewUrl = "https://www.tradingview.com/chart/vjhxMR0Z/?symbol=MIL%3A3USL"
                 End Select
 
+                ' https://finance.yahoo.com/quote/IE00B7Y34M31.SG/
                 Return New AssetInfos With {
                     .ISIN = "IE00B7Y34M31",
                     .name = "SP500 3X",
                     .fullName = "WISDOMTREE S&P 500 3X DAILY LEVERAG",
+                    .yahooUrl = "https://finance.yahoo.com/quote/3USL.L/",
                     .tradingViewUrl = tradingViewUrl,
                     .ticker = "3USL",
                     .leverage = 3,
@@ -307,6 +309,11 @@ Public Module Structures
                     .persistHistory = True
                 }
             Case "SPX"
+
+                'blackrock sp500 euro IE00B3ZW0K18  iShares S&P 500 EUR Hedged UCITS ETF (Acc) (IUSE.L)
+                ' IE000D3BWBR2 dollar iShares S&P 500 Swap UCITS ETF USD (Dist) https://finance.yahoo.com/quote/I50D.AS/
+                ' LU1135865084 euro Amundi S&P 500 II UCITS ETF Acc (SP5C.PA)  https://finance.yahoo.com/quote/SP5C.PA/
+
                 Return New AssetInfos With {
                     .name = "SP500",
                     .fullName = "S&P 500 INDEX (^SPX)",

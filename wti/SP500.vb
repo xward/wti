@@ -13,8 +13,6 @@
 
         End Sub
 
-
-
         ' detect major crise: 45% value loss in X temps
 
         ' fetch/update historique data long game
