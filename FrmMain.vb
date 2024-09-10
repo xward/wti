@@ -8,7 +8,17 @@ Public Class FrmMain
     ' // show trades, with current price, how far I am
 
     ' // replay simulation, place fake order, fetch fake order/position/transaction, output results to file
+
+    ' yahoo api, je peux tout fetch par la ? et de l'historique aussi ? https://github.com/ranaroussi/yfinance
+    ' je veux simuler du long terme sp500
+    ' 1 graph long, graph écart maxEver vs now
+
+    ' --------------------------------------------------------------------------------------------------------
+
+
     ' live visual graphs 3mo+5d
+    ' je veux visualiser des data sur des annees, algo chute depuis maxever
+    ' show price sur ui, max ever diff
     ' si sp500 < 17.5% max ever -> alert slack/sms
     ' analyze pattern tools (chute, stable ...)
     ' implem 4%/1.5% algo with, simulate stuffs
@@ -48,17 +58,14 @@ Public Class FrmMain
         Edge.ensureRunning()
         Edge.printAllEdge()
 
-        ' update ester rate
-        Ester.fetchRateFromBCE()
-        esterLabel.Text = "ester: " & Ester.rate
-
         initUI()
 
+        marketPriceStart()
 
-        dbg.info(getPrice(assetFromName(assetNameEnum.SP500_3X)).ToString)
+        '  dbg.info(getPrice(AssetNameEnum.SP500_3X).ToString)
 
         'my current playground
-        If CST.HOST_NAME = hostNameEnum.GALACTICA Then
+        If CST.HOST_NAME = hostNameEnum.GALACTICA And False Then
             SP500StrategyLab.runAll()
         End If
     End Sub
@@ -115,7 +122,6 @@ Public Class FrmMain
         TmerAutoStart.Enabled = False
     End Sub
 
-    Dim lastCollect As Date = Date.UtcNow
 
     Private ledBlink As Boolean = False
     Private esterAlertBlink As Boolean = False
@@ -151,23 +157,6 @@ Public Class FrmMain
 
         degiroLabel.Text = "cash: " & Math.Round(Degiro.accountCashMoula * 100) / 100 & "€ positions: " & Math.Round(100 * Degiro.accountPositionsMoula) / 100 & "€"
 
-        If status = StatusEnum.COLLECT Then
-            Dim diff As Integer = Math.Round(Date.UtcNow.Subtract(lastCollect).TotalSeconds)
-
-            Label1.Text = "next price update " & (5 - diff) & " secs"
-
-            If diff >= 5 Then
-                TmrUI.Enabled = False
-                Label1.Text = "updating ..."
-                dbg.info("updating prices from trading view ...")
-                fetchPrice(assetsToTrack)
-                lastCollect = Date.UtcNow
-                TmrUI.Enabled = True
-
-                bottomGraph.render()
-
-            End If
-        End If
 
 
         ' If status <> StatusEnum.SIMU Then GraphDraw.render()
@@ -218,7 +207,7 @@ Public Class FrmMain
 
 
     Private Sub TestMeToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles TestMeToolStripMenuItem.Click
-        fetchPrice(assetsToTrack)
+        TradingView.fetchPrice(assetsToTrack)
     End Sub
 
     Private Sub StartCOLLECTToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles StartCOLLECTToolStripMenuItem.Click
@@ -256,5 +245,9 @@ Public Class FrmMain
 
     Private Sub RunSp500LongToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles RunSp500LongToolStripMenuItem.Click
 
+    End Sub
+
+    Private Sub FetchSpxFromYahooToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles FetchSpxFromYahooToolStripMenuItem.Click
+        Yahoo.fetchPrice(assetFromName(AssetNameEnum.SP500))
     End Sub
 End Class

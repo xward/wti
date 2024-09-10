@@ -5,16 +5,25 @@ Public Class AssetHistory
 
     Private prices As New List(Of AssetPrice)
 
+    ' max price among prices stored in Me
+    Private maxPrice As AssetPrice
+    Public diffWithMaxPerc As Double
+    Private maxPriceEver As AssetPrice
+
+    Private lastDataSourceUpdate As Date
+
     Private doingReplay As Boolean = False
     Private replayIndex As Integer
 
-    Private maxPrice As AssetPrice
-    Public diffWithMaxPerc As Double
 
     Public Sub New(asset As AssetInfos)
         Me.asset = asset
+        loadMaxEver()
         If asset.persistHistory Then loadDataFromPersistHistory()
+
         ' load sp500 daily data, using special fonction provided from SP500 module
+
+        lastDataSourceUpdate = Date.UtcNow
     End Sub
 
     Public Overrides Function ToString() As String
@@ -27,13 +36,28 @@ Public Class AssetHistory
     Public Function currentPrice() As AssetPrice
         If doingReplay Then
             Return prices.ElementAt(replayIndex)
-        Else
+        ElseIf prices.Count > 0 Then
             Return prices.Last
+
+        Else
+            Return Nothing
         End If
     End Function
 
     Public Sub addPrice(ByRef price As AssetPrice)
+        Dim current As AssetPrice = currentPrice()
+        If Not IsNothing(current) AndAlso current.price = price.price Then Exit Sub
+
+        FrmMain.pushLineToListBox(asset.ticker & " " & price.Serialize)
+
+        dbg.info(price.ticker & " curent value " & price.price & ". Today change = " & price.todayChangePerc & "%")
+        If asset.persistHistory Then pushPriceToFile()
+
         If IsNothing(maxPrice) OrElse price.price > maxPrice.price Then maxPrice = price
+        If IsNothing(maxPriceEver) OrElse price.price > maxPriceEver.price Then
+            pushMaxEverFile()
+            maxPriceEver = price
+        End If
         prices.Add(price)
     End Sub
 
@@ -55,11 +79,23 @@ Public Class AssetHistory
     ' ---------------------------------------------------------------------------------------------------------------------------
     ' DATA LOADER
 
+    Private Sub loadMaxEver()
+        Dim fileName As String = CST.DATA_PATH & "/dataFromThePast/" & asset.ticker & ".max.ever.txt"
+        If File.Exists(fileName) Then
+            Dim c As String = File.ReadAllText(fileName)
+            maxPriceEver = AssetPrice.Deserialize(asset, c)
+        Else
+            maxPriceEver = New AssetPrice
+            maxPriceEver.price = 0
+        End If
+    End Sub
+
     Private Sub loadDataFromPersistHistory()
         prices.Clear()
 
         For Each filePath As String In Directory.GetFiles(CST.DATA_PATH & "/dataFromThePast/")
             If Not filePath.Contains(asset.ticker) Then Continue For
+            If Not filePath.Contains(".tv.txt") Then Continue For
             For Each line In File.ReadAllLines(filePath)
                 addPrice(AssetPrice.Deserialize(asset, line))
             Next
@@ -72,6 +108,71 @@ Public Class AssetHistory
 
     Private Sub loadFromCustomFile()
         'daily, like sp500
+    End Sub
+
+    ' ---------------------------------------------------------------------------------------------------------------------------
+    ' LIVE DATA FETCH FROM SOURCE
+
+    Public lastDataFetchFromSource As Date = Date.UtcNow.AddDays(-1)
+
+    Public Sub fetchDataFromSource()
+        If asset.updateDateFromSource = False Then Exit Sub
+        If Date.UtcNow.Subtract(lastDataFetchFromSource).TotalSeconds < asset.updatePeriodSec Then Exit Sub
+
+        ' dbg.info("fetching data from source for " & asset.name.ToString)
+
+        Select Case asset.updateSource
+            Case UpdateSourceEnum.TRADING_VIEW
+                ' opti: we could update all trading view assets at once
+                TradingView.fetchPrice(asset)
+            Case UpdateSourceEnum.YAHOO
+                'Yahoo.fetchPrice(asset)
+            Case UpdateSourceEnum.BOURSOBANK
+
+        End Select
+
+        ' hack for now
+        If asset.ticker = FrmMain.bottomGraph.asset.ticker Then
+            FrmMain.bottomGraph.render()
+        End If
+
+        lastDataFetchFromSource = Date.UtcNow
+    End Sub
+
+
+    ' ---------------------------------------------------------------------------------------------------------------------------
+    ' DATA SAVE
+
+    Private Sub pushMaxEverFile()
+        FrmMain.pushLineToListBox(asset.ticker & " new max value ever " & maxPriceEver.price)
+
+        Dim fileName As String = CST.DATA_PATH & "/dataFromThePast/" & asset.ticker & ".max.ever.txt"
+        File.WriteAllText(fileName, maxPriceEver.Serialize())
+    End Sub
+
+    Private Sub pushPriceToFile()
+
+        ' 280403 162431|23.56
+        ' 04/28/2024 1:50:00 PM|28.35
+
+        Dim price As AssetPrice = currentPrice()
+        Dim line As String = price.Serialize()
+
+        If status = StatusEnum.SIMU Then Exit Sub
+
+        Dim fileName As String = CST.DATA_PATH & "/dataFromThePast/" & asset.ticker & "_" & Date.UtcNow.Year & "_" & Date.UtcNow.Month.ToString("00") & ".tv.txt"
+
+        If CST.HOST_NAME = CST.CST.hostNameEnum.GALACTICA Then
+            FrmMain.pushLineToListBox("skip save to file because we are galactica")
+            Exit Sub
+        End If
+
+        If File.Exists(fileName) Then
+            File.AppendAllText(fileName, line & vbCrLf)
+        Else
+            'one file per month
+            File.WriteAllText(fileName, line & vbCrLf)
+        End If
     End Sub
 
     ' ---------------------------------------------------------------------------------------------------------------------------

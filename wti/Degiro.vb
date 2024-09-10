@@ -55,7 +55,7 @@ Namespace Degiro
 
 
             For Each o As DegiroOrder In orders
-                Dim price As AssetPrice = getPrice(assetInfo(o.ticker))
+                Dim price As AssetPrice = getPrice(o.ticker)
 
                 If IsNothing(price) Then dbg.fail("SIMU: No price found for " & o.ticker)
 
@@ -913,9 +913,9 @@ Namespace Degiro
             For Each order In orders
                 If order.orderAction <> "Achat" Then Continue For
                 If order.limit > 0 Then
-                    activeTradeString &= "LIMIT_BUY " & order.ticker & " q" & order.quantity & " limit" & order.limit & " cur" & getPrice(assetInfo(order.ticker)).price & " " & 0 & "% away" & vbCrLf
+                    activeTradeString &= "LIMIT_BUY " & order.ticker & " q" & order.quantity & " limit" & order.limit & " cur" & getPrice(order.ticker).price & " " & 0 & "% away" & vbCrLf
                 Else
-                    activeTradeString &= "STOP_BUY " & order.ticker & " q" & order.quantity & " stop" & order.stopPrice & " cur" & getPrice(assetInfo(order.ticker)).price & " " & 0 & "% away" & vbCrLf
+                    activeTradeString &= "STOP_BUY " & order.ticker & " q" & order.quantity & " stop" & order.stopPrice & " cur" & getPrice(order.ticker).price & " " & 0 & "% away" & vbCrLf
                 End If
             Next
 
@@ -925,9 +925,9 @@ Namespace Degiro
                 If order.orderAction <> "Vente" Then Continue For
 
                 If order.limit > 0 Then
-                    activeTradeString &= "LIMIT_SELL " & order.ticker & " q" & order.quantity & " limit" & order.limit & " cur" & getPrice(assetInfo(order.ticker)).price & " " & 0 & "% away" & vbCrLf
+                    activeTradeString &= "LIMIT_SELL " & order.ticker & " q" & order.quantity & " limit" & order.limit & " cur" & getPrice(order.ticker).price & " " & 0 & "% away" & vbCrLf
                 Else
-                    activeTradeString &= "STOP_SELL " & order.ticker & " q" & order.quantity & " stop" & order.stopPrice & " cur" & getPrice(assetInfo(order.ticker)).price & " " & 0 & "% away" & vbCrLf
+                    activeTradeString &= "STOP_SELL " & order.ticker & " q" & order.quantity & " stop" & order.stopPrice & " cur" & getPrice(order.ticker).price & " " & 0 & "% away" & vbCrLf
                 End If
             Next
 

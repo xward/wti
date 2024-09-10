@@ -1,8 +1,11 @@
 ﻿Imports System.IO
 Namespace SP500StrategyLab
     Module SP500Long
-        'from data of https://www.nasdaq.com/market-activity/index/spx/historical
+        'from data of https://www.nasdaq.com/market-activity/index/spx/historical  7 ans historique
         ' min max, average per day over 10 years
+
+        '  il y a aussi https://finance.yahoo.com/quote/%5ESPX/history/?period1=-1325583000&period2=1725962871 avec daily depuis toujours avec volumes
+
 
         ' test following:
         ' PEA DCA classique 1/w et 1/m

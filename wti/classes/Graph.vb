@@ -51,6 +51,8 @@ Public Class Graph
         ' init
         paintItBlack()
 
+
+
         toDate = Date.UtcNow()
 
         ' actual stuff
@@ -142,12 +144,23 @@ Public Class Graph
 
         ' g.FillRectangle(New SolidBrush(Color.Yellow), curveRect)
 
+
         ' current
         Dim price As AssetPrice = getPrice(asset)
 
         ' might get slow, can be easily optimized
         ' todo: drop outside of market open
         allPrices = history.allPricesAfter(fromDate)
+
+        If allPrices.Count = 0 Then
+            writeText(New Point(img.Width / 2 - 30, img.Height / 2 - 5), "No Data", blackPen.Color, Color.Transparent)
+            Exit Sub
+        End If
+
+        If allPrices.Count = 1 Then
+            writeText(New Point(img.Width / 2 - 30, img.Height / 2 - 5), "Not enough Data", blackPen.Color, Color.Transparent)
+            Exit Sub
+        End If
 
         zeroPrice = allPrices.ElementAt(0)
 

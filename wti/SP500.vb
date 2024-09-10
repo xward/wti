@@ -13,6 +13,8 @@
 
         End Sub
 
+
+
         ' detect major crise: 45% value loss in X temps
 
         ' fetch/update historique data long game
@@ -24,7 +26,7 @@
 
         ' fake degiro lack: a bit of refacto
 
-        Public sp5003x As AssetInfos = assetInfo("3USL")
+        Public sp5003x As AssetInfos = assetInfo(AssetNameEnum.SP500_3X)
         Public Sub simulateStupidAlgo()
             status = StatusEnum.SIMU
             dbg.info("STARTING SIMULATION")
