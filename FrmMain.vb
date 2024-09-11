@@ -8,13 +8,24 @@ Public Class FrmMain
     ' // show trades, with current price, how far I am
 
     ' // replay simulation, place fake order, fetch fake order/position/transaction, output results to file
+
+    ' yahoo api, je peux tout fetch par la ? et de l'historique aussi ? https://github.com/ranaroussi/yfinance
+    ' je veux simuler du long terme sp500
+    ' 1 graph long, graph écart maxEver vs now
+
+    ' --------------------------------------------------------------------------------------------------------
+    'C:\Users\xwar\AppData\Local\Programs\Python\Python312\Scripts
+
+
     ' live visual graphs 3mo+5d
+    ' je veux visualiser des data sur des annees, algo chute depuis maxever
+    ' show price sur ui, max ever diff
     ' si sp500 < 17.5% max ever -> alert slack/sms
     ' analyze pattern tools (chute, stable ...)
     ' implem 4%/1.5% algo with, simulate stuffs
 
-    ' place sell order, update order, delete order
-    ' manage order too far from objective
+    ' degiro: place sell order, update order, delete order
+    ' degiro: manage order too far from objective
 
     ' do regression of sp500, fetch sp500/sp5003x ratio on yahoo, produce above/below trend val/perc from live sp5003x
 
@@ -40,25 +51,20 @@ Public Class FrmMain
         Degiro.loadPastData()
 
         'fake data for display debugging
-        If Not CST.COMPILED And status = StatusEnum.OFFLINE And False Then
-            Degiro.createFakeData()
-        End If
+        If Not CST.COMPILED And status = StatusEnum.OFFLINE And False Then Degiro.createFakeData()
 
         ' Edge init
         Edge.ensureRunning()
-        Edge.printAllEdge()
-
-        ' update ester rate
-        Ester.fetchRateFromBCE()
-        esterLabel.Text = "ester: " & Ester.rate
+        ' Edge.printAllEdge()
 
         initUI()
 
+        marketPriceStart()
 
-        dbg.info(getPrice(assetFromName(assetNameEnum.SP500_3X)).ToString)
+        '  dbg.info(getPrice(AssetNameEnum.SP500_3X).ToString)
 
         'my current playground
-        If CST.HOST_NAME = hostNameEnum.GALACTICA Then
+        If CST.HOST_NAME = hostNameEnum.GALACTICA And False Then
             SP500StrategyLab.runAll()
         End If
     End Sub
@@ -87,9 +93,11 @@ Public Class FrmMain
 
         ' auto start configuration
         If CST.COMPILED And CommandLineArgs.Count > 0 AndAlso CommandLineArgs(0) = "COLLECT" Then
-            statusLed.BackgroundImage = PictureLedGreenOn.Image
-            ToolStripStatusSays.Text = "About to auto-start with action COLLECT"
-            TmerAutoStart.Enabled = True
+            ' nothing can be auto start for now
+
+            ' statusLed.BackgroundImage = PictureLedGreenOn.Image
+            ' ToolStripStatusSays.Text = "About to auto-start with action COLLECT"
+            ' TmerAutoStart.Enabled = True
         End If
 
         bottomGraph = New Graph(PanelGraphBottom, SP500.sp5003x)
@@ -99,10 +107,10 @@ Public Class FrmMain
 
     Private Sub TmerKeyIput_Tick(sender As Object, e As EventArgs) Handles TmerKeyIput.Tick
         If GetAsyncKeyState(Keys.F2) And My.Computer.Keyboard.CtrlKeyDown Then
-            status = StatusEnum.COLLECT
+            ' nothing to start, yet
         End If
         If GetAsyncKeyState(Keys.F3) And My.Computer.Keyboard.CtrlKeyDown Then
-            status = StatusEnum.OFFLINE
+            status = StatusEnum.NONE
             'prevent auto start at boot
             TmerAutoStart.Enabled = False
             ToolStripStatusSays.Text = "Interrupt by user"
@@ -110,12 +118,11 @@ Public Class FrmMain
     End Sub
 
     Private Sub TmerAutoStart_Tick(sender As Object, e As EventArgs) Handles TmerAutoStart.Tick
-        ToolStripStatusSays.Text = "COLLECT begins"
-        If CST.COMPILED Then status = StatusEnum.COLLECT
+        'ToolStripStatusSays.Text = "COLLECT begins"
+        ' If CST.COMPILED Then status = StatusEnum.COLLECT
         TmerAutoStart.Enabled = False
     End Sub
 
-    Dim lastCollect As Date = Date.UtcNow
 
     Private ledBlink As Boolean = False
     Private esterAlertBlink As Boolean = False
@@ -135,7 +142,7 @@ Public Class FrmMain
                 statusLed.BackgroundImage = PictureLedRedOff.Image
             Case StatusEnum.ONLINE
                 statusLed.BackgroundImage = PictureLedGreenOff.Image
-            Case StatusEnum.SIMU, StatusEnum.LIVE, StatusEnum.COLLECT
+            Case StatusEnum.SIMU, StatusEnum.LIVE
                 If ledBlink Then
                     statusLed.BackgroundImage = PictureLedGreenOn.Image
                 Else
@@ -151,23 +158,6 @@ Public Class FrmMain
 
         degiroLabel.Text = "cash: " & Math.Round(Degiro.accountCashMoula * 100) / 100 & "€ positions: " & Math.Round(100 * Degiro.accountPositionsMoula) / 100 & "€"
 
-        If status = StatusEnum.COLLECT Then
-            Dim diff As Integer = Math.Round(Date.UtcNow.Subtract(lastCollect).TotalSeconds)
-
-            Label1.Text = "next price update " & (5 - diff) & " secs"
-
-            If diff >= 5 Then
-                TmrUI.Enabled = False
-                Label1.Text = "updating ..."
-                dbg.info("updating prices from trading view ...")
-                fetchPrice(assetsToTrack)
-                lastCollect = Date.UtcNow
-                TmrUI.Enabled = True
-
-                bottomGraph.render()
-
-            End If
-        End If
 
 
         ' If status <> StatusEnum.SIMU Then GraphDraw.render()
@@ -186,10 +176,9 @@ Public Class FrmMain
     Public Sub checkShutDown()
         If Not CST.COMPILED Then Exit Sub
         Dim now As Date = Date.UtcNow
-        If now.DayOfWeek <> DayOfWeek.Saturday And now.DayOfWeek <> DayOfWeek.Sunday Then Exit Sub
 
         'market close ?
-        If now.Hour < 19 Then Exit Sub
+        If now.Hour < 17 And now.DayOfWeek <> DayOfWeek.Saturday And now.DayOfWeek <> DayOfWeek.Sunday Then Exit Sub
 
         ' SLACK
 
@@ -218,12 +207,9 @@ Public Class FrmMain
 
 
     Private Sub TestMeToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles TestMeToolStripMenuItem.Click
-        fetchPrice(assetsToTrack)
+        TradingView.fetchPrice(assetsToTrack)
     End Sub
 
-    Private Sub StartCOLLECTToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles StartCOLLECTToolStripMenuItem.Click
-        status = StatusEnum.COLLECT
-    End Sub
 
     Private Sub GraphRenderToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles GraphRenderToolStripMenuItem.Click
         bottomGraph.render()
@@ -256,5 +242,9 @@ Public Class FrmMain
 
     Private Sub RunSp500LongToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles RunSp500LongToolStripMenuItem.Click
 
+    End Sub
+
+    Private Sub FetchSpxFromYahooToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles FetchSpxFromYahooToolStripMenuItem.Click
+        Yahoo.fetchPrice(assetFromName(AssetNameEnum.SP500))
     End Sub
 End Class

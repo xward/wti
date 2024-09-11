@@ -43,10 +43,10 @@ Partial Class FrmMain
         todayChange = New DataGridViewTextBoxColumn()
         BottomPanel = New Panel()
         Panel1 = New Panel()
+        Label1 = New Label()
         ListBoxLogEvents = New ListBox()
         Label2 = New Label()
         Label3 = New Label()
-        Label1 = New Label()
         PanelTrades = New Panel()
         LblActiveTrades = New Label()
         TopPanel = New Panel()
@@ -58,8 +58,8 @@ Partial Class FrmMain
         ManualActionsToolStripMenuItem = New ToolStripMenuItem()
         TestMeToolStripMenuItem = New ToolStripMenuItem()
         DegiroScanToolStripMenuItem = New ToolStripMenuItem()
-        StartCOLLECTToolStripMenuItem = New ToolStripMenuItem()
         GraphRenderToolStripMenuItem = New ToolStripMenuItem()
+        FetchSpxFromYahooToolStripMenuItem = New ToolStripMenuItem()
         SimulationToolStripMenuItem = New ToolStripMenuItem()
         RunToolStripMenuItem = New ToolStripMenuItem()
         RunSp500LongToolStripMenuItem = New ToolStripMenuItem()
@@ -235,15 +235,24 @@ Partial Class FrmMain
         ' 
         ' Panel1
         ' 
+        Panel1.Controls.Add(Label1)
         Panel1.Controls.Add(ListBoxLogEvents)
         Panel1.Controls.Add(Label2)
         Panel1.Controls.Add(Label3)
-        Panel1.Controls.Add(Label1)
         Panel1.Dock = DockStyle.Fill
         Panel1.Location = New Point(462, 0)
         Panel1.Name = "Panel1"
         Panel1.Size = New Size(303, 239)
         Panel1.TabIndex = 8
+        ' 
+        ' Label1
+        ' 
+        Label1.AutoSize = True
+        Label1.Location = New Point(13, 77)
+        Label1.Name = "Label1"
+        Label1.Size = New Size(50, 17)
+        Label1.TabIndex = 7
+        Label1.Text = "Label1"
         ' 
         ' ListBoxLogEvents
         ' 
@@ -251,9 +260,9 @@ Partial Class FrmMain
         ListBoxLogEvents.Font = New Font("Cambria", 12F, FontStyle.Regular, GraphicsUnit.Point, CByte(0))
         ListBoxLogEvents.FormattingEnabled = True
         ListBoxLogEvents.ItemHeight = 19
-        ListBoxLogEvents.Location = New Point(0, 140)
+        ListBoxLogEvents.Location = New Point(0, 102)
         ListBoxLogEvents.Name = "ListBoxLogEvents"
-        ListBoxLogEvents.Size = New Size(303, 99)
+        ListBoxLogEvents.Size = New Size(303, 137)
         ListBoxLogEvents.TabIndex = 4
         ' 
         ' Label2
@@ -273,16 +282,6 @@ Partial Class FrmMain
         Label3.Size = New Size(163, 34)
         Label3.TabIndex = 6
         Label3.Text = "wti 78$ -5% today" & vbCrLf & "platinum 76€ +3% today" & vbCrLf
-        ' 
-        ' Label1
-        ' 
-        Label1.AutoSize = True
-        Label1.ForeColor = Color.White
-        Label1.Location = New Point(3, 120)
-        Label1.Name = "Label1"
-        Label1.Size = New Size(186, 17)
-        Label1.TabIndex = 2
-        Label1.Text = "data fetch from trading view"
         ' 
         ' PanelTrades
         ' 
@@ -360,7 +359,7 @@ Partial Class FrmMain
         ' 
         ' ManualActionsToolStripMenuItem
         ' 
-        ManualActionsToolStripMenuItem.DropDownItems.AddRange(New ToolStripItem() {TestMeToolStripMenuItem, DegiroScanToolStripMenuItem, StartCOLLECTToolStripMenuItem, GraphRenderToolStripMenuItem})
+        ManualActionsToolStripMenuItem.DropDownItems.AddRange(New ToolStripItem() {TestMeToolStripMenuItem, DegiroScanToolStripMenuItem, GraphRenderToolStripMenuItem, FetchSpxFromYahooToolStripMenuItem})
         ManualActionsToolStripMenuItem.Name = "ManualActionsToolStripMenuItem"
         ManualActionsToolStripMenuItem.Size = New Size(100, 20)
         ManualActionsToolStripMenuItem.Text = "manual actions"
@@ -377,17 +376,17 @@ Partial Class FrmMain
         DegiroScanToolStripMenuItem.Size = New Size(195, 22)
         DegiroScanToolStripMenuItem.Text = "degiro scan"
         ' 
-        ' StartCOLLECTToolStripMenuItem
-        ' 
-        StartCOLLECTToolStripMenuItem.Name = "StartCOLLECTToolStripMenuItem"
-        StartCOLLECTToolStripMenuItem.Size = New Size(195, 22)
-        StartCOLLECTToolStripMenuItem.Text = "start COLLECT"
-        ' 
         ' GraphRenderToolStripMenuItem
         ' 
         GraphRenderToolStripMenuItem.Name = "GraphRenderToolStripMenuItem"
         GraphRenderToolStripMenuItem.Size = New Size(195, 22)
         GraphRenderToolStripMenuItem.Text = "Render graph one time"
+        ' 
+        ' FetchSpxFromYahooToolStripMenuItem
+        ' 
+        FetchSpxFromYahooToolStripMenuItem.Name = "FetchSpxFromYahooToolStripMenuItem"
+        FetchSpxFromYahooToolStripMenuItem.Size = New Size(195, 22)
+        FetchSpxFromYahooToolStripMenuItem.Text = "fetch spx from yahoo"
         ' 
         ' SimulationToolStripMenuItem
         ' 
@@ -473,7 +472,6 @@ Partial Class FrmMain
     Friend WithEvents runType As ToolStripStatusLabel
     Friend WithEvents TmerAutoStart As Timer
     Friend WithEvents ToolStripStatusSays As ToolStripStatusLabel
-    Friend WithEvents Label1 As Label
     Friend WithEvents Label3 As Label
     Friend WithEvents Label2 As Label
     Friend WithEvents MainMenuStrip As MenuStrip
@@ -490,9 +488,10 @@ Partial Class FrmMain
     Friend WithEvents RunToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents PanelGraphTop As Panel
     Friend WithEvents ToolStripStatusLabelDrawFps As ToolStripStatusLabel
-    Friend WithEvents StartCOLLECTToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents GraphRenderToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents PanelGraphBottom As Panel
     Friend WithEvents RunSp500LongToolStripMenuItem As ToolStripMenuItem
+    Friend WithEvents FetchSpxFromYahooToolStripMenuItem As ToolStripMenuItem
+    Friend WithEvents Label1 As Label
 
 End Class

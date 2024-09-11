@@ -9,6 +9,8 @@ CD ..
 
 :: push any spp5003x data from ghost
 "C:\Program Files\Git\bin\sh.exe" --login -i -c "git add data/dataFromThePast/3USL_*;git commit -m update_3USL_data; git push origin master"
+"C:\Program Files\Git\bin\sh.exe" --login -i -c "git add data/yahoo/*;git commit -m update_yahoo_data; git push origin master"
+
 
 :: build
 SET SLN=WorstTradingInitiative.sln
