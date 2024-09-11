@@ -59,6 +59,21 @@
                     .degiroOrderUrl = "https://trader.degiro.nl/trader/?appMode=order#/markets?newOrder&action=buy&productId=18744180"
                     .degireId = 18744180
                 End With
+            Case AssetNameEnum.WTI
+                With ass
+                    .ticker = "CL=F"
+                    .yahooTicker = "CL=F"
+                    .name = AssetNameEnum.WTI
+                    .fullName = "Crude Oil WTI"
+                    .leverage = 1
+                    .isShort = False
+                    .currency = "$"
+                    ' data source
+                    .updateDateFromSource = true
+                    .updateSource = UpdateSourceEnum.YAHOO
+                    .updatePeriodSec = 45
+                    .persistHistory = false
+                End With
 
             Case AssetNameEnum.WTI_3X_SHORT
                 Dim tradingViewUrl As String = ""
@@ -185,6 +200,8 @@
                 Return AssetNameEnum.PEA_SP500
             Case "3USL"
                 Return AssetNameEnum.SP500_3X
+            Case "CL=F"
+                Return AssetNameEnum.WTI
             Case "3OIL"
                 Return AssetNameEnum.WTI_3X
             Case "3OIS"
@@ -202,6 +219,8 @@
                 Return assetInfo("1rTPSP5")
             Case AssetNameEnum.SP500_3X
                 Return assetInfo("3USL")
+            case AssetNameEnum.WTI
+                Return assetInfo("CL=F")
             Case AssetNameEnum.WTI_3X
                 Return assetInfo("3OIL")
             Case AssetNameEnum.WTI_3X_SHORT
@@ -217,6 +236,7 @@
         ' europe version for live trading on 3x
         PEA_SP500
         SP500_3X
+        WTI
         WTI_3X
         WTI_3X_SHORT
     End Enum

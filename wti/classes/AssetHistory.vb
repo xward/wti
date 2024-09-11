@@ -134,9 +134,8 @@ Public Class AssetHistory
             Case UpdateSourceEnum.TRADING_VIEW
                 ' opti: we could update all trading view assets at once
                 TradingView.fetchPrice(asset)
-            'Case UpdateSourceEnum.YAHOO
-
-                'Yahoo.fetchPrice(asset)
+            Case UpdateSourceEnum.YAHOO
+                Yahoo.fetchPrice(asset)
             Case UpdateSourceEnum.BOURSOBANK
 
         End Select
