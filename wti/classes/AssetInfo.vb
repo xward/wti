@@ -6,6 +6,7 @@
         Dim name As AssetNameEnum
         Dim fullName As String
         Dim ticker As String
+        dim yahooTicker as string
         Dim leverage As Integer
         Dim isShort As Boolean
         Dim currency As String
@@ -104,6 +105,7 @@
                     .fullName = "WISDOMTREE S&P 500 3X DAILY LEVERAG"
                     .yahooUrl = "https://finance.yahoo.com/quote/3USL.L/"
                     .ticker = "3USL"
+                                        .yahooTicker = "3USL.L"
                     .leverage = 3
                     .isShort = False
                     .currency = "€"
@@ -130,6 +132,7 @@
                     .name = AssetNameEnum.SP500
                     .fullName = "S&P 500 INDEX (^SPX)"
                     .ticker = "SPX"
+                    .yahooTicker = "^SPX"
                     .leverage = 1
                     .isShort = False
                     .currency = "$"
@@ -153,6 +156,7 @@
                     .name = AssetNameEnum.PEA_SP500
                     .fullName = "Lyxor PEA S&P 500 UCITS ETF - Capi."
                     .ticker = "1rTPSP5"
+                    .yahooTicker = "PSP5.PA"
                     .leverage = 1
                     .isShort = False
                     .currency = "€"
