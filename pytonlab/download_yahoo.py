@@ -1,3 +1,5 @@
+# launch me once a day, all days
+
 import yfinance as yf
 import os
 import time
@@ -8,11 +10,18 @@ from datetime import date
 PATH="../data/yahoo"
 
 SP500="^SPX"
+# amundi Lyxor PEA S&P 500 UCITS ETF - Capi. FR0011871128
 PEA_SP500="PSP5.PA"
+# sp500 3x usd IE00B7Y34M31
 SP5003x="3USL.L"
+# PEA+CT AMUNDI ETF MSCI WR LU1681043599
+MSCI="CW8.PA"
 
-perMinute = [SP5003x, SP500, PEA_SP500]
-perDay = [SP5003x, SP500, PEA_SP500]
+# wti ? copper ? platinium ? nasdaq ? gold ? crypto ?
+# msci ? cac40 ?
+
+perMinute = [SP5003x, SP500, PEA_SP500, MSCI]
+perDay = [SP5003x, SP500, PEA_SP500, MSCI]
 
 today = date.today()
 
