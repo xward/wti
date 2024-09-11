@@ -1,9 +1,10 @@
 # https://github.com/ranaroussi/yfinance?tab=readme-ov-file#quick-start
 # https://aroussi.com/post/python-yahoo-finance
 
-# https://medium.com/@s.sadathosseini/real-time-apple-stock-prices-visualization-using-yfinance-and-streamlit-c4466d0a9b51
+# dl and graph stuff https://medium.com/@s.sadathosseini/real-time-apple-stock-prices-visualization-using-yfinance-and-streamlit-c4466d0a9b51
 
 import yfinance as yf
+import csv
 
 # msft = yf.Ticker("3USL.L")
 # msft = yf.Ticker("^SPX")
@@ -18,8 +19,12 @@ latest_time = historical_prices.index[-1].strftime('%H:%M:%S')
 print(latest_price)
 print(latest_time)
 
+
+
+
 # also
-# data = yf.download("^SPX", start="2024-09-10", end="2024-09-12")
+# data = yf.download("PSP5.PA", start="2024-09-10", end="2024-09-11", period="1d", interval="1m")
+# to have correct close values: data = yf.download("PSP5.PA", start="2024-09-10", end="2024-09-11", period="1d")
 
 exit()
 
