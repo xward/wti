@@ -21,6 +21,8 @@ Public Class AssetHistory
         loadMaxEver()
         If asset.persistHistory Then loadDataFromPersistHistory()
 
+
+
         ' load sp500 daily data, using special fonction provided from SP500 module
 
         lastDataSourceUpdate = Date.UtcNow
@@ -51,7 +53,12 @@ Public Class AssetHistory
         FrmMain.pushLineToListBox(asset.ticker & " " & price.Serialize)
 
         dbg.info(price.ticker & " curent value " & price.price & ". Today change = " & price.todayChangePerc & "%")
-        If asset.persistHistory Then pushPriceToFile()
+        If asset.persistHistory Then
+            pushPriceToFile()
+        Else
+            FrmMain.pushLineToListBox("skip save " & price.ticker & " persistHistory is off")
+        End If
+
 
         If IsNothing(maxPrice) OrElse price.price > maxPrice.price Then maxPrice = price
         If IsNothing(maxPriceEver) OrElse price.price > maxPriceEver.price Then
@@ -117,6 +124,8 @@ Public Class AssetHistory
 
     Public Sub fetchDataFromSource()
         If asset.updateDateFromSource = False Then Exit Sub
+
+        FrmMain.Label1.Text &= asset.ticker & " (" & Math.Max(0, Math.Ceiling(asset.updatePeriodSec - Date.UtcNow.Subtract(lastDataFetchFromSource).TotalSeconds)) & "secs)"
         If Date.UtcNow.Subtract(lastDataFetchFromSource).TotalSeconds < asset.updatePeriodSec Then Exit Sub
 
         ' dbg.info("fetching data from source for " & asset.name.ToString)
@@ -162,11 +171,6 @@ Public Class AssetHistory
         If status = StatusEnum.SIMU Then Exit Sub
 
         Dim fileName As String = CST.DATA_PATH & "/dataFromThePast/" & asset.ticker & "_" & Date.UtcNow.Year & "_" & Date.UtcNow.Month.ToString("00") & ".tv.txt"
-
-        If CST.HOST_NAME = CST.CST.hostNameEnum.GALACTICA Then
-            FrmMain.pushLineToListBox("skip save to file because we are galactica")
-            Exit Sub
-        End If
 
         If File.Exists(fileName) Then
             File.AppendAllText(fileName, line & vbCrLf)

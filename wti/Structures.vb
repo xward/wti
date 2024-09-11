@@ -4,15 +4,16 @@ Imports System.Reflection
 Public Module Structures
     'please take care  to sell trade with this strat
 
-    Public status As StatusEnum = StatusEnum.OFFLINE
+    Public status As StatusEnum = StatusEnum.NONE
 
     Public Enum StatusEnum
+        NONE
         OFFLINE
         ONLINE
         SIMU
         LIVE
         'just collect data from trading view
-        COLLECT
+        'COLLECT
     End Enum
 
     ' ----------------------------------------------------------------------------------------

@@ -51,13 +51,11 @@ Public Class FrmMain
         Degiro.loadPastData()
 
         'fake data for display debugging
-        If Not CST.COMPILED And status = StatusEnum.OFFLINE And False Then
-            Degiro.createFakeData()
-        End If
+        If Not CST.COMPILED And status = StatusEnum.OFFLINE And False Then Degiro.createFakeData()
 
         ' Edge init
         Edge.ensureRunning()
-        Edge.printAllEdge()
+        ' Edge.printAllEdge()
 
         initUI()
 
@@ -95,9 +93,11 @@ Public Class FrmMain
 
         ' auto start configuration
         If CST.COMPILED And CommandLineArgs.Count > 0 AndAlso CommandLineArgs(0) = "COLLECT" Then
-            statusLed.BackgroundImage = PictureLedGreenOn.Image
-            ToolStripStatusSays.Text = "About to auto-start with action COLLECT"
-            TmerAutoStart.Enabled = True
+            ' nothing can be auto start for now
+
+            ' statusLed.BackgroundImage = PictureLedGreenOn.Image
+            ' ToolStripStatusSays.Text = "About to auto-start with action COLLECT"
+            ' TmerAutoStart.Enabled = True
         End If
 
         bottomGraph = New Graph(PanelGraphBottom, SP500.sp5003x)
@@ -107,10 +107,10 @@ Public Class FrmMain
 
     Private Sub TmerKeyIput_Tick(sender As Object, e As EventArgs) Handles TmerKeyIput.Tick
         If GetAsyncKeyState(Keys.F2) And My.Computer.Keyboard.CtrlKeyDown Then
-            status = StatusEnum.COLLECT
+            ' nothing to start, yet
         End If
         If GetAsyncKeyState(Keys.F3) And My.Computer.Keyboard.CtrlKeyDown Then
-            status = StatusEnum.OFFLINE
+            status = StatusEnum.NONE
             'prevent auto start at boot
             TmerAutoStart.Enabled = False
             ToolStripStatusSays.Text = "Interrupt by user"
@@ -118,8 +118,8 @@ Public Class FrmMain
     End Sub
 
     Private Sub TmerAutoStart_Tick(sender As Object, e As EventArgs) Handles TmerAutoStart.Tick
-        ToolStripStatusSays.Text = "COLLECT begins"
-        If CST.COMPILED Then status = StatusEnum.COLLECT
+        'ToolStripStatusSays.Text = "COLLECT begins"
+        ' If CST.COMPILED Then status = StatusEnum.COLLECT
         TmerAutoStart.Enabled = False
     End Sub
 
@@ -142,7 +142,7 @@ Public Class FrmMain
                 statusLed.BackgroundImage = PictureLedRedOff.Image
             Case StatusEnum.ONLINE
                 statusLed.BackgroundImage = PictureLedGreenOff.Image
-            Case StatusEnum.SIMU, StatusEnum.LIVE, StatusEnum.COLLECT
+            Case StatusEnum.SIMU, StatusEnum.LIVE
                 If ledBlink Then
                     statusLed.BackgroundImage = PictureLedGreenOn.Image
                 Else
@@ -176,10 +176,9 @@ Public Class FrmMain
     Public Sub checkShutDown()
         If Not CST.COMPILED Then Exit Sub
         Dim now As Date = Date.UtcNow
-        If now.DayOfWeek <> DayOfWeek.Saturday And now.DayOfWeek <> DayOfWeek.Sunday Then Exit Sub
 
         'market close ?
-        If now.Hour < 19 Then Exit Sub
+        If now.Hour < 17 And now.DayOfWeek <> DayOfWeek.Saturday And now.DayOfWeek <> DayOfWeek.Sunday Then Exit Sub
 
         ' SLACK
 
@@ -211,9 +210,6 @@ Public Class FrmMain
         TradingView.fetchPrice(assetsToTrack)
     End Sub
 
-    Private Sub StartCOLLECTToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles StartCOLLECTToolStripMenuItem.Click
-        status = StatusEnum.COLLECT
-    End Sub
 
     Private Sub GraphRenderToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles GraphRenderToolStripMenuItem.Click
         bottomGraph.render()

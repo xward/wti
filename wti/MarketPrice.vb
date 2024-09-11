@@ -63,8 +63,8 @@ Module MarketPrice
         FrmMain.esterLabel.Text = "ester: " & Ester.rate
 
         addAssetHistory(AssetNameEnum.SP500_3X)
-        'addAssetHistory(AssetNameEnum.SP500)
-        'addAssetHistory(AssetNameEnum.PEA_SP500)
+        addAssetHistory(AssetNameEnum.SP500)
+        addAssetHistory(AssetNameEnum.PEA_SP500)
         startTimer()
     End Sub
 
@@ -104,6 +104,8 @@ Module MarketPrice
         '        FrmMain.bottomGraph.render()
         '    End If
         'End If
+
+        FrmMain.Label1.Text = ""
 
         ' for each assetsPriceHistory, fetch data in enabled
         For Each ass As AssetHistory In assetsPriceHistory

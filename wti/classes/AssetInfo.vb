@@ -137,7 +137,7 @@
                     .degireId = 0
                     .lineColor = Color.Red
                     ' data source
-                    .updateDateFromSource = True
+                    .updateDateFromSource = False
                     .updateSource = UpdateSourceEnum.YAHOO
                     .updatePeriodSec = 45
                     .yahooUrl = "https://finance.yahoo.com/quote/%5ESPX/"
@@ -158,7 +158,7 @@
                     .currency = "€"
                     .lineColor = Color.DarkGreen
                     ' data source
-                    .updateDateFromSource = True
+                    .updateDateFromSource = False
                     .updateSource = UpdateSourceEnum.YAHOO
                     .updatePeriodSec = 45
                     .persistHistory = False

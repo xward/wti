@@ -287,7 +287,7 @@ Public Class Graph
         ' truncate from date
         'fromDate = Date.Parse(fromDate.ToShortDateString).AddDays(-5)
 
-        dbg.info(fromDate)
+        'dbg.info(fromDate)
 
         'With rightPanel
         '    .Parent = parentPanel
