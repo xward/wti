@@ -55,8 +55,8 @@ Public Class AssetHistory
 
         If IsNothing(maxPrice) OrElse price.price > maxPrice.price Then maxPrice = price
         If IsNothing(maxPriceEver) OrElse price.price > maxPriceEver.price Then
-            pushMaxEverFile()
             maxPriceEver = price
+            pushMaxEverFile()
         End If
         prices.Add(price)
     End Sub
@@ -125,7 +125,8 @@ Public Class AssetHistory
             Case UpdateSourceEnum.TRADING_VIEW
                 ' opti: we could update all trading view assets at once
                 TradingView.fetchPrice(asset)
-            Case UpdateSourceEnum.YAHOO
+            'Case UpdateSourceEnum.YAHOO
+
                 'Yahoo.fetchPrice(asset)
             Case UpdateSourceEnum.BOURSOBANK
 

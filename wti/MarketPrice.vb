@@ -63,8 +63,8 @@ Module MarketPrice
         FrmMain.esterLabel.Text = "ester: " & Ester.rate
 
         addAssetHistory(AssetNameEnum.SP500_3X)
-        addAssetHistory(AssetNameEnum.SP500)
-        addAssetHistory(AssetNameEnum.PEA_SP500)
+        'addAssetHistory(AssetNameEnum.SP500)
+        'addAssetHistory(AssetNameEnum.PEA_SP500)
         startTimer()
     End Sub
 
