@@ -14,6 +14,7 @@ Public Class FrmMain
     ' 1 graph long, graph écart maxEver vs now
 
     ' --------------------------------------------------------------------------------------------------------
+    'C:\Users\xwar\AppData\Local\Programs\Python\Python312\Scripts
 
 
     ' live visual graphs 3mo+5d
@@ -23,8 +24,8 @@ Public Class FrmMain
     ' analyze pattern tools (chute, stable ...)
     ' implem 4%/1.5% algo with, simulate stuffs
 
-    ' place sell order, update order, delete order
-    ' manage order too far from objective
+    ' degiro: place sell order, update order, delete order
+    ' degiro: manage order too far from objective
 
     ' do regression of sp500, fetch sp500/sp5003x ratio on yahoo, produce above/below trend val/perc from live sp5003x
 
