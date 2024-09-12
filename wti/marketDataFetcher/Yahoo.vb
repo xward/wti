@@ -1,4 +1,5 @@
-﻿Imports System.Security.Policy
+﻿Imports System.IO
+Imports System.Security.Policy
 
 Namespace Yahoo
     Module Yahoo
@@ -14,7 +15,7 @@ Namespace Yahoo
         'note: (?) can create an account to have live data
 
         Public Sub fetchPrice(asset As AssetInfos)
-'load both long data and live data, if any
+            'load both long data and live data, if any
 
 
             'Dim rep As String = Tesla.HttpGet(asset.yahooUrl)
@@ -26,36 +27,36 @@ Namespace Yahoo
             'dbg.info(asset.yahooUrl)
         End Sub
 
-        private pyFetchOneLiveFilePath as string = cst.ROOT_PATH & "/pythonlab/yahoo_fetch_one_live.py"
+        Private pyFetchOneLiveFilePath As String = CST.ROOT_PATH & "/pythonlab/yahoo_fetch_one_live.py"
 
-        public sub pyFetch(asset as AssetInfos)
-        Dim start_info As New ProcessStartInfo("ouaiouai", pyFetchOneLiveFilePath & " " & asset.yahooTicker)
-        start_info.UseShellExecute = False
-        start_info.CreateNoWindow = True
-        start_info.RedirectStandardOutput = True
-        start_info.RedirectStandardError = True
+        Public Sub pyFetch(asset As AssetInfos)
+            Dim start_info As New ProcessStartInfo("ouaiouai", pyFetchOneLiveFilePath & " " & asset.yahooTicker)
+            start_info.UseShellExecute = False
+            start_info.CreateNoWindow = True
+            start_info.RedirectStandardOutput = True
+            start_info.RedirectStandardError = True
 
-        ' Make the process and set its start information.
-        Dim proc As New Process()
-        proc.StartInfo = start_info
+            ' Make the process and set its start information.
+            Dim proc As New Process()
+            proc.StartInfo = start_info
 
-        Dim dt As Date = Now()
+            Dim dt As Date = Now()
 
-        ' Start the process.
-        proc.Start()
+            ' Start the process.
+            proc.Start()
 
-         ' Attach to stdout and stderr.
-        Dim std_out As StreamReader = proc.StandardOutput() ' will not continue until process stops
-        Dim std_err As StreamReader = proc.StandardError()
+            ' Attach to stdout and stderr.
+            Dim std_out As StreamReader = proc.StandardOutput() ' will not continue until process stops
+            Dim std_err As StreamReader = proc.StandardError()
 
-        ' Retrive the results.
-        Dim sOut As String = std_out.ReadToEnd()
-        Dim sErr As String = std_err.ReadToEnd()
+            ' Retrive the results.
+            Dim sOut As String = std_out.ReadToEnd()
+            Dim sErr As String = std_err.ReadToEnd()
 
-        dbg.info(sOut)
-        dbg.info(sErr)
+            dbg.info(sOut)
+            dbg.info(sErr)
 
-        end sub
+        End Sub
     End Module
 
 End Namespace

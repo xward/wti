@@ -6,7 +6,7 @@
         Dim name As AssetNameEnum
         Dim fullName As String
         Dim ticker As String
-        dim yahooTicker as string
+        Dim yahooTicker As String
         Dim leverage As Integer
         Dim isShort As Boolean
         Dim currency As String
@@ -18,11 +18,12 @@
         Dim updateSource As UpdateSourceEnum
         Dim updatePeriodSec As Integer
         Dim tradingViewUrl As String
+        ' useless
         Dim yahooUrl As String
 
         Dim persistHistoryFromLiveCollect As Boolean
-        dim populateDataFromYahooMinute as Boolean
-        dim populateDataFromYahooDaily as Boolean
+        Dim populateDataFromYahooMinute As Boolean
+        Dim populateDataFromYahooDaily As Boolean
 
         ' graph configuration
         Dim lineColor As Color
@@ -42,7 +43,7 @@
         ass.ticker = " nothing"
 
         Select Case assetName
-                Case AssetNameEnum.WTI
+            Case AssetNameEnum.WTI
                 With ass
                     .ticker = "CL=F"
                     .yahooTicker = "CL=F"
@@ -52,10 +53,10 @@
                     .isShort = False
                     .currency = "$"
                     ' data source
-                    .updateDateFromSource = true
+                    .updateDateFromSource = True
                     .updateSource = UpdateSourceEnum.YAHOO
                     .updatePeriodSec = 45
-                    .persistHistoryFromLiveCollect = false
+                    .persistHistoryFromLiveCollect = False
                 End With
             Case AssetNameEnum.WTI_3X
                 With ass
@@ -133,9 +134,9 @@
                     ' degiro
                     ' nothing
                 End With
-                    ' close  4:51 PM EDT
-                    ' open 13h30 utc
-                    'but data from yahoo: 09h30 to 16h
+                        ' close  4:51 PM EDT
+                        ' open 13h30 utc
+                        'but data from yahoo: 09h30 to 16h
 
             Case AssetNameEnum.SP500_3X
                 Dim tradingViewUrl As String = ""
@@ -154,7 +155,7 @@
                     .fullName = "WISDOMTREE S&P 500 3X DAILY LEVERAG"
                     .yahooUrl = "https://finance.yahoo.com/quote/3USL.L/"
                     .ticker = "3USL"
-                                        .yahooTicker = "3USL.L"
+                    .yahooTicker = "3USL.L"
                     .leverage = 3
                     .isShort = False
                     .currency = "€"
@@ -189,6 +190,8 @@
                     .updateSource = UpdateSourceEnum.YAHOO
                     .updatePeriodSec = 45
                     .persistHistoryFromLiveCollect = False
+                    .populateDataFromYahooMinute = True
+                    .populateDataFromYahooDaily = True
                     .yahooUrl = "https://www.boursorama.com/bourse/trackers/cours/1rTPSP5/"
 
                     ' degiro
@@ -227,7 +230,7 @@
                 Return assetInfo("1rTPSP5")
             Case AssetNameEnum.SP500_3X
                 Return assetInfo("3USL")
-            case AssetNameEnum.WTI
+            Case AssetNameEnum.WTI
                 Return assetInfo("CL=F")
             Case AssetNameEnum.WTI_3X
                 Return assetInfo("3OIL")

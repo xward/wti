@@ -57,7 +57,7 @@ Public Class FrmMain
 
         initUI()
 
-        marketPriceStart()
+
 
         ' dbg.info(getPrice(AssetNameEnum.SP500_3X).ToString)
 
@@ -65,6 +65,9 @@ Public Class FrmMain
         If CST.HOST_NAME = hostNameEnum.GALACTICA And False Then
             SP500StrategyLab.runAll()
         End If
+
+
+        TmerAutoStart.Enabled = True
     End Sub
 
 
@@ -116,9 +119,12 @@ Public Class FrmMain
     End Sub
 
     Private Sub TmerAutoStart_Tick(sender As Object, e As EventArgs) Handles TmerAutoStart.Tick
-        'ToolStripStatusSays.Text = "COLLECT begins"
-        ' If CST.COMPILED Then status = StatusEnum.COLLECT
         TmerAutoStart.Enabled = False
+        Dim start As Date = Date.UtcNow
+        ToolStripStatusSays.Text = "init marketprice ..."
+        Application.DoEvents()
+        marketPriceStart()
+        ToolStripStatusSays.Text = "loaded within " & Math.Round(Date.UtcNow.Subtract(start).TotalMilliseconds) & " ms"
     End Sub
 
 

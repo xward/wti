@@ -413,7 +413,7 @@ Partial Class FrmMain
         ' 
         ' TmerAutoStart
         ' 
-        TmerAutoStart.Interval = 5000
+        TmerAutoStart.Interval = 500
         ' 
         ' FrmMain
         ' 

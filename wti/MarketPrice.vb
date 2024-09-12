@@ -4,7 +4,7 @@ Imports WorstTradingInitiative.Structures
 
 Module MarketPrice
 
-    Private assetsPriceHistory As New List(Of AssetHistory)
+    Public assetsPriceHistory As New List(Of AssetHistory)
 
     ' from live data fetchers only
     Public Sub setCurrentPrice(asset As AssetInfos, newPrice As AssetPrice)
@@ -32,7 +32,7 @@ Module MarketPrice
 
     Public Function getPrice(assetName As AssetNameEnum) As AssetPrice
         Return getPrice(assetInfo(assetName))
-    End FunctiongetAssetHistory
+    End Function
 
     Public Function getPrice(tickerName As String) As AssetPrice
         Return getPrice(assetInfo(tickerName))
@@ -67,8 +67,10 @@ Module MarketPrice
         FrmMain.esterLabel.Text = "ester: " & Ester.rate
 
         addAssetHistory(AssetNameEnum.SP500_3X)
-        addAssetHistory(AssetNameEnum.SP500)
-        addAssetHistory(AssetNameEnum.PEA_SP500)
+
+        ' pas necessaire pour le moment, ca plombe le chargement
+        ' addAssetHistory(AssetNameEnum.SP500)
+        ' addAssetHistory(AssetNameEnum.PEA_SP500)
         startTimer()
     End Sub
 
@@ -80,7 +82,9 @@ Module MarketPrice
         For Each a In assetsPriceHistory
             If a.asset.ticker = asset.ticker Then Return a
         Next
+        ' this will load data from file, if any
         Dim ass As AssetHistory = New AssetHistory(asset)
+        Application.DoEvents()
         assetsPriceHistory.Add(ass)
         Return ass
     End Function

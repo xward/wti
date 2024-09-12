@@ -24,9 +24,9 @@ Public Class AssetHistory
         prices.Clear()
         'if any, load it
         loadDataFromPersistHistoryFromLiveCollect()
-        if populateDataFromYahooMinute then loadDataFromYahooMinute()
+        If asset.populateDataFromYahooMinute Then loadDataFromYahooMinute()
 
-if populateDataFromYahooDaily then loadDataFromYahooDaily()
+        If asset.populateDataFromYahooDaily Then loadDataFromYahooDaily()
 
 
         prices.Sort(New AssetPriceDateComparer)
@@ -56,10 +56,10 @@ if populateDataFromYahooDaily then loadDataFromYahooDaily()
         End If
     End Function
 
-' to make suuure data engine is not down and we place an order for that
-    public function lastUpdateAgoSec() as Double
-return Date.UtcNow().Subtract(lastDataSourceUpdate).TotalSeconds
-end function
+    ' to make suuure data engine is not down and we place an order for that
+    Public Function lastUpdateAgoSec() As Double
+        Return Date.UtcNow().Subtract(lastDataSourceUpdate).TotalSeconds
+    End Function
 
     ' only MarketPrice or Me can call me
     Public Sub addPrice(ByRef price As AssetPrice)
@@ -104,7 +104,7 @@ end function
     End Sub
 
     Private Sub loadDataFromPersistHistoryFromLiveCollect()
-    dim count as integer = 0
+        Dim count As Integer = 0
         For Each filePath As String In Directory.GetFiles(CST.DATA_PATH & "/dataFromThePast/")
             If Not filePath.Contains(asset.ticker) Then Continue For
             If Not filePath.Contains(".tv.txt") Then Continue For
@@ -117,126 +117,126 @@ end function
         dbg.info("AssetHistory " & asset.ticker & " loaded " & count & " historical prices from live collect")
     End Sub
 
-    private sub loadDataFromYahooMinute()
-    dim count as integer = 0
-    For Each filePath As String In Directory.GetFiles(CST.DATA_PATH & "/yahoo/")
+    Private Sub loadDataFromYahooMinute()
+        Dim count As Integer = 0
+        For Each filePath As String In Directory.GetFiles(CST.DATA_PATH & "/yahoo/")
             If Not filePath.Contains(asset.yahooTicker) Then Continue For
             If Not filePath.Contains(".minute.yahoo.txt") Then Continue For
             For Each line In File.ReadAllLines(filePath)
                 count += loadFromAYahooFile(filePath)
             Next
         Next
- dbg.info("AssetHistory " & asset.ticker & " loaded " & count & " prices from yahoo minute history")
-    end sub
+        dbg.info("AssetHistory " & asset.ticker & " loaded " & count & " prices from yahoo minute history")
+    End Sub
 
     Private Sub loadDataFromYahooDaily()
-        dim filePath as String = CST.DATA_PATH & "/yahoo/" & asset.yahooTicker & ".daily.yahoo.txt"
-        dim count as integer = 0
-        if File.Exists(filePath) do
+        Dim filePath As String = CST.DATA_PATH & "/yahoo/" & asset.yahooTicker & ".daily.yahoo.txt"
+        Dim count As Integer = 0
+        If File.Exists(filePath) Then
             count += loadFromAYahooFile(filePath)
 
             dbg.info("AssetHistory " & asset.ticker & " loaded " & count & " prices from yahoo daily history")
         Else
-            dbg.fail("[" & asset.ticker  & "] No daily yahoo file found")
-        end if
+            dbg.fail("[" & asset.ticker & "] No daily yahoo file found")
+        End If
     End Sub
 
 
-    private function loadFromAYahooFile(filePath as string) as integer
-    dim daily as boolean = false
-    dim count as integer
-    dim openPrice as double = -1
-     For Each line In File.ReadAllLines(filePath)
-        if line.Contains("Date;") then
-        daily= true
-         continue for
-end if
-if line.Contains("Datetime;") then continue for
-        dim split as String() = line.Split(";")
+    Private Function loadFromAYahooFile(filePath As String) As Integer
+        Dim daily As Boolean = False
+        Dim count As Integer
+        Dim openPrice As Double = -1
+        For Each line In File.ReadAllLines(filePath)
+            If line.Contains("Date;") Then
+                daily = True
+                Continue For
+            End If
+            If line.Contains("Datetime;") Then Continue For
+            Dim split As String() = line.Split(";")
 
-        ' daily
-        ' Date;Open;High;Low;Close;Adj Close;Volume
-        ' 1970-01-02;0.0;93.54000091552734;91.79000091552734;93.0;93.0;8050000
-        ' minute
-        ' Datetime;Open;High;Low;Close;Adj Close;Volume
-        ' 2024-09-09 09:30:00-04:00;5442.06982421875;5450.18994140625;5442.06982421875;5448.89013671875;5448.89013671875;0
+            ' daily
+            ' Date;Open;High;Low;Close;Adj Close;Volume
+            ' 1970-01-02;0.0;93.54000091552734;91.79000091552734;93.0;93.0;8050000
+            ' minute
+            ' Datetime;Open;High;Low;Close;Adj Close;Volume
+            ' 2024-09-09 09:30:00-04:00;5442.06982421875;5450.18994140625;5442.06982421875;5448.89013671875;5448.89013671875;0
 
 
-      Dim datChunk As String = split.ElementAt(0)
+            Dim datChunk As String = split.ElementAt(0)
 
-      dim openDate as Date
-      dim closeDate as date
-      dim step1Date as date
-      dim step2Date as date
+            Dim openDate As Date
+            Dim closeDate As Date
+            Dim step1Date As Date
+            Dim step2Date As Date
 
-      if daily then
-      openDate = Date.parse(datChunk & " 09:30:00")
-      closeDate = Date.parse(datChunk & " 16:00:00")
-      step1Date = openDate.AddHours(2)
-      step2Date = openDate.AddHours(4)
-      Else
-        openDate = Date.parse(datChunk )
-      closeDate = openDate.addSeconds(59)
-      step1Date = openDate.addSeconds(20)
-      step2Date = openDate.addSeconds(40)
-      end
+            If daily Then
+                openDate = Date.Parse(datChunk & " 09:30:00")
+                closeDate = Date.Parse(datChunk & " 16:00:00")
+                step1Date = openDate.AddHours(2)
+                step2Date = openDate.AddHours(4)
+            Else
+                openDate = Date.Parse(datChunk)
+                closeDate = openDate.AddSeconds(59)
+                step1Date = openDate.AddSeconds(20)
+                step2Date = openDate.AddSeconds(40)
+            End If
 
-dim open as double = Double.parse(split.ElementAt(1))
-dim high as double = Double.parse(split.ElementAt(2))
-dim low as double = Double.parse(split.ElementAt(3))
-dim close as double = Double.parse(split.ElementAt(4))
+            Dim open As Double = Double.Parse(split.ElementAt(1))
+            Dim high As Double = Double.Parse(split.ElementAt(2))
+            Dim low As Double = Double.Parse(split.ElementAt(3))
+            Dim close As Double = Double.Parse(split.ElementAt(4))
 
-if openPrice = -1 then openPrice = open
+            If openPrice = -1 Then openPrice = open
 
-   count += 4
-' open price
-addPrice(New AssetPrice With {
-            .ticker = asset.ticker,
-            .price = open,
-            .dat = openDate,
-            .todayChangePerc =  (openPrice <> 0 && open / openPrice) || 0
-        })
-'close price
-        addPrice(New AssetPrice With {
-            .ticker = asset.ticker,
-            .price = close,
-            .dat = closeDate,
-            .todayChangePerc = (openPrice <> 0 && close / openPrice) || 0
-        })
+            count += 4
+            ' open price
+            addPrice(New AssetPrice With {
+                    .ticker = asset.ticker,
+                    .price = open,
+                    .dat = openDate,
+                    .todayChangePerc = (openPrice <> 0 AndAlso open / openPrice) Or 0
+                })
+            'close price
+            addPrice(New AssetPrice With {
+                    .ticker = asset.ticker,
+                    .price = close,
+                    .dat = closeDate,
+                    .todayChangePerc = (openPrice <> 0 AndAlso close / openPrice) Or 0
+                })
 
-' note: if there is already some live data for this day, don't do min/max approximation
+            ' note: if there is already some live data for this day, don't do min/max approximation
 
-' min/max price approximation
-if close > open then
-addPrice(New AssetPrice With {
-            .ticker = asset.ticker,
-            .price = low,
-            .dat = step1Date,
-            .todayChangePerc = (openPrice <> 0 && low / openPrice) || 0
-        })
-        addPrice(New AssetPrice With {
-            .ticker = asset.ticker,
-            .price = high,
-            .dat = step2Date,
-                  .todayChangePerc = (openPrice <> 0 && high / openPrice) || 0
-        })
-Else
-addPrice(New AssetPrice With {
-            .ticker = asset.ticker,
-            .price = high,
-            .dat = step1Date,
-                  .todayChangePerc = (openPrice <> 0 && high / openPrice) || 0
-        })
-        addPrice(New AssetPrice With {
-            .ticker = asset.ticker,
-            .price = low,
-            .dat = step2Date,
-                    .todayChangePerc = (openPrice <> 0 && low / openPrice) || 0
-        })
-        end if
-  Next
-  return count
-    end function
+            ' min/max price approximation
+            If close > open Then
+                addPrice(New AssetPrice With {
+                    .ticker = asset.ticker,
+                    .price = low,
+                    .dat = step1Date,
+                    .todayChangePerc = (openPrice <> 0 AndAlso low / openPrice) Or 0
+                })
+                addPrice(New AssetPrice With {
+                    .ticker = asset.ticker,
+                    .price = high,
+                    .dat = step2Date,
+                          .todayChangePerc = (openPrice <> 0 AndAlso high / openPrice) Or 0
+                })
+            Else
+                addPrice(New AssetPrice With {
+                    .ticker = asset.ticker,
+                    .price = high,
+                    .dat = step1Date,
+                          .todayChangePerc = (openPrice <> 0 AndAlso high / openPrice) Or 0
+                })
+                addPrice(New AssetPrice With {
+                    .ticker = asset.ticker,
+                    .price = low,
+                    .dat = step2Date,
+                            .todayChangePerc = (openPrice <> 0 AndAlso low / openPrice) Or 0
+                })
+            End If
+        Next
+        Return count
+    End Function
 
     ' ---------------------------------------------------------------------------------------------------------------------------
     ' LIVE DATA FETCH FROM SOURCE
@@ -252,16 +252,16 @@ addPrice(New AssetPrice With {
         ' dbg.info("fetching data from source for " & asset.name.ToString)
 
         Select Case asset.updateSource
-        ' real-time enough
+                ' real-time enough
             Case UpdateSourceEnum.TRADING_VIEW
                 ' opti: we could update all trading view assets at once
                 TradingView.fetchPrice(asset)
-                ' 30 min delay
+                        ' 30 min delay
             Case UpdateSourceEnum.YAHOO
-                ' Yahoo.fetchPrice(asset)
+                        ' Yahoo.fetchPrice(asset)
             Case UpdateSourceEnum.BOURSOBANK
 
-' we might get degiro realtime data, also removing yahoo 30 min delay usage
+        ' we might get degiro realtime data, also removing yahoo 30 min delay usage
             Case UpdateSourceEnum.DEGIRO
 
         End Select
@@ -285,7 +285,7 @@ addPrice(New AssetPrice With {
         File.WriteAllText(fileName, maxPriceEver.Serialize())
     End Sub
 
-    public Sub pushPriceToFile()
+    Public Sub pushPriceToFile()
 
         ' 280403 162431|23.56
         ' 04/28/2024 1:50:00 PM|28.35
