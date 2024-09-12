@@ -3,19 +3,14 @@ Imports System.Windows.Forms.VisualStyles.VisualStyleElement.Tab
 Imports WorstTradingInitiative.CST.CST
 
 Public Class FrmMain
-    ' // show asset prices
-    ' // orders, position, transaction, merged as trade
-    ' // show trades, with current price, how far I am
-
-    ' // replay simulation, place fake order, fetch fake order/position/transaction, output results to file
-
-    ' yahoo api, je peux tout fetch par la ? et de l'historique aussi ? https://github.com/ranaroussi/yfinance
     ' je veux simuler du long terme sp500
-    ' 1 graph long, graph écart maxEver vs now
+    ' je veux voir wti, sp500 "live" data value
+
+    ' screenshot whole screen 1/2 resolution, wti only, push to web page (fyo.io?) auto-refresh-mdr-liveview
+    ' 960x540 png
 
     ' --------------------------------------------------------------------------------------------------------
     'C:\Users\xwar\AppData\Local\Programs\Python\Python312\Scripts
-
 
     ' live visual graphs 3mo+5d
     ' je veux visualiser des data sur des annees, algo chute depuis maxever
@@ -61,7 +56,7 @@ Public Class FrmMain
 
         marketPriceStart()
 
-        '  dbg.info(getPrice(AssetNameEnum.SP500_3X).ToString)
+        ' dbg.info(getPrice(AssetNameEnum.SP500_3X).ToString)
 
         'my current playground
         If CST.HOST_NAME = hostNameEnum.GALACTICA And False Then

@@ -5,21 +5,24 @@ Module MarketPrice
 
     Private assetsPriceHistory As New List(Of AssetHistory)
 
-    Public Sub setCurrentPrice(asset As AssetInfos, current As AssetPrice)
-        getAssetHistory(asset).addPrice(current)
+    ' from live data fetch
+    Public Sub setCurrentPrice(asset As AssetInfos, newPrice As AssetPrice)
+        Dim assetHistory as AssetHistory = getAssetHistory(asset)
+        Dim current As AssetPrice = assetHistory.currentPrice()
 
+        ' exit if price didn't change
+        If Not IsNothing(current) AndAlso current.price = newPrice.price Then Exit Sub
 
-        'Dim previous As AssetPrice = getPrice(asset)
+        ' new price log + persist
+        FrmMain.pushLineToListBox(asset.ticker & " " & newPrice.Serialize)
+        ' dbg.info(price.ticker & " curent value " & newPrice.price & ". Today change = " & newPrice.todayChangePerc & "%")
+        If asset.persistHistory Then
+            assetHistory.pushPriceToFile()
+        Else
+            FrmMain.pushLineToListBox("skip save " & newPrice.ticker & " persistHistory is off")
+        End If
 
-        'If IsNothing(previous) OrElse previous.price <> current.price Then
-        '    Dim assHistory As AssetHistory = getAssetHistory(asset)
-        '    assHistory.addPrice(current)
-
-        '    dbg.info(current.ticker & " curent value " & current.price & ". Today change = " & current.todayChangePerc & "%")
-        '    If asset.persistHistory Then pushPriceToFile(asset)
-        'Else
-        '    dbg.info(current.ticker & "price no change")
-        'End If
+        assetHistory.addPrice(newPrice)
     End Sub
 
     Public Function getPrice(asset As AssetInfos) As AssetPrice
@@ -129,5 +132,3 @@ Module MarketPrice
 
 
 End Module
-
-
