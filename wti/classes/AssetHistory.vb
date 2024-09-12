@@ -166,6 +166,7 @@ Public Class AssetHistory
         ' 04/28/2024 1:50:00 PM|28.35
 
         Dim price As AssetPrice = currentPrice()
+        If IsNothing(price) Then Exit Sub
         Dim line As String = price.Serialize()
 
         If status = StatusEnum.SIMU Then Exit Sub
