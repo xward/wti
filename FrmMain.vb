@@ -4,6 +4,9 @@ Imports WorstTradingInitiative.CST.CST
 
 Public Class FrmMain
     ' je veux simuler du long terme sp500
+    '   graph v1
+    '   load data from yahoo csv
+    '   simuler, agir
     ' je veux voir wti, sp500 "live" data value
 
     ' screenshot whole screen 1/2 resolution, wti only, push to web page (fyo.io?) auto-refresh-mdr-liveview
