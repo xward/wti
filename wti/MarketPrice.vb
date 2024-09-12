@@ -17,10 +17,10 @@ Module MarketPrice
         ' new price log + persist
         FrmMain.pushLineToListBox(asset.ticker & " " & newPrice.Serialize)
         ' dbg.info(price.ticker & " curent value " & newPrice.price & ". Today change = " & newPrice.todayChangePerc & "%")
-        If asset.persistHistory Then
+        If asset.persistHistoryFromLiveCollect Then
             assetHistory.pushPriceToFile()
         Else
-            FrmMain.pushLineToListBox("skip save " & newPrice.ticker & " persistHistory is off")
+            FrmMain.pushLineToListBox("skip save " & newPrice.ticker & " persistHistoryFromLiveCollect is off")
         End If
 
         assetHistory.addPrice(newPrice)

@@ -20,7 +20,7 @@
         Dim tradingViewUrl As String
         Dim yahooUrl As String
 
-        Dim persistHistory As Boolean
+        Dim persistHistoryFromLiveCollect As Boolean
 
         ' graph configuration
         Dim lineColor As Color
@@ -40,6 +40,21 @@
         ass.ticker = " nothing"
 
         Select Case assetName
+                Case AssetNameEnum.WTI
+                With ass
+                    .ticker = "CL=F"
+                    .yahooTicker = "CL=F"
+                    .name = AssetNameEnum.WTI
+                    .fullName = "Crude Oil WTI"
+                    .leverage = 1
+                    .isShort = False
+                    .currency = "$"
+                    ' data source
+                    .updateDateFromSource = true
+                    .updateSource = UpdateSourceEnum.YAHOO
+                    .updatePeriodSec = 45
+                    .persistHistoryFromLiveCollect = false
+                End With
             Case AssetNameEnum.WTI_3X
                 With ass
                     .ticker = "3OIL"
@@ -54,26 +69,12 @@
                     .updateSource = UpdateSourceEnum.TRADING_VIEW
                     .tradingViewUrl = "https://www.tradingview.com/chart/aSPkAHjR/?symbol=MIL%3A3OIL"
                     .updatePeriodSec = 5
-                    .persistHistory = CST.HOST_NAME = CST.CST.hostNameEnum.GHOST
+                    .persistHistoryFromLiveCollect = CST.HOST_NAME = CST.CST.hostNameEnum.GHOST
                     ' degiro
                     .degiroOrderUrl = "https://trader.degiro.nl/trader/?appMode=order#/markets?newOrder&action=buy&productId=18744180"
                     .degireId = 18744180
                 End With
-            Case AssetNameEnum.WTI
-                With ass
-                    .ticker = "CL=F"
-                    .yahooTicker = "CL=F"
-                    .name = AssetNameEnum.WTI
-                    .fullName = "Crude Oil WTI"
-                    .leverage = 1
-                    .isShort = False
-                    .currency = "$"
-                    ' data source
-                    .updateDateFromSource = true
-                    .updateSource = UpdateSourceEnum.YAHOO
-                    .updatePeriodSec = 45
-                    .persistHistory = false
-                End With
+
 
             Case AssetNameEnum.WTI_3X_SHORT
                 Dim tradingViewUrl As String = ""
@@ -97,7 +98,7 @@
                     .updateSource = UpdateSourceEnum.TRADING_VIEW
                     .tradingViewUrl = tradingViewUrl
                     .updatePeriodSec = 5
-                    .persistHistory = CST.HOST_NAME = CST.CST.hostNameEnum.GHOST
+                    .persistHistoryFromLiveCollect = CST.HOST_NAME = CST.CST.hostNameEnum.GHOST
                     ' degiro
                     .degiroOrderUrl = "https://trader.degiro.nl/trader/?appMode=order#/markets?newOrder&action=buy&productId=30311482"
                     .degireId = 30311482
@@ -132,7 +133,7 @@
                     .updateSource = UpdateSourceEnum.TRADING_VIEW
                     .updatePeriodSec = 5
                     .tradingViewUrl = tradingViewUrl
-                    .persistHistory = CST.HOST_NAME = CST.CST.hostNameEnum.GHOST
+                    .persistHistoryFromLiveCollect = CST.HOST_NAME = CST.CST.hostNameEnum.GHOST
                     ' degiro
                     .degiroOrderUrl = "https://trader.degiro.nl/trader/?appMode=order#/markets?newOrder&action=buy&productId=4995112"
                     .degireId = 4995112
@@ -159,7 +160,7 @@
                     .updateSource = UpdateSourceEnum.YAHOO
                     .updatePeriodSec = 45
                     .yahooUrl = "https://finance.yahoo.com/quote/%5ESPX/"
-                    .persistHistory = False
+                    .persistHistoryFromLiveCollect = False
                     ' degiro
                     ' nothing
                 End With
@@ -180,7 +181,7 @@
                     .updateDateFromSource = False
                     .updateSource = UpdateSourceEnum.YAHOO
                     .updatePeriodSec = 45
-                    .persistHistory = False
+                    .persistHistoryFromLiveCollect = False
                     .yahooUrl = "https://www.boursorama.com/bourse/trackers/cours/1rTPSP5/"
 
                     ' degiro

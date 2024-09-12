@@ -19,7 +19,9 @@ Public Class AssetHistory
     Public Sub New(asset As AssetInfos)
         Me.asset = asset
         loadMaxEver()
-        If asset.persistHistory Then loadDataFromPersistHistory()
+        prices.Clear()
+        'if any, load it
+        loadDataFromPersistHistoryFromLiveCollect()
 
         ' load sp500 daily data, using special fonction provided from SP500 module
 
@@ -84,9 +86,7 @@ Public Class AssetHistory
         End If
     End Sub
 
-    Private Sub loadDataFromPersistHistory()
-        prices.Clear()
-
+    Private Sub loadDataFromPersistHistoryFromLiveCollect()
         For Each filePath As String In Directory.GetFiles(CST.DATA_PATH & "/dataFromThePast/")
             If Not filePath.Contains(asset.ticker) Then Continue For
             If Not filePath.Contains(".tv.txt") Then Continue For
@@ -124,7 +124,7 @@ Public Class AssetHistory
                 TradingView.fetchPrice(asset)
                 ' 30 min delay
             Case UpdateSourceEnum.YAHOO
-                Yahoo.fetchPrice(asset)
+                ' Yahoo.fetchPrice(asset)
             Case UpdateSourceEnum.BOURSOBANK
 
 ' we might get degiro realtime data, also removing yahoo 30 min delay usage

@@ -14,6 +14,9 @@ Namespace Yahoo
         'note: (?) can create an account to have live data
 
         Public Sub fetchPrice(asset As AssetInfos)
+'load both long data and live data, if any
+
+
             'Dim rep As String = Tesla.HttpGet(asset.yahooUrl)
 
 
