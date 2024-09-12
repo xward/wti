@@ -246,7 +246,6 @@
         TRADING_VIEW
         YAHOO
         BOURSOBANK
+        DEGIRO
     End Enum
-
-
 End Module

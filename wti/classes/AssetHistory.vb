@@ -118,12 +118,17 @@ Public Class AssetHistory
         ' dbg.info("fetching data from source for " & asset.name.ToString)
 
         Select Case asset.updateSource
+        ' real-time enough
             Case UpdateSourceEnum.TRADING_VIEW
                 ' opti: we could update all trading view assets at once
                 TradingView.fetchPrice(asset)
+                ' 30 min delay
             Case UpdateSourceEnum.YAHOO
                 Yahoo.fetchPrice(asset)
             Case UpdateSourceEnum.BOURSOBANK
+
+' we might get degiro realtime data, also removing yahoo 30 min delay usage
+            Case UpdateSourceEnum.DEGIRO
 
         End Select
 

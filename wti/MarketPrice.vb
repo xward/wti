@@ -5,7 +5,7 @@ Module MarketPrice
 
     Private assetsPriceHistory As New List(Of AssetHistory)
 
-    ' from live data fetch
+    ' from live data fetch only
     Public Sub setCurrentPrice(asset As AssetInfos, newPrice As AssetPrice)
         Dim assetHistory as AssetHistory = getAssetHistory(asset)
         Dim current As AssetPrice = assetHistory.currentPrice()
@@ -31,7 +31,7 @@ Module MarketPrice
 
     Public Function getPrice(assetName As AssetNameEnum) As AssetPrice
         Return getPrice(assetInfo(assetName))
-    End Function
+    End FunctiongetAssetHistory
 
     Public Function getPrice(tickerName As String) As AssetPrice
         Return getPrice(assetInfo(tickerName))
@@ -71,10 +71,10 @@ Module MarketPrice
         startTimer()
     End Sub
 
-
     Private Function addAssetHistory(assetName As AssetNameEnum) As AssetHistory
         Return addAssetHistory(assetFromName(assetName))
     End Function
+
     Private Function addAssetHistory(asset As AssetInfos) As AssetHistory
         For Each a In assetsPriceHistory
             If a.asset.ticker = asset.ticker Then Return a
@@ -83,6 +83,7 @@ Module MarketPrice
         assetsPriceHistory.Add(ass)
         Return ass
     End Function
+
     Private Sub startTimer()
         marketPriceTmer = New Timer
         marketPriceTmer.Interval = 100
