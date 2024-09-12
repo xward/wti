@@ -29,6 +29,10 @@
                 assetNames &= " " & a.name.ToString
             Next
 
+            ' Dim assetNames As String = ""
+            ' For Each a As AssetInfos In assets
+            '     assetNames &= " " & a.name.ToString
+            ' Next
 
             '  dbg.info("Trading view updated price of" & assetNames & " assets within " & Math.Round(Date.UtcNow.Subtract(start).TotalMilliseconds) & "ms")
         End Sub

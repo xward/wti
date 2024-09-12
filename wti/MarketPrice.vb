@@ -1,11 +1,12 @@
 ﻿Imports System.IO
 Imports System.Reflection.Emit
 Imports WorstTradingInitiative.Structures
+
 Module MarketPrice
 
     Private assetsPriceHistory As New List(Of AssetHistory)
 
-    ' from live data fetch only
+    ' from live data fetchers only
     Public Sub setCurrentPrice(asset As AssetInfos, newPrice As AssetPrice)
         Dim assetHistory as AssetHistory = getAssetHistory(asset)
         Dim current As AssetPrice = assetHistory.currentPrice()
@@ -92,23 +93,6 @@ Module MarketPrice
     End Sub
 
     Private Sub MarketPriceTmer_Tick(sender As Object, e As EventArgs)
-
-        'If status = StatusEnum.COLLECT Then
-        '    Dim diff As Integer = Math.Round(Date.UtcNow.Subtract(lastCollect).TotalSeconds)
-
-        '    FrmMain.Label1.Text = "next price update " & (5 - diff) & " secs"
-
-        '    If diff >= 5 Then
-        '        FrmMain.Label1.Text = "updating ..."
-        '        dbg.info("updating prices from trading view ...")
-        '        TradingView.fetchPrice(assetsToTrack)
-        '        lastCollect = Date.UtcNow
-        '        'TmrUI.Enabled = True
-
-        '        FrmMain.bottomGraph.render()
-        '    End If
-        'End If
-
         FrmMain.Label1.Text = ""
 
         ' for each assetsPriceHistory, fetch data in enabled
