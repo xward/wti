@@ -21,6 +21,8 @@
         Dim yahooUrl As String
 
         Dim persistHistoryFromLiveCollect As Boolean
+        dim populateDataFromYahooMinute as Boolean
+        dim populateDataFromYahooDaily as Boolean
 
         ' graph configuration
         Dim lineColor As Color
@@ -104,6 +106,37 @@
                     .degireId = 30311482
                 End With
 
+            Case AssetNameEnum.SP500
+                'blackrock sp500 euro IE00B3ZW0K18  iShares S&P 500 EUR Hedged UCITS ETF (Acc) (IUSE.L)
+                ' IE000D3BWBR2 dollar iShares S&P 500 Swap UCITS ETF USD (Dist) https://finance.yahoo.com/quote/I50D.AS/
+                ' LU1135865084 euro Amundi S&P 500 II UCITS ETF Acc (SP5C.PA)  https://finance.yahoo.com/quote/SP5C.PA/
+
+                With ass
+                    .name = AssetNameEnum.SP500
+                    .fullName = "S&P 500 INDEX (^SPX)"
+                    .ticker = "SPX"
+                    .yahooTicker = "^SPX"
+                    .leverage = 1
+                    .isShort = False
+                    .currency = "$"
+                    .degiroOrderUrl = "-"
+                    .degireId = 0
+                    .lineColor = Color.Red
+                    ' data source
+                    .updateDateFromSource = False
+                    .updateSource = UpdateSourceEnum.YAHOO
+                    .updatePeriodSec = 45
+                    .yahooUrl = "https://finance.yahoo.com/quote/%5ESPX/"
+                    .persistHistoryFromLiveCollect = False
+                    .populateDataFromYahooMinute = True
+                    .populateDataFromYahooDaily = True
+                    ' degiro
+                    ' nothing
+                End With
+                    ' close  4:51 PM EDT
+                    ' open 13h30 utc
+                    'but data from yahoo: 09h30 to 16h
+
             Case AssetNameEnum.SP500_3X
                 Dim tradingViewUrl As String = ""
                 Select Case CST.HOST_NAME
@@ -139,33 +172,7 @@
                     .degireId = 4995112
                 End With
 
-            Case AssetNameEnum.SP500
-                'blackrock sp500 euro IE00B3ZW0K18  iShares S&P 500 EUR Hedged UCITS ETF (Acc) (IUSE.L)
-                ' IE000D3BWBR2 dollar iShares S&P 500 Swap UCITS ETF USD (Dist) https://finance.yahoo.com/quote/I50D.AS/
-                ' LU1135865084 euro Amundi S&P 500 II UCITS ETF Acc (SP5C.PA)  https://finance.yahoo.com/quote/SP5C.PA/
 
-                With ass
-                    .name = AssetNameEnum.SP500
-                    .fullName = "S&P 500 INDEX (^SPX)"
-                    .ticker = "SPX"
-                    .yahooTicker = "^SPX"
-                    .leverage = 1
-                    .isShort = False
-                    .currency = "$"
-                    .degiroOrderUrl = "-"
-                    .degireId = 0
-                    .lineColor = Color.Red
-                    ' data source
-                    .updateDateFromSource = False
-                    .updateSource = UpdateSourceEnum.YAHOO
-                    .updatePeriodSec = 45
-                    .yahooUrl = "https://finance.yahoo.com/quote/%5ESPX/"
-                    .persistHistoryFromLiveCollect = False
-                    ' degiro
-                    ' nothing
-                End With
-                    ' close  4:51 PM EDT
-                    ' open 13h30 utc
 
             Case AssetNameEnum.PEA_SP500
                 With ass
