@@ -21,8 +21,6 @@ Public Class AssetHistory
         loadMaxEver()
         If asset.persistHistory Then loadDataFromPersistHistory()
 
-
-
         ' load sp500 daily data, using special fonction provided from SP500 module
 
         lastDataSourceUpdate = Date.UtcNow
@@ -46,25 +44,14 @@ Public Class AssetHistory
         End If
     End Function
 
+    ' only MarketPrice or Me can call me
     Public Sub addPrice(ByRef price As AssetPrice)
-        Dim current As AssetPrice = currentPrice()
-        If Not IsNothing(current) AndAlso current.price = price.price Then Exit Sub
-
-        FrmMain.pushLineToListBox(asset.ticker & " " & price.Serialize)
-
-        dbg.info(price.ticker & " curent value " & price.price & ". Today change = " & price.todayChangePerc & "%")
-        If asset.persistHistory Then
-            pushPriceToFile()
-        Else
-            FrmMain.pushLineToListBox("skip save " & price.ticker & " persistHistory is off")
-        End If
-
-
         If IsNothing(maxPrice) OrElse price.price > maxPrice.price Then maxPrice = price
         If IsNothing(maxPriceEver) OrElse price.price > maxPriceEver.price Then
             maxPriceEver = price
             pushMaxEverFile()
         End If
+
         prices.Add(price)
     End Sub
 
@@ -159,7 +146,7 @@ Public Class AssetHistory
         File.WriteAllText(fileName, maxPriceEver.Serialize())
     End Sub
 
-    Private Sub pushPriceToFile()
+    public Sub pushPriceToFile()
 
         ' 280403 162431|23.56
         ' 04/28/2024 1:50:00 PM|28.35
