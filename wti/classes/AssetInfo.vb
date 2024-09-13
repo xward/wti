@@ -39,12 +39,12 @@
     End Function
 
     Public Function assetInfo(assetName As AssetNameEnum) As AssetInfos
-        Dim ass As New AssetInfos
-        ass.ticker = " nothing"
+        Dim asset As New AssetInfos
+        asset.ticker = " nothing"
 
         Select Case assetName
             Case AssetNameEnum.WTI
-                With ass
+                With asset
                     .ticker = "CL=F"
                     .yahooTicker = "CL=F"
                     .name = AssetNameEnum.WTI
@@ -59,7 +59,7 @@
                     .persistHistoryFromLiveCollect = False
                 End With
             Case AssetNameEnum.WTI_3X
-                With ass
+                With asset
                     .ticker = "3OIL"
                     .ISIN = "IE00BMTM6B32"
                     .name = AssetNameEnum.WTI_3X
@@ -88,7 +88,7 @@
                         tradingViewUrl = "https://www.tradingview.com/chart/vjhxMR0Z/?symbol=MIL%3A3OIS"
                 End Select
 
-                With ass
+                With asset
                     .ticker = "3OIS"
                     .ISIN = "XS2819844387"
                     .name = AssetNameEnum.WTI_3X_SHORT
@@ -112,7 +112,7 @@
                 ' IE000D3BWBR2 dollar iShares S&P 500 Swap UCITS ETF USD (Dist) https://finance.yahoo.com/quote/I50D.AS/
                 ' LU1135865084 euro Amundi S&P 500 II UCITS ETF Acc (SP5C.PA)  https://finance.yahoo.com/quote/SP5C.PA/
 
-                With ass
+                With asset
                     .name = AssetNameEnum.SP500
                     .fullName = "S&P 500 INDEX (^SPX)"
                     .ticker = "SPX"
@@ -150,7 +150,7 @@
 
                 ' https://finance.yahoo.com/quote/IE00B7Y34M31.SG/
 
-                With ass
+                With asset
                     .ISIN = "IE00B7Y34M31"
                     .name = AssetNameEnum.SP500_3X
                     .fullName = "WISDOMTREE S&P 500 3X DAILY LEVERAG"
@@ -177,7 +177,7 @@
 
 
             Case AssetNameEnum.PEA_SP500
-                With ass
+                With asset
                     .name = AssetNameEnum.PEA_SP500
                     .fullName = "Lyxor PEA S&P 500 UCITS ETF - Capi."
                     .ticker = "1rTPSP5"
@@ -201,7 +201,7 @@
                 End With
 
         End Select
-        Return ass
+        Return asset
     End Function
 
     Public Function assetNameFromTicker(ticker As String) As AssetNameEnum
