@@ -201,8 +201,11 @@ Public Class Graph
             writeText(New Point(curveRect.X + curveRect.Width, y), perc & "%", legendPen.Color, Color.Transparent)
         Next
 
+
+        Dim arroyStr As String = ""
+
         'top text
-        writeText(New Point(0, 0), asset.ticker & " - " & asset.name & "      current: " & Math.Round(price.price * 10) / 10 & asset.currency & " today: " & price.todayChangePerc & "% " &
+        writeText(New Point(0, 0), asset.ticker & " - " & asset.name & " " & Math.Round(price.price * 10) / 10 & asset.currency & " today: " & price.todayChangePerc & "% " &
                   " max ever:" & Math.Round(history.maxPriceEver.price) & " (" & history.diffWithMaxPerc & "%)", Color.Black, Color.Transparent)
 
         writeText(New Point(0, 20), "graph min: " & Math.Round(minPrice.price) & asset.currency & " max: " & Math.Round(maxPrice.price) & asset.currency & " last point:" & price.dat.ToString, Color.Black, Color.Transparent)
@@ -243,6 +246,10 @@ Public Class Graph
 
     ' -----------------------------------------------------------------------------------------------------------------------------
     ' Utils
+
+    Private Sub sMoney(price)
+
+    End Sub
 
     Private Sub checkResized()
         ' todo

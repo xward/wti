@@ -117,7 +117,8 @@ Public Class FrmMain
             ' nothing to start, yet
         End If
         If GetAsyncKeyState(Keys.F3) And My.Computer.Keyboard.CtrlKeyDown Then
-            status = StatusEnum.NONE
+            status = StatusEnum.INTERRUPT
+            marketPriceStop()
             'prevent auto start at boot
             TmerAutoStart.Enabled = False
             ToolStripStatusSays.Text = "Interrupt by user"

@@ -77,6 +77,10 @@ Module MarketPrice
         startTimer()
     End Sub
 
+    Public Sub marketPriceStop()
+        marketPriceTmer.Enabled = False
+    End Sub
+
     Private Function addAssetHistory(assetName As AssetNameEnum) As AssetHistory
         Return addAssetHistory(assetFromName(assetName))
     End Function
@@ -100,12 +104,14 @@ Module MarketPrice
     End Sub
 
     Private Sub MarketPriceTmer_Tick(sender As Object, e As EventArgs)
+        marketPriceTmer.Enabled = False
         FrmMain.Label1.Text = ""
 
         ' for each assetsPriceHistory, fetch data in enabled
         For Each ass As AssetHistory In assetsPriceHistory
             ass.fetchDataFromSource()
         Next
+        If status <> StatusEnum.INTERRUPT Then marketPriceTmer.Enabled = True
     End Sub
 
 

@@ -12,6 +12,7 @@ Public Module Structures
         ONLINE
         SIMU
         LIVE
+        INTERRUPT
         'just collect data from trading view
         'COLLECT
     End Enum
