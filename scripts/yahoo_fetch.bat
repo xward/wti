@@ -1,1 +1,1 @@
-py ../pytonlab/download_yahoo.py
+py ../pytonlab/download_yahoo.py > yahoo_fetch.log
