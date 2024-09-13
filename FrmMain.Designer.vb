@@ -121,7 +121,7 @@ Partial Class FrmMain
         StatusStrip.Location = New Point(0, 978)
         StatusStrip.Name = "StatusStrip"
         StatusStrip.Padding = New Padding(1, 0, 16, 0)
-        StatusStrip.Size = New Size(765, 32)
+        StatusStrip.Size = New Size(1940, 32)
         StatusStrip.TabIndex = 4
         ' 
         ' runType
@@ -230,7 +230,7 @@ Partial Class FrmMain
         BottomPanel.ForeColor = Color.White
         BottomPanel.Location = New Point(0, 739)
         BottomPanel.Name = "BottomPanel"
-        BottomPanel.Size = New Size(765, 239)
+        BottomPanel.Size = New Size(1940, 239)
         BottomPanel.TabIndex = 12
         ' 
         ' Panel1
@@ -242,7 +242,7 @@ Partial Class FrmMain
         Panel1.Dock = DockStyle.Fill
         Panel1.Location = New Point(462, 0)
         Panel1.Name = "Panel1"
-        Panel1.Size = New Size(303, 239)
+        Panel1.Size = New Size(1478, 239)
         Panel1.TabIndex = 8
         ' 
         ' Label1
@@ -262,7 +262,7 @@ Partial Class FrmMain
         ListBoxLogEvents.ItemHeight = 19
         ListBoxLogEvents.Location = New Point(0, 102)
         ListBoxLogEvents.Name = "ListBoxLogEvents"
-        ListBoxLogEvents.Size = New Size(303, 137)
+        ListBoxLogEvents.Size = New Size(1478, 137)
         ListBoxLogEvents.TabIndex = 4
         ' 
         ' Label2
@@ -312,7 +312,7 @@ Partial Class FrmMain
         TopPanel.Dock = DockStyle.Fill
         TopPanel.Location = New Point(0, 0)
         TopPanel.Name = "TopPanel"
-        TopPanel.Size = New Size(765, 739)
+        TopPanel.Size = New Size(1940, 739)
         TopPanel.TabIndex = 13
         ' 
         ' PanelGraphBottom
@@ -322,7 +322,7 @@ Partial Class FrmMain
         PanelGraphBottom.Dock = DockStyle.Fill
         PanelGraphBottom.Location = New Point(0, 329)
         PanelGraphBottom.Name = "PanelGraphBottom"
-        PanelGraphBottom.Size = New Size(765, 410)
+        PanelGraphBottom.Size = New Size(1940, 410)
         PanelGraphBottom.TabIndex = 6
         ' 
         ' PanelGraphTop
@@ -332,7 +332,7 @@ Partial Class FrmMain
         PanelGraphTop.Dock = DockStyle.Top
         PanelGraphTop.Location = New Point(0, 24)
         PanelGraphTop.Name = "PanelGraphTop"
-        PanelGraphTop.Size = New Size(765, 305)
+        PanelGraphTop.Size = New Size(1940, 305)
         PanelGraphTop.TabIndex = 5
         ' 
         ' MainMenuStrip
@@ -340,7 +340,7 @@ Partial Class FrmMain
         MainMenuStrip.Items.AddRange(New ToolStripItem() {TradesToolStripMenuItem, ManualActionsToolStripMenuItem, SimulationToolStripMenuItem})
         MainMenuStrip.Location = New Point(0, 0)
         MainMenuStrip.Name = "MainMenuStrip"
-        MainMenuStrip.Size = New Size(765, 24)
+        MainMenuStrip.Size = New Size(1940, 24)
         MainMenuStrip.TabIndex = 4
         MainMenuStrip.Text = "MainMenuStrip"
         ' 
@@ -420,7 +420,7 @@ Partial Class FrmMain
         AutoScaleDimensions = New SizeF(8F, 17F)
         AutoScaleMode = AutoScaleMode.Font
         BackColor = Color.MidnightBlue
-        ClientSize = New Size(765, 1010)
+        ClientSize = New Size(1940, 1010)
         Controls.Add(TopPanel)
         Controls.Add(BottomPanel)
         Controls.Add(DataGridViewAssetPrices)

@@ -88,6 +88,7 @@ Public Class AssetHistory
         Else
             For Each p As AssetPrice In prices
                 If p.dat.CompareTo(dat) > 0 Then np.Add(p)
+                'If p.dat.Subtract(dat).TotalSeconds > 0 Then np.Add(p)
             Next
         End If
         Return np

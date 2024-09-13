@@ -3,8 +3,11 @@ Public Class Graph
     Public asset As AssetInfos
 
     Public parentPanel As Panel
+
     Public fromDate As Date
     Public toDate As Date
+    ' precalcs
+    Public spanSec As Double
 
     Public elapsed As Double
 
@@ -20,6 +23,7 @@ Public Class Graph
 
     Private img As New Bitmap(1, 1)
     Private g As Graphics
+    Private rendering As Boolean = False
 
     ' style
     Private defaultFont As New Font("Cascadia Mono", 14)
@@ -35,6 +39,7 @@ Public Class Graph
     Public Sub New(parentPanel As Panel, assetName As AssetNameEnum)
         Me.parentPanel = parentPanel
         Me.asset = assetFromName(assetName)
+        toDate = Date.UtcNow()
         init()
     End Sub
 
@@ -52,12 +57,14 @@ Public Class Graph
     ' -----------------------------------------------------------------------------------------------------------------------------
     ' Render
     Public Sub render()
+        rendering = True
         Dim start As Date = Date.UtcNow()
         checkResized()
         ' init
         paintItBlack()
 
-        toDate = Date.UtcNow()
+        ' precompute stuff
+        spanSec = toDate.Subtract(fromDate).TotalSeconds
 
         ' actual stuff
         renderAssetPrices()
@@ -75,6 +82,7 @@ Public Class Graph
         ' temps
         Dim fps As Double = 1000 / Math.Max(1, elapsed)
         FrmMain.ToolStripStatusLabelDrawFps.Text = Math.Round(elapsed) & "ms (" & Math.Round(fps) & " fps)"
+        rendering = False
     End Sub
 
 
@@ -85,7 +93,7 @@ Public Class Graph
     ' define échelle
     ' fox how much perc horizontal to print
 
-    Private curvePadding As New Padding(0, 20, 50, 30)
+    Private curvePadding As New Padding(5, 50, 85, 70)
     Private curveRect As New Rectangle
     Private minPrice As AssetPrice
     Private maxPrice As AssetPrice
@@ -104,6 +112,9 @@ Public Class Graph
         ' todo: drop outside of market open
         allPrices = history.allPricesAfter(fromDate)
         buildHolesFromAllPrices()
+
+
+
 
         If allPrices.Count = 0 Then
             writeText(New Point(img.Width / 2 - 30, img.Height / 2 - 5), "No Data", blackPen.Color, Color.Transparent)
@@ -127,23 +138,27 @@ Public Class Graph
         'g.DrawLine(gridPen, New Point(0, pixelY(minPrice)), New Point(img.Width, pixelY(minPrice)))
         'g.DrawLine(gridPen, New Point(0, pixelY(maxPrice)), New Point(img.Width, pixelY(maxPrice)))
 
-        ' vertial day separator
-        For day = 0 To -6 Step -1
-            Dim dat As Date = Date.Parse(Date.UtcNow.ToShortDateString).AddDays(day)
-            g.DrawLine(gridPen, New Point(pixelX(dat), curveRect.Y), New Point(pixelX(dat), curveRect.Y + curveRect.Height))
+        renderVerticals()
 
-            writeText(New Point(pixelX(dat), curveRect.Y + curveRect.Height - 20), dat.Day, legendPen.Color, Color.Transparent)
-        Next
+
+        'For Each h As Hole In holesList
+        '    g.DrawLine(New Pen(Color.RebeccaPurple), New Point(pixelX(h.ifAfter), curveRect.Y), New Point(pixelX(h.ifAfter), curveRect.Y + curveRect.Height))
+
+
+        'Next
 
 
         ' horizontal perc separator
-        For perc As Double = 0 To -100 Step -1
+        For perc As Double = 0 To -100 Step -2
             Dim y As Double = pixelY(zeroPrice.price * (1.0 + perc / 100))
+            If y > curveRect.Y + curveRect.Height Then Exit For
             g.DrawLine(gridPen, New Point(curveRect.X, y), New Point(curveRect.X + curveRect.Width, y))
             writeText(New Point(curveRect.X + curveRect.Width, y), perc & "%", legendPen.Color, Color.Transparent)
         Next
-        For perc As Double = 1 To 200
+        For perc As Double = 1 To 200 Step 2
             Dim y As Double = pixelY(zeroPrice.price * (1.0 + perc / 100))
+            If y < curveRect.Y Then Exit For
+
             g.DrawLine(gridPen, New Point(curveRect.X, y), New Point(curveRect.X + curveRect.Width, y))
             writeText(New Point(curveRect.X + curveRect.Width, y), perc & "%", legendPen.Color, Color.Transparent)
         Next
@@ -191,6 +206,42 @@ Public Class Graph
     'drawVerticalGrid(img.Width / 2, img.Width / (3 * 4))
 
 
+    ' -----------------------------------------------------------------------------------------------------------------------------
+    ' vertical time separators
+
+    'Private stepList As Integer() = {1, 7, 30}
+    'Private dayWideStepList As Integer() = {12, 3 * 30, 6 * 30}
+
+    Private Sub renderVerticals()
+        Dim stepp As Integer = 1
+        ' du pif complet
+        If spanSec / curveRect.Width > 100 Then stepp = 5
+        If spanSec / curveRect.Width > 5000 Then stepp = 30
+        If spanSec / curveRect.Width > 20000 Then stepp = 90
+
+        'dbg.info(spanSec / curveRect.Width)
+        'dbg.info(stepp)
+
+        Dim now As Date
+        'truncate to day
+        If stepp = 5 Then now = Date.Parse(Date.UtcNow.ToShortDateString)
+        'truncate to month
+        If stepp > 5 Then now = Date.Parse(Date.UtcNow.Month & "/01/" & Date.UtcNow.Year)
+
+        Dim text As String = ""
+
+        For day = 0 To Math.Round(fromDate.Subtract(toDate).TotalDays) Step -stepp
+            Dim dat As Date = now.AddDays(day)
+            g.DrawLine(gridPen, New Point(pixelX(dat), curveRect.Y), New Point(pixelX(dat), curveRect.Y + curveRect.Height + 20))
+
+            If stepp = 5 Then text = dat.Day
+            If stepp > 5 Then text = MonthName(dat.Month, True) & " " & dat.Year
+
+            writeText(New Point(pixelX(dat), curveRect.Y + curveRect.Height + 5), text, legendPen.Color, Color.Transparent, 12)
+        Next
+
+    End Sub
+
 
     ' -----------------------------------------------------------------------------------------------------------------------------
     ' Holes
@@ -207,7 +258,7 @@ Public Class Graph
 
             n1 = allPrices.ElementAt(nu + 1).dat
 
-            diff = n1.Subtract(n).TotalMinutes
+            diff = n1.Subtract(n).TotalSeconds
 
             n = n1
 
@@ -220,35 +271,51 @@ Public Class Graph
             '.begin = n.AddMinutes(1),
             '.endd = n1.AddMinutes(-1),
             holesList.Add(New Hole With {
-                .ifBefore = n.AddMinutes(1),
-                .shiftMin = Math.Round(diff - 2)
+                .ifAfter = n.AddMinutes(1),
+                .shiftSec = Math.Round(diff - 2 * 60)
             })
             n = n1
         Next
         dbg.info(holesList.Count)
+        'For Each h As Hole In holesList
+        '    dbg.info(StructToString(h))
+        'Next
     End Sub
 
-    Private Function shiftFromHoles(x As Double)
-        Return x
+    ' return shift as second to remove
+    Private Function shiftFromHoles(x As Date) As Double
+        Dim shift As Double = 0
+        For Each h As Hole In holesList
+            If x.Subtract(h.ifAfter).TotalSeconds > 0 Then shift += h.shiftSec
+        Next
+        Return 0
     End Function
 
     Private Function pixelX(price As AssetPrice) As Double
         Return pixelX(price.dat)
     End Function
 
+    'Dim sec As Double = -toDate.Subtract(dat).TotalSeconds
+
+    'Dim minSec As Double = -toDate.Subtract(fromDate).TotalSeconds ' + Math.Floor(toDate.Subtract(fromDate).TotalDays) * (86400 - (asset.marketUTCClose.Subtract(asset.marketOpen).TotalSeconds))
+    '' Dim maxSec As Double = 0
+
     Private Function pixelX(dat As Date) As Double
-        'Dim sec As Double = -toDate.Subtract(dat).TotalSeconds
+        Dim timespanSec As Double = toDate.Subtract(fromDate).TotalSeconds
+        'dbg.info(timespanSec & " " & dat.Subtract(fromDate).TotalSeconds)
+        timespanSec -= shiftFromHoles(toDate)
+        'dbg.info(" -> with " & fromDate.ToString & " < " & dat.ToString & " < " & toDate.ToString & "    " & shiftFromHoles(dat))
+        'dbg.info("    from shift: " & shiftFromHoles(fromDate) & " datShift:" & shiftFromHoles(dat) & " toShift:" & shiftFromHoles(toDate))
 
-        'Dim minSec As Double = -toDate.Subtract(fromDate).TotalSeconds ' + Math.Floor(toDate.Subtract(fromDate).TotalDays) * (86400 - (asset.marketUTCClose.Subtract(asset.marketOpen).TotalSeconds))
-        '' Dim maxSec As Double = 0
-
-        Dim perVOnGraph As Double = diffFromWithDateSec(dat) / diffFromWithDateSec(Date.UtcNow())
-        ' dbg.info(minSec & " " & maxSec & " " & " " & sec & " ->" & perVOnGraph)
-
-        ' dbg.info(Math.Floor(dat.Subtract(fromDate).TotalDays) & "  " & perVOnGraph & "  " & (86400 - (asset.marketUTCClose.Subtract(asset.marketOpen).TotalSeconds)))
+        Dim perVOnGraph As Double = (dat.Subtract(fromDate).TotalSeconds - shiftFromHoles(dat)) / timespanSec
+        'dbg.info(" -> " & timespanSec & " " & (dat.Subtract(fromDate).TotalSeconds - shiftFromHoles(dat)) & " -> " & perVOnGraph)
 
         Return curveRect.Left + perVOnGraph * curveRect.Width
     End Function
+    ' dbg.info(minSec & " " & maxSec & " " & " " & sec & " ->" & perVOnGraph)
+
+    ' dbg.info(Math.Floor(dat.Subtract(fromDate).TotalDays) & "  " & perVOnGraph & "  " & (86400 - (asset.marketUTCClose.Subtract(asset.marketOpen).TotalSeconds)))
+
 
 
     Private Function pixelY(price As AssetPrice) As Double
@@ -352,7 +419,7 @@ Public Class Graph
     ' Api
     Private Sub init()
 
-        fromDate = Date.UtcNow.AddDays(-5)
+        fromDate = Date.UtcNow.AddDays(-2000)
         ' truncate from date
         'fromDate = Date.Parse(fromDate.ToShortDateString).AddDays(-5)
 
@@ -423,8 +490,8 @@ Public Class Graph
     End Sub
 
     Public Sub moveOverGraph(sender As Object, e As MouseEventArgs)
-        ' 20 fps on mouse over max
-        If Date.UtcNow.Subtract(lastMouseMove).TotalMilliseconds < 50 Then Exit Sub
+        ' 10 fps on mouse over max
+        If Date.UtcNow.Subtract(lastMouseMove).TotalMilliseconds < 100 Or rendering Then Exit Sub
         lastMouseMove = Date.UtcNow
 
         mouseOvering.X = e.X
@@ -435,11 +502,11 @@ Public Class Graph
 
     End Sub
 
-    Private Structure Hole
+    Public Structure Hole
         Dim begin As Date
         Dim endd As Date
-        Dim ifBefore As Date
-        Dim shiftMin As Double
+        Dim ifAfter As Date
+        Dim shiftSec As Double
     End Structure
 
 End Class
