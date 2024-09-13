@@ -57,8 +57,6 @@ Public Class Graph
         ' init
         paintItBlack()
 
-
-
         toDate = Date.UtcNow()
 
         ' actual stuff
@@ -94,69 +92,18 @@ Public Class Graph
     Private zeroPrice As AssetPrice
     Private history As AssetHistory
     Private allPrices As List(Of AssetPrice)
+    Private holesList As New List(Of Hole)
 
-
-    Private Function pixelY(price As AssetPrice) As Double
-        Return pixelY(price.price)
-    End Function
-    Private Function pixelY(p As Double) As Double
-        ' add padding top/bottom, graph should never touch max échelle
-        Dim innerPadding As Integer = 50
-
-        Dim minP As Double = minPrice.price
-        If minP = 0 Then minP = p
-        Dim maxP As Double = maxPrice.price
-        If maxP = 0 Then maxP = p
-
-        Dim perHOnGraph As Double = (p - minP) / (maxP - minP)
-        ' dbg.info(minP & " " & maxP & " " & " " & price.price & " ->" & perHOnGraph)
-
-
-        ' dbg.info(curveRect.Top + innerPadding + (1 - perHOnGraph) * (curveRect.Height - innerPadding * 2))
-
-        Return curveRect.Top + innerPadding + (1 - perHOnGraph) * (curveRect.Height - innerPadding * 2)
-    End Function
-
-    Private Function pixelX(price As AssetPrice) As Double
-        Return pixelX(price.dat)
-    End Function
-
-    Private Function pixelX(dat As Date) As Double
-        'Dim sec As Double = -toDate.Subtract(dat).TotalSeconds
-
-        'Dim minSec As Double = -toDate.Subtract(fromDate).TotalSeconds ' + Math.Floor(toDate.Subtract(fromDate).TotalDays) * (86400 - (asset.marketUTCClose.Subtract(asset.marketOpen).TotalSeconds))
-        '' Dim maxSec As Double = 0
-
-        Dim perVOnGraph As Double = diffFromWithDateSec(dat) / diffFromWithDateSec(Date.UtcNow())
-        ' dbg.info(minSec & " " & maxSec & " " & " " & sec & " ->" & perVOnGraph)
-
-        ' dbg.info(Math.Floor(dat.Subtract(fromDate).TotalDays) & "  " & perVOnGraph & "  " & (86400 - (asset.marketUTCClose.Subtract(asset.marketOpen).TotalSeconds)))
-
-        Return curveRect.Left + perVOnGraph * curveRect.Width
-    End Function
-
-    'sec between dat and fromDate removing seconds during market close
-    Private Function diffFromWithDateSec(dat As Date) As Double
-
-
-
-
-        'dbg.info(Math.Floor(dat.Subtract(fromDate).TotalDays))
-        Return dat.Subtract(fromDate).TotalSeconds ' - (0 + Math.Floor(dat.Subtract(fromDate).TotalDays)) * 54900
-        '            (Math.Floor(toDate.Subtract(dat).TotalDays) - 0) * (86400 - (asset.marketUTCClose.Subtract(asset.marketOpen).TotalSeconds))
-    End Function
+    ' -------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     Private Sub renderAssetPrices()
-
-        ' g.FillRectangle(New SolidBrush(Color.Yellow), curveRect)
-
-
         ' current
         Dim price As AssetPrice = getPrice(asset)
 
         ' might get slow, can be easily optimized
         ' todo: drop outside of market open
         allPrices = history.allPricesAfter(fromDate)
+        buildHolesFromAllPrices()
 
         If allPrices.Count = 0 Then
             writeText(New Point(img.Width / 2 - 30, img.Height / 2 - 5), "No Data", blackPen.Color, Color.Transparent)
@@ -207,10 +154,10 @@ Public Class Graph
         If price.todayChangePerc < 0 Then arroyStr = Convert.ToChar(9660)
 
         'top text
-        writeText(New Point(5, 5), asset.ticker & " - " & asset.name.ToString & " " & Math.Round(price.price * 10) / 10 & asset.currency & " " & arroyStr & " " & price.todayChangePerc & "% " &
-                  " max_ever:" & Math.Round(history.maxPriceEver.price) & " (" & history.diffWithMaxPerc & "%)", Color.Black, Color.Transparent)
-
-        writeText(New Point(5, 30), "graph min:" & Math.Round(minPrice.price) & asset.currency & " max:" & Math.Round(maxPrice.price) & asset.currency & "   last_point: " & price.dat.ToString, Color.Black, Color.Transparent, 11)
+        writeText(New Point(5, 5), asset.ticker & " - " & asset.name.ToString & " (" & asset.currency & ") " & Math.Round(price.price * 10) / 10 & " " & arroyStr & " " & price.todayChangePerc & "% " &
+                      " max_ever:" & Math.Round(history.maxPriceEver.price) & " (" & history.diffWithMaxPerc & "%)", Color.Black, Color.Transparent)
+        'sub text
+        writeText(New Point(5, 30), "graph min:" & Math.Round(minPrice.price) & " max:" & Math.Round(maxPrice.price) & "   last_point: " & price.dat.ToString, Color.Black, Color.Transparent, 11)
 
         writeText(New Point(img.Width - 65, 5), allPrices.Count & " pts", Color.Black, Color.Transparent, 11)
 
@@ -244,6 +191,107 @@ Public Class Graph
     'drawVerticalGrid(img.Width / 2, img.Width / (3 * 4))
 
 
+
+    ' -----------------------------------------------------------------------------------------------------------------------------
+    ' Holes
+
+    Private Sub buildHolesFromAllPrices()
+        'this is terrible !
+
+        holesList.Clear()
+        Dim n1 As Date
+        Dim n As Date = allPrices.ElementAt(0).dat
+        Dim diff As Double
+
+        For nu = 0 To allPrices.Count - 2
+
+            n1 = allPrices.ElementAt(nu + 1).dat
+
+            diff = n1.Subtract(n).TotalMinutes
+
+            n = n1
+
+            'trou de moins de 2h? no hole
+            If diff < 120 Then
+                n = n1
+                Continue For
+            End If
+
+            '.begin = n.AddMinutes(1),
+            '.endd = n1.AddMinutes(-1),
+            holesList.Add(New Hole With {
+                .ifBefore = n.AddMinutes(1),
+                .shiftMin = Math.Round(diff - 2)
+            })
+            n = n1
+        Next
+        dbg.info(holesList.Count)
+    End Sub
+
+    Private Function shiftFromHoles(x As Double)
+        Return x
+    End Function
+
+    Private Function pixelX(price As AssetPrice) As Double
+        Return pixelX(price.dat)
+    End Function
+
+    Private Function pixelX(dat As Date) As Double
+        'Dim sec As Double = -toDate.Subtract(dat).TotalSeconds
+
+        'Dim minSec As Double = -toDate.Subtract(fromDate).TotalSeconds ' + Math.Floor(toDate.Subtract(fromDate).TotalDays) * (86400 - (asset.marketUTCClose.Subtract(asset.marketOpen).TotalSeconds))
+        '' Dim maxSec As Double = 0
+
+        Dim perVOnGraph As Double = diffFromWithDateSec(dat) / diffFromWithDateSec(Date.UtcNow())
+        ' dbg.info(minSec & " " & maxSec & " " & " " & sec & " ->" & perVOnGraph)
+
+        ' dbg.info(Math.Floor(dat.Subtract(fromDate).TotalDays) & "  " & perVOnGraph & "  " & (86400 - (asset.marketUTCClose.Subtract(asset.marketOpen).TotalSeconds)))
+
+        Return curveRect.Left + perVOnGraph * curveRect.Width
+    End Function
+
+
+    Private Function pixelY(price As AssetPrice) As Double
+        Return pixelY(price.price)
+    End Function
+    Private Function pixelY(p As Double) As Double
+        ' add padding top/bottom, graph should never touch max échelle
+        Dim innerPadding As Integer = 50
+
+        Dim minP As Double = minPrice.price
+        If minP = 0 Then minP = p
+        Dim maxP As Double = maxPrice.price
+        If maxP = 0 Then maxP = p
+
+        Dim perHOnGraph As Double = (p - minP) / (maxP - minP)
+        ' dbg.info(minP & " " & maxP & " " & " " & price.price & " ->" & perHOnGraph)
+
+
+        ' dbg.info(curveRect.Top + innerPadding + (1 - perHOnGraph) * (curveRect.Height - innerPadding * 2))
+
+        Return curveRect.Top + innerPadding + (1 - perHOnGraph) * (curveRect.Height - innerPadding * 2)
+    End Function
+
+    'sec between dat and fromDate removing seconds during market close
+    Private Function diffFromWithDateSec(dat As Date) As Double
+
+        ''Dim sec As Double = -toDate.Subtract(dat).TotalSeconds
+
+        ''Dim minSec As Double = -toDate.Subtract(fromDate).TotalSeconds ' + Math.Floor(toDate.Subtract(fromDate).TotalDays) * (86400 - (asset.marketUTCClose.Subtract(asset.marketOpen).TotalSeconds))
+        ''' Dim maxSec As Double = 0
+
+        'Dim perVOnGraph As Double = diffFromWithDateSec(dat) / diffFromWithDateSec(Date.UtcNow())
+        '' dbg.info(minSec & " " & maxSec & " " & " " & sec & " ->" & perVOnGraph)
+
+        '' dbg.info(Math.Floor(dat.Subtract(fromDate).TotalDays) & "  " & perVOnGraph & "  " & (86400 - (asset.marketUTCClose.Subtract(asset.marketOpen).TotalSeconds)))
+
+        'Return curveRect.Left + perVOnGraph * curveRect.Width
+
+
+        'dbg.info(Math.Floor(dat.Subtract(fromDate).TotalDays))
+        Return dat.Subtract(fromDate).TotalSeconds ' - (0 + Math.Floor(dat.Subtract(fromDate).TotalDays)) * 54900
+        '            (Math.Floor(toDate.Subtract(dat).TotalDays) - 0) * (86400 - (asset.marketUTCClose.Subtract(asset.marketOpen).TotalSeconds))
+    End Function
 
     ' -----------------------------------------------------------------------------------------------------------------------------
     ' Utils
@@ -384,7 +432,15 @@ Public Class Graph
 
         render()
         ' rerender?
+
     End Sub
+
+    Private Structure Hole
+        Dim begin As Date
+        Dim endd As Date
+        Dim ifBefore As Date
+        Dim shiftMin As Double
+    End Structure
 
 End Class
 ' draw back shadow night
