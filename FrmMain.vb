@@ -101,7 +101,13 @@ Public Class FrmMain
             ' TmerAutoStart.Enabled = True
         End If
 
-        bottomGraph = New Graph(PanelGraphBottom, SP500.sp5003x)
+        Select Case CST.HOST_NAME
+            Case hostNameEnum.GALACTICA
+                bottomGraph = New Graph(PanelGraphBottom, AssetNameEnum.SP500)
+            Case hostNameEnum.GHOST
+
+                bottomGraph = New Graph(PanelGraphBottom, AssetNameEnum.SP500_3X)
+        End Select
 
         Degiro.updateTradePanelUI()
     End Sub

@@ -32,11 +32,17 @@ Public Class Graph
     Private mouseOvering As New Point(-1, -1)
 
 
-    Public Sub New(parentPanel As Panel, asset As AssetInfos)
+    Public Sub New(parentPanel As Panel, assetName As AssetNameEnum)
         Me.parentPanel = parentPanel
-        Me.asset = asset
+        Me.asset = assetFromName(assetName)
         init()
     End Sub
+
+    'Public Sub New(parentPanel As Panel, asset As AssetInfos)
+    '    Me.parentPanel = parentPanel
+    '    Me.asset = asset
+    '    init()
+    'End Sub
 
     ' mouse over show value, date, diff %
     ' remove nights
@@ -196,7 +202,8 @@ Public Class Graph
         Next
 
         'top text
-        writeText(New Point(0, 0), asset.ticker & " - " & asset.name & "      current: " & price.price & asset.currency & " today: " & price.todayChangePerc & "% " & " min: " & minPrice.price & asset.currency & " max: " & maxPrice.price & asset.currency & " have " & allPrices.Count & " points", Color.Black, Color.Transparent)
+        writeText(New Point(0, 0), asset.ticker & " - " & asset.name & "      current: " & Math.Round(price.price * 10) / 10 & asset.currency & " today: " & price.todayChangePerc & "% " &
+                  " min: " & Math.Round(minPrice.price) & asset.currency & " max: " & Math.Round(maxPrice.price) & asset.currency & " have " & allPrices.Count & " points", Color.Black, Color.Transparent)
 
         ' asset graph curve itself
         For nu = 1 To allPrices.Count - 1
@@ -338,7 +345,7 @@ Public Class Graph
 
         AddHandler pictureBox.MouseMove, AddressOf moveOverGraph
 
-        curvePen = New Pen(asset.lineColor, 2)
+        curvePen = New Pen(asset.lineColor, 1)
 
 
         history = getAssetHistory(asset)

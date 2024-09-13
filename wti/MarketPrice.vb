@@ -68,9 +68,12 @@ Module MarketPrice
 
         addAssetHistory(AssetNameEnum.SP500_3X)
 
-        ' pas necessaire pour le moment, ca plombe le chargement
-        ' addAssetHistory(AssetNameEnum.SP500)
-        ' addAssetHistory(AssetNameEnum.PEA_SP500)
+        ' pas necessaire pour le moment sur ghost, ca plombe le chargement
+        If CST.HOST_NAME = CST.CST.hostNameEnum.GALACTICA Then
+            addAssetHistory(AssetNameEnum.SP500)
+            ' addAssetHistory(AssetNameEnum.PEA_SP500)
+        End If
+
         startTimer()
     End Sub
 

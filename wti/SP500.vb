@@ -26,7 +26,7 @@
 
         ' fake degiro lack: a bit of refacto
 
-        Public sp5003x As AssetInfos = assetInfo(AssetNameEnum.SP500_3X)
+        Private sp5003x As AssetInfos = assetInfo(AssetNameEnum.SP500_3X)
         Public Sub simulateStupidAlgo()
             status = StatusEnum.SIMU
             dbg.info("STARTING SIMULATION")

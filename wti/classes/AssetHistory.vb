@@ -181,6 +181,7 @@ Public Class AssetHistory
                 step2Date = openDate.AddSeconds(40)
             End If
 
+
             Dim open As Double = Double.Parse(split.ElementAt(1))
             Dim high As Double = Double.Parse(split.ElementAt(2))
             Dim low As Double = Double.Parse(split.ElementAt(3))

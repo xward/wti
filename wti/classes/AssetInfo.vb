@@ -122,14 +122,15 @@
                     .currency = "$"
                     .degiroOrderUrl = "-"
                     .degireId = 0
-                    .lineColor = Color.Red
+                    .lineColor = Color.DarkBlue
                     ' data source
                     .updateDateFromSource = False
                     .updateSource = UpdateSourceEnum.YAHOO
                     .updatePeriodSec = 45
                     .yahooUrl = "https://finance.yahoo.com/quote/%5ESPX/"
                     .persistHistoryFromLiveCollect = False
-                    .populateDataFromYahooMinute = True
+                    ' heavy !!
+                    .populateDataFromYahooMinute = False
                     .populateDataFromYahooDaily = True
                     ' degiro
                     ' nothing
@@ -163,7 +164,7 @@
                     .marketUTCClose = Date.Parse("01/01/2024 15:45")
                     .lineColor = Color.Blue
                     ' data source
-                    .updateDateFromSource = True
+                    .updateDateFromSource = CST.HOST_NAME = CST.CST.hostNameEnum.GHOST
                     .updateSource = UpdateSourceEnum.TRADING_VIEW
                     .updatePeriodSec = 5
                     .tradingViewUrl = tradingViewUrl
