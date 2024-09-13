@@ -203,13 +203,14 @@ Public Class Graph
 
 
         Dim arroyStr As String = ""
+        If price.todayChangePerc > 0 Then arroyStr = Convert.ToChar(9650)
+        If price.todayChangePerc < 0 Then arroyStr = Convert.ToChar(9660)
 
         'top text
         writeText(New Point(5, 5), asset.ticker & " - " & asset.name.ToString & " " & Math.Round(price.price * 10) / 10 & asset.currency & " " & arroyStr & " " & price.todayChangePerc & "% " &
-                  " max ever:" & Math.Round(history.maxPriceEver.price) & " (" & history.diffWithMaxPerc & "%)", Color.Black, Color.Transparent)
+                  " max_ever:" & Math.Round(history.maxPriceEver.price) & " (" & history.diffWithMaxPerc & "%)", Color.Black, Color.Transparent)
 
         writeText(New Point(5, 30), "graph min:" & Math.Round(minPrice.price) & asset.currency & " max:" & Math.Round(maxPrice.price) & asset.currency & "   last_point: " & price.dat.ToString, Color.Black, Color.Transparent, 11)
-
 
         writeText(New Point(img.Width - 65, 5), allPrices.Count & " pts", Color.Black, Color.Transparent, 11)
 
