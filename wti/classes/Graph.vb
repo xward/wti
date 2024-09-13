@@ -203,7 +203,13 @@ Public Class Graph
 
         'top text
         writeText(New Point(0, 0), asset.ticker & " - " & asset.name & "      current: " & Math.Round(price.price * 10) / 10 & asset.currency & " today: " & price.todayChangePerc & "% " &
-                  " min: " & Math.Round(minPrice.price) & asset.currency & " max: " & Math.Round(maxPrice.price) & asset.currency & " have " & allPrices.Count & " points", Color.Black, Color.Transparent)
+                  " max ever:" & Math.Round(history.maxPriceEver.price) & " (" & history.diffWithMaxPerc & "%)", Color.Black, Color.Transparent)
+
+        writeText(New Point(0, 20), "graph min: " & Math.Round(minPrice.price) & asset.currency & " max: " & Math.Round(maxPrice.price) & asset.currency & " last point:" & price.dat.ToString, Color.Black, Color.Transparent)
+
+
+        writeText(New Point(img.Width - 65, 0), allPrices.Count & " pts", Color.Black, Color.Transparent)
+
 
         ' asset graph curve itself
         For nu = 1 To allPrices.Count - 1

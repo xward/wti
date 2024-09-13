@@ -8,7 +8,7 @@ Public Class AssetHistory
     ' max price among prices stored in Me
     Private maxPrice As AssetPrice
     Public diffWithMaxPerc As Double
-    Private maxPriceEver As AssetPrice
+    Public maxPriceEver As AssetPrice
 
     Private lastDataSourceUpdate As Date
 
@@ -70,6 +70,11 @@ Public Class AssetHistory
         End If
 
         lastDataSourceUpdate = Date.UtcNow()
+
+        If Not IsNothing(maxPriceEver) And maxPriceEver.price <> 0 Then
+            diffWithMaxPerc = Math.Round((1 - price.price / maxPriceEver.price) * 100 * 100) / 100
+        End If
+
 
         prices.Add(price)
     End Sub
