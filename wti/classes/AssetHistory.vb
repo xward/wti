@@ -79,15 +79,15 @@ Public Class AssetHistory
         prices.Add(price)
     End Sub
 
-    Public Function allPricesAfter(dat As Date) As List(Of AssetPrice)
+    Public Function allPricesBetwwen(fromDate As Date, toDate As Date) As List(Of AssetPrice)
         Dim np As New List(Of AssetPrice)
         If doingReplay Then
             For Each p As AssetPrice In prices.Slice(0, replayIndex + 1)
-                If p.dat.CompareTo(dat) > 0 Then np.Add(p)
+                If p.dat.CompareTo(fromDate) > 0 And p.dat.CompareTo(toDate) < 0 Then np.Add(p)
             Next
         Else
             For Each p As AssetPrice In prices
-                If p.dat.CompareTo(dat) > 0 Then np.Add(p)
+                If p.dat.CompareTo(fromDate) > 0 And p.dat.CompareTo(toDate) < 0 Then np.Add(p)
                 'If p.dat.Subtract(dat).TotalSeconds > 0 Then np.Add(p)
             Next
         End If

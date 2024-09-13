@@ -4,6 +4,10 @@ Public Class Graph
 
     Public parentPanel As Panel
 
+
+    Public defaultFromDate As Date
+    Public defaultToDate As Date
+
     Public fromDate As Date
     Public toDate As Date
     ' precalcs
@@ -32,9 +36,19 @@ Public Class Graph
     Private blackPen As Pen = New Pen(Color.Black)
     Private curvePen As Pen
 
-    Private lastMouseMove As Date = Date.UtcNow
-    Private mouseOvering As New Point(-1, -1)
 
+
+    'interactions:
+    ' [done] molette: scroll x
+    ' crtl molette: zoom x
+    ' [done] right click: reset all zoom
+    ' ctrl right: menu contextuel (when neeed)
+    ' drag and drop zoom specific time frame 
+    ' mouse over cross with metadata, also show diagonale any usefull kpi
+
+
+    ' todo:
+    ' build list of aggregage of prices, and use that instead (like a candle)
 
     Public Sub New(parentPanel As Panel, assetName As AssetNameEnum)
         Me.parentPanel = parentPanel
@@ -93,7 +107,7 @@ Public Class Graph
     ' define échelle
     ' fox how much perc horizontal to print
 
-    Private curvePadding As New Padding(5, 50, 85, 70)
+    Private curvePadding As New Padding(5, 50, 85 + 45, 70)
     Private curveRect As New Rectangle
     Private minPrice As AssetPrice
     Private maxPrice As AssetPrice
@@ -105,16 +119,11 @@ Public Class Graph
     ' -------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     Private Sub renderAssetPrices()
-        ' current
-        Dim price As AssetPrice = getPrice(asset)
 
         ' might get slow, can be easily optimized
         ' todo: drop outside of market open
-        allPrices = history.allPricesAfter(fromDate)
+        allPrices = history.allPricesBetwwen(fromDate, toDate)
         buildHolesFromAllPrices()
-
-
-
 
         If allPrices.Count = 0 Then
             writeText(New Point(img.Width / 2 - 30, img.Height / 2 - 5), "No Data", blackPen.Color, Color.Transparent)
@@ -139,42 +148,10 @@ Public Class Graph
         'g.DrawLine(gridPen, New Point(0, pixelY(maxPrice)), New Point(img.Width, pixelY(maxPrice)))
 
         renderVerticals()
+        renderHorizontals()
 
+        renderTopText()
 
-        'For Each h As Hole In holesList
-        '    g.DrawLine(New Pen(Color.RebeccaPurple), New Point(pixelX(h.ifAfter), curveRect.Y), New Point(pixelX(h.ifAfter), curveRect.Y + curveRect.Height))
-
-
-        'Next
-
-
-        ' horizontal perc separator
-        For perc As Double = 0 To -100 Step -2
-            Dim y As Double = pixelY(zeroPrice.price * (1.0 + perc / 100))
-            If y > curveRect.Y + curveRect.Height Then Exit For
-            g.DrawLine(gridPen, New Point(curveRect.X, y), New Point(curveRect.X + curveRect.Width, y))
-            writeText(New Point(curveRect.X + curveRect.Width, y), perc & "%", legendPen.Color, Color.Transparent)
-        Next
-        For perc As Double = 1 To 200 Step 2
-            Dim y As Double = pixelY(zeroPrice.price * (1.0 + perc / 100))
-            If y < curveRect.Y Then Exit For
-
-            g.DrawLine(gridPen, New Point(curveRect.X, y), New Point(curveRect.X + curveRect.Width, y))
-            writeText(New Point(curveRect.X + curveRect.Width, y), perc & "%", legendPen.Color, Color.Transparent)
-        Next
-
-
-        Dim arroyStr As String = ""
-        If price.todayChangePerc > 0 Then arroyStr = Convert.ToChar(9650)
-        If price.todayChangePerc < 0 Then arroyStr = Convert.ToChar(9660)
-
-        'top text
-        writeText(New Point(5, 5), asset.ticker & " - " & asset.name.ToString & " (" & asset.currency & ") " & Math.Round(price.price * 10) / 10 & " " & arroyStr & " " & price.todayChangePerc & "% " &
-                      " max_ever:" & Math.Round(history.maxPriceEver.price) & " (" & history.diffWithMaxPerc & "%)", Color.Black, Color.Transparent)
-        'sub text
-        writeText(New Point(5, 30), "graph min:" & Math.Round(minPrice.price) & " max:" & Math.Round(maxPrice.price) & "   last_point: " & price.dat.ToString, Color.Black, Color.Transparent, 11)
-
-        writeText(New Point(img.Width - 65, 5), allPrices.Count & " pts", Color.Black, Color.Transparent, 11)
 
 
         ' asset graph curve itself
@@ -242,6 +219,48 @@ Public Class Graph
 
     End Sub
 
+    ' -----------------------------------------------------------------------------------------------------------------------------
+    ' horizontal perc value separators
+
+    Private Sub renderHorizontals()
+
+        For perc As Double = -75 To 200 Step 2
+            Dim y As Double = pixelY(zeroPrice.price * (1.0 + perc / 100))
+            If y < curveRect.Y Or y > curveRect.Y + curveRect.Height Then Continue For
+
+            g.DrawLine(gridPen, New Point(curveRect.X, y), New Point(curveRect.X + curveRect.Width, y))
+            writeText(New Point(curveRect.X + curveRect.Width, y), perc & "%", legendPen.Color, Color.Transparent)
+            writeText(New Point(curveRect.X + curveRect.Width + 55, y + 1), Math.Round(100 * zeroPrice.price * (1 + perc / 100)) / 100, legendPen.Color, Color.Transparent, 11)
+        Next
+    End Sub
+
+
+
+    'For Each h As Hole In holesList
+    '    g.DrawLine(New Pen(Color.RebeccaPurple), New Point(pixelX(h.ifAfter), curveRect.Y), New Point(pixelX(h.ifAfter), curveRect.Y + curveRect.Height))
+
+
+    'Next
+
+
+    ' -----------------------------------------------------------------------------------------------------------------------------
+    ' top text
+    Private Sub renderTopText()
+        ' current
+        Dim price As AssetPrice = getPrice(asset)
+
+        Dim arroyStr As String = ""
+        If price.todayChangePerc > 0 Then arroyStr = Convert.ToChar(9650)
+        If price.todayChangePerc < 0 Then arroyStr = Convert.ToChar(9660)
+
+        'top text
+        writeText(New Point(5, 5), asset.ticker & " - " & asset.name.ToString & " (" & asset.currency & ") " & Math.Round(price.price * 10) / 10 & " " & arroyStr & " " & price.todayChangePerc & "% " &
+                      " max_ever:" & Math.Round(history.maxPriceEver.price) & " (" & history.diffWithMaxPerc & "%)", Color.Black, Color.Transparent)
+        'sub text
+        writeText(New Point(5, 30), "graph min:" & Math.Round(minPrice.price) & " max:" & Math.Round(maxPrice.price) & "   last_point: " & price.dat.ToString, Color.Black, Color.Transparent, 11)
+
+        writeText(New Point(img.Width - 65, 5), allPrices.Count & " pts", Color.Black, Color.Transparent, 11)
+    End Sub
 
     ' -----------------------------------------------------------------------------------------------------------------------------
     ' Holes
@@ -420,6 +439,8 @@ Public Class Graph
     Private Sub init()
 
         fromDate = Date.UtcNow.AddDays(-2000)
+        defaultFromDate = fromDate
+        defaultToDate = toDate
         ' truncate from date
         'fromDate = Date.Parse(fromDate.ToShortDateString).AddDays(-5)
 
@@ -473,6 +494,9 @@ Public Class Graph
 
 
         AddHandler pictureBox.MouseMove, AddressOf moveOverGraph
+        AddHandler pictureBox.MouseWheel, AddressOf mouseWheelOnGraph
+        AddHandler pictureBox.MouseClick, AddressOf mouseClickOnGraph
+
 
         curvePen = New Pen(asset.lineColor, 1)
 
@@ -483,11 +507,14 @@ Public Class Graph
 
         render()
     End Sub
-    Public Sub setDateRange(fromDate As Date, toDate As Date)
-        Me.fromDate = fromDate
-        Me.toDate = toDate
-        render()
-    End Sub
+
+
+    ' -----------------------------------------------------------------------------------------------------------------------------
+    ' Interraction
+
+    Private lastMouseMove As Date = Date.UtcNow
+    Private mouseOvering As New Point(-1, -1)
+
 
     Public Sub moveOverGraph(sender As Object, e As MouseEventArgs)
         ' 10 fps on mouse over max
@@ -498,8 +525,28 @@ Public Class Graph
         mouseOvering.Y = e.Y
 
         render()
-        ' rerender?
 
+    End Sub
+
+    Public Sub mouseWheelOnGraph(sender As Object, e As MouseEventArgs)
+        If rendering Then Exit Sub
+        Dim spanHours As Double = toDate.Subtract(fromDate).TotalHours
+
+        ' 7%
+        Dim shift As Integer = spanHours * 0.07
+
+        If e.Delta > 0 Then shift = -shift
+        fromDate = fromDate.AddHours(shift)
+        toDate = toDate.AddHours(shift)
+        render()
+    End Sub
+
+    Public Sub mouseClickOnGraph(sender As Object, e As MouseEventArgs)
+        If e.Button = MouseButtons.Right Then
+            fromDate = defaultFromDate
+            toDate = defaultToDate
+            render()
+        End If
     End Sub
 
     Public Structure Hole
