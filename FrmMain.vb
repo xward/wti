@@ -110,6 +110,8 @@ Public Class FrmMain
         End Select
 
         Degiro.updateTradePanelUI()
+
+
     End Sub
 
     Private Sub TmerKeyIput_Tick(sender As Object, e As EventArgs) Handles TmerKeyIput.Tick

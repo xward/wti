@@ -22,7 +22,7 @@ Public Class Graph
     Private g As Graphics
 
     ' style
-    Private defaultFont As New Font("Calibri", 14)
+    Private defaultFont As New Font("Cascadia Mono", 14)
     Private gridPen As Pen = New Pen(Color.FromArgb(100, Color.Gray))
     Private legendPen As Pen = New Pen(Color.FromArgb(250, Color.Gray))
     Private blackPen As Pen = New Pen(Color.Black)
@@ -203,15 +203,16 @@ Public Class Graph
 
 
         Dim arroyStr As String = ""
+        If price.todayChangePerc > 0 Then arroyStr = Convert.ToChar(9650)
+        If price.todayChangePerc < 0 Then arroyStr = Convert.ToChar(9660)
 
         'top text
-        writeText(New Point(0, 0), asset.ticker & " - " & asset.name & " " & Math.Round(price.price * 10) / 10 & asset.currency & " today: " & price.todayChangePerc & "% " &
-                  " max ever:" & Math.Round(history.maxPriceEver.price) & " (" & history.diffWithMaxPerc & "%)", Color.Black, Color.Transparent)
+        writeText(New Point(5, 5), asset.ticker & " - " & asset.name.ToString & " " & Math.Round(price.price * 10) / 10 & asset.currency & " " & arroyStr & " " & price.todayChangePerc & "% " &
+                  " max_ever:" & Math.Round(history.maxPriceEver.price) & " (" & history.diffWithMaxPerc & "%)", Color.Black, Color.Transparent)
 
-        writeText(New Point(0, 20), "graph min: " & Math.Round(minPrice.price) & asset.currency & " max: " & Math.Round(maxPrice.price) & asset.currency & " last point:" & price.dat.ToString, Color.Black, Color.Transparent)
+        writeText(New Point(5, 30), "graph min:" & Math.Round(minPrice.price) & asset.currency & " max:" & Math.Round(maxPrice.price) & asset.currency & "   last_point: " & price.dat.ToString, Color.Black, Color.Transparent, 11)
 
-
-        writeText(New Point(img.Width - 65, 0), allPrices.Count & " pts", Color.Black, Color.Transparent)
+        writeText(New Point(img.Width - 65, 5), allPrices.Count & " pts", Color.Black, Color.Transparent, 11)
 
 
         ' asset graph curve itself
