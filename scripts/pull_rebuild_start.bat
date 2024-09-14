@@ -24,6 +24,10 @@ SET MSBUILD=C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Curr
 :: we change path to have WorstTradingInitiative.exe output everything in bin\Debug\net8.0-windows folder (ex: ester.txt)
 CD bin\Debug\net8.0-windows
 
+:: pause 30 sec
+echo "wait 30 sec before start ..."
+timeout /t 30 /nobreak
+
 WorstTradingInitiative.exe COLLECT
 
 :: pause
