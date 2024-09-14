@@ -2,51 +2,54 @@ Public Class Graph
     ' data source
     Public asset As AssetInfos
 
+    ' Layout
     Public parentPanel As Panel
-
-
-    Public defaultFromDate As Date
-    Public defaultToDate As Date
-
-    Public fromDate As Date
-    Public toDate As Date
-    ' precalcs
-    Public spanSec As Double
-
-    Public elapsed As Double
-
-    Private rightPanel As New Panel
-    Private leftPanel As New Panel
-
-    Private xLegend As New Panel
+    'Private rightPanel As New Panel
+    'Private leftPanel As New Panel
+    'Private xLegend As New Panel
     'Private yLegend As New Panel
+    'Private labelPrice As New Label
     Private pictureBox As New PictureBox
 
+    ' dates
+    Public defaultFromDate As Date
+    Public defaultToDate As Date
+    Public fromDate As Date
+    Public toDate As Date
 
-    Private labelPrice As New Label
+    ' precalcs
+    Public spanSec As Double
+    Public priceUnderMouse As AssetPrice
 
+
+    'picture
     Private img As New Bitmap(1, 1)
     Private g As Graphics
     Private rendering As Boolean = False
+    Public elapsed As Double
 
     ' style
     Private defaultFont As New Font("Cascadia Mono", 14)
     Private gridPen As Pen = New Pen(Color.FromArgb(100, Color.Gray))
+    Private crossdPen As Pen = New Pen(Color.FromArgb(180, Color.Black))
     Private legendPen As Pen = New Pen(Color.FromArgb(250, Color.Gray))
     Private blackPen As Pen = New Pen(Color.Black)
     Private curvePen As Pen
 
     'interactions:
     ' [done] ctrl molette: scroll x
-    ' molette: zoom x
+    ' [done] molette: zoom x
     ' [done] right click: reset all zoom
-    ' ctrl right click: menu contextuel (when neeed)
-    ' drag and drop zoom specific time frame 
-    ' mouse over cross with metadata, also show diagonale any usefull kpi
-
+    ' [mouai] ctrl right click: menu contextuel (when neeed)
+    ' [mouai] drag and drop zoom specific time frame 
+    ' [done] mouse over cross with metadata, also show diagonale any usefull kpi
 
     ' todo:
     ' build list of aggregage of prices, and use that instead (like a candle)
+
+    ' how much loss in 5 days
+    ' [done] how much loss from max ever(only sp500 credible)
+    ' chute intensity graph (=f(% loss, time it took))
 
     Public Sub New(parentPanel As Panel, assetName As AssetNameEnum)
         Me.parentPanel = parentPanel
@@ -54,17 +57,6 @@ Public Class Graph
         toDate = Date.UtcNow()
         init()
     End Sub
-
-    'Public Sub New(parentPanel As Panel, asset As AssetInfos)
-    '    Me.parentPanel = parentPanel
-    '    Me.asset = asset
-    '    init()
-    'End Sub
-
-    ' mouse over show value, date, diff %
-    ' remove nights
-    ' how much loss in 5 days, how much loss from max ever(only sp500 credible)
-    ' chute intensity graph (=f(% loss, time it took))
 
     ' -----------------------------------------------------------------------------------------------------------------------------
     ' Render
@@ -82,14 +74,14 @@ Public Class Graph
         renderAssetPrices()
 
         ' renderOrders()
-
         ' renderPositions()
-
         ' renderIndicators()
 
         pictureBox.Image = img
-        Application.DoEvents()
         elapsed = Date.UtcNow.Subtract(start).TotalMilliseconds
+
+
+        Application.DoEvents()
 
         ' temps
         Dim fps As Double = 1000 / Math.Max(1, elapsed)
@@ -105,6 +97,10 @@ Public Class Graph
     ' define échelle
     ' fox how much perc horizontal to print
 
+
+    ' -------------------------------------------------------------------------------------------------------------------------------------------------------------
+    ' render curve itself
+
     Private curvePadding As New Padding(5, 50, 85 + 45, 70)
     Private curveRect As New Rectangle
     Private minPrice As AssetPrice
@@ -112,14 +108,8 @@ Public Class Graph
     Private zeroPrice As AssetPrice
     Private history As AssetHistory
     Private allPrices As List(Of AssetPrice)
-
-    ' -------------------------------------------------------------------------------------------------------------------------------------------------------------
-
     Private Sub renderAssetPrices()
-
         Dim start As Date = Date.UtcNow()
-
-
 
         ' might get slow, can be easily optimized
         ' todo: drop outside of market open
@@ -153,7 +143,6 @@ Public Class Graph
 
         renderVerticals()
         renderHorizontals()
-
         renderTopText()
 
         Dim eProcess As Double = Date.UtcNow.Subtract(start).TotalMilliseconds - eFetch
@@ -172,8 +161,7 @@ Public Class Graph
 
         Dim ePlot As Double = Date.UtcNow.Subtract(start).TotalMilliseconds - eProcess
 
-
-
+        renderMouseOverCross()
 
 
         'Dim pts As PointF()
@@ -244,6 +232,31 @@ Public Class Graph
     'For Each h As Hole In holesList
     '    g.DrawLine(New Pen(Color.RebeccaPurple), New Point(pixelX(h.ifAfter), curveRect.Y), New Point(pixelX(h.ifAfter), curveRect.Y + curveRect.Height))
     'Next
+
+
+    ' -----------------------------------------------------------------------------------------------------------------------------
+    ' Mouse over cross with tooltips
+
+    Private Sub renderMouseOverCross()
+        If mouseOvering.X = -1 Then Exit Sub
+
+
+        priceUnderMouse = PriceFromX(mouseOvering.X)
+        Dim y As Double = priceToY(priceUnderMouse)
+
+        ' vertical
+        g.DrawLine(crossdPen, New Point(mouseOvering.X, curveRect.Y), New Point(mouseOvering.X, curveRect.Y + curveRect.Height))
+        ' horizontal
+        g.DrawLine(crossdPen, New Point(curveRect.X, mouseOvering.Y), New Point(curveRect.X + curveRect.Width, mouseOvering.Y))
+
+        ' horizontal on price
+        g.DrawLine(crossdPen, New Point(curveRect.X, y), New Point(curveRect.X + curveRect.Width, y))
+
+        Dim diffWithMax As Double = Math.Round((1 - priceUnderMouse.price / priceUnderMouse.currentMaxPrice) * 100 * 100) / 100
+
+        writeText(New Point(50, img.Height - 50), "UnderMouse " & Math.Round(priceUnderMouse.price) & " max ever " & Math.Round(priceUnderMouse.currentMaxPrice) & " " & diffWithMax & "%", Color.Black, Color.Transparent, 13)
+
+    End Sub
 
     ' -----------------------------------------------------------------------------------------------------------------------------
     ' top text
@@ -336,6 +349,32 @@ Public Class Graph
         End If
     End Sub
 
+    Private Function PriceFromX(x As Integer) As AssetPrice
+        ' find closest asset price from pixel x (mouse over...)
+        Dim mouseDate As Date = xToDate(x)
+        Dim c As Integer = 0
+        Dim lowerI As Integer = 0
+        Dim upI As Integer = allPrices.Count - 1
+
+        While upI - lowerI > 1
+            c += 1
+
+            Dim mid As Integer = Math.Round((upI + lowerI) / 2)
+            Dim p As AssetPrice = allPrices.ElementAt(mid)
+
+            If mouseDate.CompareTo(p.dat) > 0 Then
+                lowerI = mid
+            Else
+                upI = mid
+            End If
+
+
+            Application.DoEvents()
+        End While
+
+        Return allPrices.ElementAt(upI)
+    End Function
+
     ' -----------------------------------------------------------------------------------------------------------------------------
     ' Drawing
 
@@ -376,47 +415,12 @@ Public Class Graph
     End Sub
 
     ' -----------------------------------------------------------------------------------------------------------------------------
-    ' Api
+    ' init at create
     Private Sub init()
 
         fromDate = Date.UtcNow.AddDays(-2000)
         defaultFromDate = fromDate
         defaultToDate = toDate
-        ' truncate from date
-        'fromDate = Date.Parse(fromDate.ToShortDateString).AddDays(-5)
-
-        'dbg.info(fromDate)
-
-        'With rightPanel
-        '    .Parent = parentPanel
-        '    .Width = 75
-        '    .Dock = DockStyle.Right
-        '    .BackColor = Color.Red '  Color.FromArgb(255, 15, 15, 15)
-        'End With
-
-        'With labelPrice
-        '    .Parent = rightPanel
-        '    .Left = 0
-        '    .Top = 0
-        '    .Font = New Font("Calibri", 14)
-        'End With
-
-        'With leftPanel
-        '    .Parent = parentPanel
-        '    .Dock = DockStyle.Fill
-        '    '.BackColor = Color.Red
-        'End With
-
-        '  dock marche pas, go manual
-        'With xLegend
-        '    .Parent = leftPanel
-        '    .Top = leftPanel.Height - 50
-        '    .Height = 50
-        '    .Left = 0
-        '    .Width = leftPanel.Width
-        '    .BackColor = Color.FromArgb(255, 15, 15, 15)
-
-        'End With
 
         With pictureBox
             .Parent = parentPanel
@@ -426,7 +430,7 @@ Public Class Graph
             .Width = parentPanel.Width
             .BackColor = Color.FromArgb(255, 253, 241, 230)
             .Dock = DockStyle.Fill
-            .ContextMenuStrip = FrmMain.ContextMenuStripGraph
+            '.ContextMenuStrip = FrmMain.ContextMenuStripGraph
         End With
 
         curveRect.X = curvePadding.Left
@@ -434,11 +438,10 @@ Public Class Graph
         curveRect.Height = pictureBox.Height - curvePadding.Vertical
         curveRect.Width = pictureBox.Width - curvePadding.Horizontal
 
-
-
         AddHandler pictureBox.MouseMove, AddressOf moveOverGraph
         AddHandler pictureBox.MouseWheel, AddressOf mouseWheelOnGraph
         AddHandler pictureBox.MouseClick, AddressOf mouseClickOnGraph
+        AddHandler pictureBox.MouseLeave, AddressOf mouseLeaveGraph
 
 
         curvePen = New Pen(asset.lineColor, 1)
@@ -460,39 +463,51 @@ Public Class Graph
 
 
     Public Sub moveOverGraph(sender As Object, e As MouseEventArgs)
-        ' 10 fps on mouse over max
-        If Date.UtcNow.Subtract(lastMouseMove).TotalMilliseconds < 100 Or rendering Then Exit Sub
-        lastMouseMove = Date.UtcNow
+        ' 20 fps on mouse over max
+        If Date.UtcNow.Subtract(lastMouseMove).TotalMilliseconds < 60 Or rendering Then Exit Sub
 
+        lastMouseMove = Date.UtcNow
         mouseOvering.X = e.X
         mouseOvering.Y = e.Y
 
-        '  dbg.info(pixelXRev(e.X))
+        render()
+    End Sub
 
-
-
-
-
-        '  render()
-
+    Public Sub mouseLeaveGraph(sender As Object, e As EventArgs)
+        mouseOvering.X = -1
+        mouseOvering.Y = -1
+        render()
     End Sub
 
     Public Sub mouseWheelOnGraph(sender As Object, e As MouseEventArgs)
         If rendering Then Exit Sub
 
-
+        ' scroll x
         If My.Computer.Keyboard.CtrlKeyDown Then
             Dim spanHours As Double = toDate.Subtract(fromDate).TotalHours
 
+            Dim speed As Double = 0.005
+            If My.Computer.Keyboard.ShiftKeyDown Then speed = 0.03
+
             ' 7%
-            Dim shift As Integer = spanHours * 0.07
+            Dim shift As Integer = spanHours * speed
 
             If e.Delta > 0 Then shift = -shift
             fromDate = fromDate.AddHours(shift)
             toDate = toDate.AddHours(shift)
             render()
-        End If
+        Else
+            ' zoom
+            Dim spanHours As Double = toDate.Subtract(fromDate).TotalHours
+            ' remove/add 10% of timespan
+            Dim shift As Integer = spanHours * 0.1
+            If e.Delta < 0 Then shift = -shift
+            Dim ratio As Double = priceUnderMouse.dat.Subtract(fromDate).TotalHours / spanHours
 
+            fromDate = fromDate.AddHours(ratio * shift)
+            toDate = toDate.AddHours(-(1 - ratio) * shift)
+            render()
+        End If
     End Sub
 
     Public Sub mouseClickOnGraph(sender As Object, e As MouseEventArgs)
@@ -502,35 +517,15 @@ Public Class Graph
             render()
         End If
 
-        If e.Button = MouseButtons.Right And My.Computer.Keyboard.CtrlKeyDown Then
-            FrmMain.ContextMenuStripGraph.Top = e.Y
-            FrmMain.ContextMenuStripGraph.Left = e.X
-            FrmMain.ContextMenuStripGraph.Visible = True
-        End If
+        'If e.Button = MouseButtons.Right And My.Computer.Keyboard.CtrlKeyDown Then
+        '    FrmMain.ContextMenuStripGraph.Top = e.Y
+        '    FrmMain.ContextMenuStripGraph.Left = e.X
+        '    FrmMain.ContextMenuStripGraph.Visible = True
+        'End If
 
         If e.Button = MouseButtons.Left Then
-            Dim mouseDate As Date = xToDate(e.X)
-            Dim c As Integer = 0
-            Dim lowerI As Integer = 0
-            Dim upI As Integer = allPrices.Count - 1
-
-            While c < 4
-                c += 1
-
-                Dim mid As Integer = Math.Round((upI - lowerI) / 2)
-                Dim p As AssetPrice = allPrices.ElementAt(mid)
 
 
-
-                If mouseDate.Subtract(p.dat).TotalMilliseconds > 0 Then
-                    lowerI = mid
-                Else
-                    upI = mid
-                End If
-                dbg.info(lowerI & " " & upI & "    " & p.dat.ToString & " " & mouseDate.ToString & "   " & Math.Round(p.dat.Subtract(mouseDate).TotalMilliseconds))
-
-                Application.DoEvents()
-            End While
 
         End If
     End Sub
