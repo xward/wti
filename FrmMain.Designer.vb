@@ -65,6 +65,9 @@ Partial Class FrmMain
         RunSp500LongToolStripMenuItem = New ToolStripMenuItem()
         TmerKeyIput = New Timer(components)
         TmerAutoStart = New Timer(components)
+        ContextMenuStripGraph = New ContextMenuStrip(components)
+        CoucouToolStripMenuItem = New ToolStripMenuItem()
+        SetToDateHereToolStripMenuItem = New ToolStripMenuItem()
         StatusStrip.SuspendLayout()
         CType(PictureLedRedOff, ComponentModel.ISupportInitialize).BeginInit()
         CType(PictureLedRedOn, ComponentModel.ISupportInitialize).BeginInit()
@@ -76,6 +79,7 @@ Partial Class FrmMain
         PanelTrades.SuspendLayout()
         TopPanel.SuspendLayout()
         MainMenuStrip.SuspendLayout()
+        ContextMenuStripGraph.SuspendLayout()
         SuspendLayout()
         ' 
         ' TmrUI
@@ -415,6 +419,24 @@ Partial Class FrmMain
         ' 
         TmerAutoStart.Interval = 500
         ' 
+        ' ContextMenuStripGraph
+        ' 
+        ContextMenuStripGraph.Items.AddRange(New ToolStripItem() {CoucouToolStripMenuItem, SetToDateHereToolStripMenuItem})
+        ContextMenuStripGraph.Name = "ContextMenuStripGraph"
+        ContextMenuStripGraph.Size = New Size(169, 48)
+        ' 
+        ' CoucouToolStripMenuItem
+        ' 
+        CoucouToolStripMenuItem.Name = "CoucouToolStripMenuItem"
+        CoucouToolStripMenuItem.Size = New Size(168, 22)
+        CoucouToolStripMenuItem.Text = "set fromDate here"
+        ' 
+        ' SetToDateHereToolStripMenuItem
+        ' 
+        SetToDateHereToolStripMenuItem.Name = "SetToDateHereToolStripMenuItem"
+        SetToDateHereToolStripMenuItem.Size = New Size(168, 22)
+        SetToDateHereToolStripMenuItem.Text = "set toDate here"
+        ' 
         ' FrmMain
         ' 
         AutoScaleDimensions = New SizeF(8F, 17F)
@@ -448,6 +470,7 @@ Partial Class FrmMain
         TopPanel.PerformLayout()
         MainMenuStrip.ResumeLayout(False)
         MainMenuStrip.PerformLayout()
+        ContextMenuStripGraph.ResumeLayout(False)
         ResumeLayout(False)
         PerformLayout()
     End Sub
@@ -493,5 +516,8 @@ Partial Class FrmMain
     Friend WithEvents RunSp500LongToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents FetchSpxFromYahooToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents Label1 As Label
+    Friend WithEvents ContextMenuStripGraph As ContextMenuStrip
+    Friend WithEvents CoucouToolStripMenuItem As ToolStripMenuItem
+    Friend WithEvents SetToDateHereToolStripMenuItem As ToolStripMenuItem
 
 End Class

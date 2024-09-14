@@ -178,6 +178,8 @@ Public Class FrmMain
         checkShutDown()
 
         If frmMainResized Then
+
+            dbg.info("resizing")
             If Not IsNothing(bottomGraph) Then bottomGraph.render()
 
             frmMainResized = False
@@ -253,9 +255,6 @@ Public Class FrmMain
         frmMainResized = True
     End Sub
 
-    Private Sub RunSp500LongToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles RunSp500LongToolStripMenuItem.Click
-
-    End Sub
 
     Private Sub FetchSpxFromYahooToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles FetchSpxFromYahooToolStripMenuItem.Click
         Yahoo.fetchPrice(assetFromName(AssetNameEnum.SP500))
