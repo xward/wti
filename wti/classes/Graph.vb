@@ -26,6 +26,7 @@ Public Class Graph
     Private img As New Bitmap(1, 1)
     Private g As Graphics
     Private rendering As Boolean = False
+    private renderRequest as boolean = false
     Public elapsed As Double
 
     ' style
@@ -41,7 +42,7 @@ Public Class Graph
     ' [done] molette: zoom x
     ' [done] right click: reset all zoom
     ' [mouai] ctrl right click: menu contextuel (when neeed)
-    ' [mouai] drag and drop zoom specific time frame 
+    ' [mouai] drag and drop zoom specific time frame
     ' [done] mouse over cross with metadata, also show diagonale any usefull kpi
 
     ' todo:
@@ -60,6 +61,11 @@ Public Class Graph
 
     ' -----------------------------------------------------------------------------------------------------------------------------
     ' Render
+
+public sub asyncRender()
+renderRequest = true
+end sub
+
     Public Sub render()
         rendering = True
         Dim start As Date = Date.UtcNow()
@@ -94,7 +100,7 @@ Public Class Graph
     ' implem filter per date min max in assetHistory
 
     ' find min/max of it percentage
-    ' define échelle
+    ' define ï¿½chelle
     ' fox how much perc horizontal to print
 
 
@@ -321,7 +327,7 @@ Public Class Graph
         Return priceToY(price.price)
     End Function
     Private Function priceToY(p As Double) As Double
-        ' add padding top/bottom, graph should never touch max échelle
+        ' add padding top/bottom, graph should never touch max ï¿½chelle
         Dim innerPadding As Integer = 50
 
         Dim minP As Double = minPrice.price
@@ -376,7 +382,7 @@ Public Class Graph
         g.FillRectangle(New SolidBrush(Color.FromArgb(255, 253, 241, 230)), New Rectangle(0, 0, img.Width, img.Height))
     End Sub
 
-    ' Color.BlanchedAlmond 
+    ' Color.BlanchedAlmond
     ' Color.FromArgb(255, 250, 237, 220)
 
     Private Sub drawHorizontalGrid(zeroY As Integer, stepp As Integer)
@@ -519,12 +525,6 @@ Public Class Graph
         '    FrmMain.ContextMenuStripGraph.Left = e.X
         '    FrmMain.ContextMenuStripGraph.Visible = True
         'End If
-
-        If e.Button = MouseButtons.Left Then
-
-
-
-        End If
     End Sub
 
 

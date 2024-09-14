@@ -92,10 +92,10 @@
             Dim resoldOrder As Boolean = False
 
             While status = StatusEnum.SIMU And replayNext(sp5003x)
-                FrmMain.bottomGraph.render()
+                FrmMain.bottomGraph.asyncRender()
 
                 ''' DECISION
-                ''' 
+                '''
                 Dim price As AssetPrice = getPrice(sp5003x)
 
                 'If Degiro.accountCashMoula > 5 * 86 Then
@@ -108,7 +108,7 @@
                 End If
 
 
-                ''' 
+                '''
                 Degiro.SIMU_updateAll()
                 Degiro.updateTradePanelUI()
 
