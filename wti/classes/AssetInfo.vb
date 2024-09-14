@@ -129,7 +129,7 @@
                     .updatePeriodSec = 45
                     .yahooUrl = "https://finance.yahoo.com/quote/%5ESPX/"
                     .persistHistoryFromLiveCollect = False
-                    ' heavy !!
+                    ' heavy !! also will cause bug on dynamic currentMaxPrice on data load if running with populateDataFromYahooDaily
                     .populateDataFromYahooMinute = False
                     .populateDataFromYahooDaily = True
                     ' degiro

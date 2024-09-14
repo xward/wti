@@ -114,7 +114,6 @@ Module MarketPrice
         If status <> StatusEnum.INTERRUPT Then marketPriceTmer.Enabled = True
     End Sub
 
-
     ' -------------------------------------------------------------------------------------------------------------------------------------
     ' Replay
 

@@ -15,6 +15,7 @@ Public Class AssetHistory
     Private doingReplay As Boolean = False
     Private replayIndex As Integer
 
+    Private tmpMaxPrice As Double = 0
 
     Public Sub New(asset As AssetInfos)
         Me.asset = asset
@@ -22,11 +23,12 @@ Public Class AssetHistory
 
         ' load prices
         prices.Clear()
-        'if any, load it
-        loadDataFromPersistHistoryFromLiveCollect()
+        If asset.populateDataFromYahooDaily Then loadDataFromYahooDaily()
         If asset.populateDataFromYahooMinute Then loadDataFromYahooMinute()
 
-        If asset.populateDataFromYahooDaily Then loadDataFromYahooDaily()
+        'if any, load it
+        loadDataFromPersistHistoryFromLiveCollect()
+
 
 
         prices.Sort(New AssetPriceDateComparer)
@@ -79,15 +81,16 @@ Public Class AssetHistory
         prices.Add(price)
     End Sub
 
-    Public Function allPricesAfter(dat As Date) As List(Of AssetPrice)
+    Public Function allPricesBetwwen(fromDate As Date, toDate As Date) As List(Of AssetPrice)
         Dim np As New List(Of AssetPrice)
         If doingReplay Then
             For Each p As AssetPrice In prices.Slice(0, replayIndex + 1)
-                If p.dat.CompareTo(dat) > 0 Then np.Add(p)
+                If p.dat.CompareTo(fromDate) > 0 And p.dat.CompareTo(toDate) < 0 Then np.Add(p)
             Next
         Else
             For Each p As AssetPrice In prices
-                If p.dat.CompareTo(dat) > 0 Then np.Add(p)
+                If p.dat.CompareTo(fromDate) > 0 And p.dat.CompareTo(toDate) < 0 Then np.Add(p)
+                'If p.dat.Subtract(dat).TotalSeconds > 0 Then np.Add(p)
             Next
         End If
         Return np
@@ -192,6 +195,7 @@ Public Class AssetHistory
             Dim low As Double = Double.Parse(split.ElementAt(3))
             Dim close As Double = Double.Parse(split.ElementAt(4))
 
+
             If openPrice = -1 Then openPrice = open
 
             count += 4
@@ -200,14 +204,8 @@ Public Class AssetHistory
                     .ticker = asset.ticker,
                     .price = open,
                     .dat = openDate,
-                    .todayChangePerc = (openPrice <> 0 AndAlso open / openPrice) Or 0
-                })
-            'close price
-            addPrice(New AssetPrice With {
-                    .ticker = asset.ticker,
-                    .price = close,
-                    .dat = closeDate,
-                    .todayChangePerc = (openPrice <> 0 AndAlso close / openPrice) Or 0
+                    .todayChangePerc = 0,
+                    .currentMaxPrice = tmpMaxPrice
                 })
 
             ' note: if there is already some live data for this day, don't do min/max approximation
@@ -218,28 +216,43 @@ Public Class AssetHistory
                     .ticker = asset.ticker,
                     .price = low,
                     .dat = step1Date,
-                    .todayChangePerc = (openPrice <> 0 AndAlso low / openPrice) Or 0
+                    .todayChangePerc = (openPrice <> 0 AndAlso low / openPrice) Or 0,
+                    .currentMaxPrice = tmpMaxPrice
                 })
                 addPrice(New AssetPrice With {
                     .ticker = asset.ticker,
                     .price = high,
                     .dat = step2Date,
-                          .todayChangePerc = (openPrice <> 0 AndAlso high / openPrice) Or 0
+                    .todayChangePerc = (openPrice <> 0 AndAlso high / openPrice) Or 0,
+                    .currentMaxPrice = tmpMaxPrice
                 })
             Else
                 addPrice(New AssetPrice With {
                     .ticker = asset.ticker,
                     .price = high,
                     .dat = step1Date,
-                          .todayChangePerc = (openPrice <> 0 AndAlso high / openPrice) Or 0
+                    .todayChangePerc = (openPrice <> 0 AndAlso high / openPrice) Or 0,
+                    .currentMaxPrice = tmpMaxPrice
                 })
                 addPrice(New AssetPrice With {
                     .ticker = asset.ticker,
                     .price = low,
                     .dat = step2Date,
-                            .todayChangePerc = (openPrice <> 0 AndAlso low / openPrice) Or 0
+                    .todayChangePerc = (openPrice <> 0 AndAlso low / openPrice) Or 0,
+                    .currentMaxPrice = tmpMaxPrice
                 })
             End If
+
+            If high > tmpMaxPrice Then tmpMaxPrice = high
+
+            'close price
+            addPrice(New AssetPrice With {
+                    .ticker = asset.ticker,
+                    .price = close,
+                    .dat = closeDate,
+                    .todayChangePerc = (openPrice <> 0 AndAlso close / openPrice) Or 0,
+                    .currentMaxPrice = tmpMaxPrice
+                })
         Next
         Return count
     End Function

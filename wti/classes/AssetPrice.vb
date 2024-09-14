@@ -4,8 +4,8 @@
     Public todayChangePerc As Double
     Public dat As Date
 
-    Public Sub New()
-    End Sub
+    ' virtual fields, omit from serializing
+    Public currentMaxPrice As Double
 
     Public Overrides Function ToString() As String
         Return StructToString(Me)
