@@ -333,11 +333,18 @@ Public Class AssetHistory
         doingReplay = True
         replayIndex = 0
         maxPrice = prices.First
+
+        FrmMain.ToolStripProgressBarSimu.Maximum = prices.Count - 1
+        FrmMain.ToolStripProgressBarSimu.Value = 0
     End Sub
 
     Public Function replayNext() As Boolean
         ' thus we will never use the last value
         If replayIndex = prices.Count - 1 Then Return False
+
+        FrmMain.ToolStripProgressBarSimu.Value = replayIndex
+
+
         replayIndex += 1
         If currentPrice().price > maxPrice.price Then maxPrice = currentPrice()
         Return True

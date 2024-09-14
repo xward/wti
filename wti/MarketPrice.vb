@@ -121,7 +121,12 @@ Module MarketPrice
         getAssetHistory(asset).initReplay()
     End Sub
 
+    Public Sub replayInit(assetName As AssetNameEnum)
+        replayInit(assetFromName(assetName))
+    End Sub
+
     Public Function replayNext(asset As AssetInfos) As Boolean
+
         Return getAssetHistory(asset).replayNext()
     End Function
 

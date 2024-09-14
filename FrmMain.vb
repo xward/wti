@@ -4,8 +4,9 @@ Imports WorstTradingInitiative.CST.CST
 
 Public Class FrmMain
     ' je veux simuler du long terme sp500
-    '   graph v1
-    '   load data from yahoo csv
+    '   [done] graph v1
+    '   [done] load data from yahoo csv daily
+    ' replayInit from date to date
     '   simuler, agir
     ' je veux voir wti, sp500 "live" data value
 
@@ -105,12 +106,10 @@ Public Class FrmMain
             Case hostNameEnum.GALACTICA
                 bottomGraph = New Graph(PanelGraphBottom, AssetNameEnum.SP500)
             Case hostNameEnum.GHOST
-
                 bottomGraph = New Graph(PanelGraphBottom, AssetNameEnum.SP500_3X)
         End Select
 
         Degiro.updateTradePanelUI()
-
 
     End Sub
 
@@ -248,7 +247,7 @@ Public Class FrmMain
     End Sub
 
     Private Sub RunToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles RunToolStripMenuItem.Click
-        SP500.simulateStupidAlgo()
+        SP500.runPocSpx()
     End Sub
 
     Private Sub FrmMain_Resize(sender As Object, e As EventArgs) Handles Me.Resize

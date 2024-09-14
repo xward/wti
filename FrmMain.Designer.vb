@@ -33,6 +33,7 @@ Partial Class FrmMain
         runType = New ToolStripStatusLabel()
         ToolStripStatusSays = New ToolStripStatusLabel()
         ToolStripStatusLabelDrawFps = New ToolStripStatusLabel()
+        ToolStripProgressBarSimu = New ToolStripProgressBar()
         PictureLedRedOff = New PictureBox()
         PictureLedRedOn = New PictureBox()
         PictureLedGreenOff = New PictureBox()
@@ -121,7 +122,7 @@ Partial Class FrmMain
         ' StatusStrip
         ' 
         StatusStrip.Font = New Font("Cambria", 11.25F, FontStyle.Regular, GraphicsUnit.Point, CByte(0))
-        StatusStrip.Items.AddRange(New ToolStripItem() {statusLed, statusLabel, runType, degiroLabel, esterLabel, ToolStripStatusSays, ToolStripStatusLabelDrawFps})
+        StatusStrip.Items.AddRange(New ToolStripItem() {statusLed, statusLabel, runType, degiroLabel, esterLabel, ToolStripStatusSays, ToolStripStatusLabelDrawFps, ToolStripProgressBarSimu})
         StatusStrip.Location = New Point(0, 978)
         StatusStrip.Name = "StatusStrip"
         StatusStrip.Padding = New Padding(1, 0, 16, 0)
@@ -148,6 +149,12 @@ Partial Class FrmMain
         ToolStripStatusLabelDrawFps.Name = "ToolStripStatusLabelDrawFps"
         ToolStripStatusLabelDrawFps.Size = New Size(40, 27)
         ToolStripStatusLabelDrawFps.Text = "-- fps"
+        ' 
+        ' ToolStripProgressBarSimu
+        ' 
+        ToolStripProgressBarSimu.Name = "ToolStripProgressBarSimu"
+        ToolStripProgressBarSimu.Size = New Size(100, 26)
+        ToolStripProgressBarSimu.Visible = False
         ' 
         ' PictureLedRedOff
         ' 
@@ -519,5 +526,6 @@ Partial Class FrmMain
     Friend WithEvents ContextMenuStripGraph As ContextMenuStrip
     Friend WithEvents CoucouToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents SetToDateHereToolStripMenuItem As ToolStripMenuItem
+    Friend WithEvents ToolStripProgressBarSimu As ToolStripProgressBar
 
 End Class

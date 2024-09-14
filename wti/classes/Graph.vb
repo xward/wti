@@ -185,6 +185,8 @@ Public Class Graph
     'Private dayWideStepList As Integer() = {12, 3 * 30, 6 * 30}
 
     Private Sub renderVerticals()
+        'ctp, on voit quand je zoom
+
         Dim stepp As Integer = 1
         ' du pif complet
         If spanSec / curveRect.Width > 100 Then stepp = 5
@@ -252,9 +254,7 @@ Public Class Graph
         ' horizontal on price
         g.DrawLine(crossdPen, New Point(curveRect.X, y), New Point(curveRect.X + curveRect.Width, y))
 
-        Dim diffWithMax As Double = Math.Round((1 - priceUnderMouse.price / priceUnderMouse.currentMaxPrice) * 100 * 100) / 100
-
-        writeText(New Point(50, img.Height - 50), "UnderMouse " & Math.Round(priceUnderMouse.price) & " max ever " & Math.Round(priceUnderMouse.currentMaxPrice) & " " & diffWithMax & "%", Color.Black, Color.Transparent, 13)
+        writeText(New Point(50, img.Height - 50), "UnderMouse " & Math.Round(priceUnderMouse.price) & "[" & priceUnderMouse.dat.ToString & "] max ever " & Math.Round(priceUnderMouse.currentMaxPrice) & " " & priceUnderMouse.diffFromMaxPrice & "%", Color.Black, Color.Transparent, 13)
 
     End Sub
 
@@ -352,27 +352,21 @@ Public Class Graph
     Private Function PriceFromX(x As Integer) As AssetPrice
         ' find closest asset price from pixel x (mouse over...)
         Dim mouseDate As Date = xToDate(x)
-        Dim c As Integer = 0
         Dim lowerI As Integer = 0
         Dim upI As Integer = allPrices.Count - 1
 
         While upI - lowerI > 1
-            c += 1
-
             Dim mid As Integer = Math.Round((upI + lowerI) / 2)
             Dim p As AssetPrice = allPrices.ElementAt(mid)
-
-            If mouseDate.CompareTo(p.dat) > 0 Then
-                lowerI = mid
-            Else
-                upI = mid
-            End If
-
-
-            Application.DoEvents()
+            If mouseDate.CompareTo(p.dat) > 0 Then lowerI = mid Else upI = mid
+            'Application.DoEvents()
         End While
 
-        Return allPrices.ElementAt(upI)
+        If Math.Abs(mouseDate.Subtract(allPrices.ElementAt(upI).dat).TotalMilliseconds) > Math.Abs(mouseDate.Subtract(allPrices.ElementAt(lowerI).dat).TotalMilliseconds) Then
+            Return allPrices.ElementAt(lowerI)
+        Else
+            Return allPrices.ElementAt(upI)
+        End If
     End Function
 
     ' -----------------------------------------------------------------------------------------------------------------------------
@@ -504,8 +498,11 @@ Public Class Graph
             If e.Delta < 0 Then shift = -shift
             Dim ratio As Double = priceUnderMouse.dat.Subtract(fromDate).TotalHours / spanHours
 
+            'this is nice, but we add 5 day to show there is nothing more after
             fromDate = fromDate.AddHours(ratio * shift)
+            If fromDate.CompareTo(defaultFromDate) < 0 Then fromDate = defaultFromDate.AddDays(-5)
             toDate = toDate.AddHours(-(1 - ratio) * shift)
+            If toDate.CompareTo(defaultToDate) > 0 Then toDate = defaultToDate.AddDays(5)
             render()
         End If
     End Sub

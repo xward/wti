@@ -31,4 +31,10 @@
             .todayChangePerc = ((split.Count = 3) AndAlso Double.Parse(split.ElementAt(2))) Or 0
         }
     End Function
+
+    ' rounded diff from max price perc
+    'return number between 0.00 and 100.00
+    Public Function diffFromMaxPrice() As Double
+        Return Math.Round((1 - price / currentMaxPrice) * 100 * 100) / 100
+    End Function
 End Class
