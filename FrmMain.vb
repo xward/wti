@@ -8,7 +8,9 @@ Public Class FrmMain
     '   [done] load data from yahoo csv daily
     ' replayInit from date to date
     '   simuler, agir
-    ' je veux voir wti, sp500 "live" data value
+    ' je veux voir wti, sp500 "live" data value, indice de peur
+
+
 
     ' screenshot whole screen 1/2 resolution, wti only, push to web page (fyo.io?) auto-refresh-mdr-liveview
     ' 960x540 png

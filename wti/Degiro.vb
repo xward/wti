@@ -45,7 +45,7 @@ Namespace Degiro
             accountWinLooseMoula = 0
 
 
-            dbg.info("SIMU: intialized !")
+            dbg.info("DEGIRO SIMU: intialized !")
         End Sub
 
         Public Sub SIMU_updateAll()

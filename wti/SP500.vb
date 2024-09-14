@@ -7,6 +7,8 @@
         ' - si ca descend ca va remonter, on sait juste pas quand, et plus on est loin du max ever plus ca sera fort
         ' - en cas de fuckup ca reviendra, mais peut etre après un long moment
 
+        ' here we find a long terme strategie using daily infos from s&p500 (SPX)
+
 
         ' detect major crise: 45% value loss in X temps
 
@@ -16,63 +18,26 @@
         ' 2. stable depuis 2h?
         ' 1. ca vient de chuter de x% en y temps
 
-        ' ----------------------------------------------------------------------------------------------------------------------------------------------
-        ' sp500 spx poc
-
-
         Private sp500 As AssetInfos = assetInfo(AssetNameEnum.SP500)
 
+        ' ----------------------------------------------------------------------------------------------------------------------------------------------
         Public Sub runPocSpx()
-            status = StatusEnum.SIMU
-            dbg.info("STARTING SIMULATION")
-            Degiro.SIMU_init()
-            FrmMain.ToolStripProgressBarSimu.Visible = True
-            ' todo: from date to date
-            replayInit(sp500)
-
-            ' Degiro.SIMU_placeOrUpdateOrder(sp500.ticker, 5, "Achat", 88, Nothing)
-
-            ' diff from max iz pt, pas de maxprice ?
-
-            While status = StatusEnum.SIMU And replayNext(sp500)
-
-
-                Dim price As AssetPrice = getPrice(sp500)
-
-                If Degiro.orders.Count = 0 And Degiro.positions.Count = 0 And price.diffFromMaxPrice > 8 Then
-                    Degiro.SIMU_placeOrUpdateOrder(sp500.ticker, 5, "Achat", price.price, Nothing)
-                End If
-
-                ' sell if better
-                If Degiro.orders.Count = 0 And Degiro.positions.Count = 1 And price.diffFromMaxPrice < 4 Then
-                    Degiro.SIMU_placeOrUpdateOrder(sp500.ticker, 5, "Vente", price.price, Nothing)
-                End If
-
-
-
-                Degiro.SIMU_updateAll()
-                Degiro.updateTradePanelUI()
-
-            End While
-
-
-            dbg.info(Degiro.transactions.Count)
-
-            dbg.info("simu completed")
-            status = StatusEnum.OFFLINE
-            FrmMain.ToolStripProgressBarSimu.Visible = False
+            Simulator.newSimulation(sp500)
+            Simulator.run(AddressOf sp500Decision)
         End Sub
 
+        Public Sub sp500Decision()
+            Dim price As AssetPrice = getPrice(sp500)
 
+            If Degiro.orders.Count = 0 And Degiro.positions.Count = 0 And price.diffFromMaxPrice > 8 Then
+                Degiro.SIMU_placeOrUpdateOrder(sp500.ticker, 5, "Achat", price.price, Nothing)
+            End If
 
-
-
-
-
-
-
-
-
+            ' sell if better
+            If Degiro.orders.Count = 0 And Degiro.positions.Count = 1 And price.diffFromMaxPrice < 4 Then
+                Degiro.SIMU_placeOrUpdateOrder(sp500.ticker, 5, "Vente", price.price, Nothing)
+            End If
+        End Sub
 
         ' ----------------------------------------------------------------------------------------------------------------------------------------------
         ' 3x v0
@@ -95,7 +60,7 @@
                 FrmMain.bottomGraph.asyncRender()
 
                 ''' DECISION
-                '''
+                ''' 
                 Dim price As AssetPrice = getPrice(sp5003x)
 
                 'If Degiro.accountCashMoula > 5 * 86 Then
@@ -108,7 +73,7 @@
                 End If
 
 
-                '''
+                ''' 
                 Degiro.SIMU_updateAll()
                 Degiro.updateTradePanelUI()
 

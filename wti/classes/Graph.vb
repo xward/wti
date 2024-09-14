@@ -1,3 +1,5 @@
+Imports System.Runtime.InteropServices.JavaScript.JSType
+
 Public Class Graph
     ' data source
     Public asset As AssetInfos
@@ -26,7 +28,10 @@ Public Class Graph
     Private img As New Bitmap(1, 1)
     Private g As Graphics
     Private rendering As Boolean = False
-    private renderRequest as boolean = false
+    Private renderRequest As Boolean = False
+    Private renderCount As Integer = 0
+    Private asyncRenderTimer As Timer
+
     Public elapsed As Double
 
     ' style
@@ -46,7 +51,9 @@ Public Class Graph
     ' [done] mouse over cross with metadata, also show diagonale any usefull kpi
 
     ' todo:
+    ' 1 days, 5 days, 1mo, 3 mo, 6 months 1 ytd 1y 3y 5y MAX
     ' build list of aggregage of prices, and use that instead (like a candle)
+    ' order, positions, past trades
 
     ' how much loss in 5 days
     ' [done] how much loss from max ever(only sp500 credible)
@@ -57,21 +64,37 @@ Public Class Graph
         Me.asset = assetFromName(assetName)
         toDate = Date.UtcNow()
         init()
+
+        asyncRenderTimer = New Timer
+        asyncRenderTimer.Interval = 10
+        AddHandler asyncRenderTimer.Tick, AddressOf AsyncRenderTimer_Tick
+        asyncRenderTimer.Enabled = True
+    End Sub
+
+    Private Sub AsyncRenderTimer_Tick(sender As Object, e As EventArgs)
+        asyncRenderTimer.Enabled = False
+        If renderRequest And Not rendering Then
+            render()
+            renderRequest = False
+        End If
+        If status <> StatusEnum.INTERRUPT Then asyncRenderTimer.Enabled = True
     End Sub
 
     ' -----------------------------------------------------------------------------------------------------------------------------
     ' Render
 
-public sub asyncRender()
-renderRequest = true
-end sub
+    Public Sub asyncRender()
+        renderRequest = True
+    End Sub
 
     Public Sub render()
         rendering = True
+        renderCount += 1
         Dim start As Date = Date.UtcNow()
         checkResized()
         ' init
         paintItBlack()
+        g.DrawRectangle(gridPen, curveRect)
 
         ' precompute stuff
         spanSec = toDate.Subtract(fromDate).TotalSeconds
@@ -91,7 +114,7 @@ end sub
 
         ' temps
         Dim fps As Double = 1000 / Math.Max(1, elapsed)
-        FrmMain.ToolStripStatusLabelDrawFps.Text = Math.Round(elapsed) & "ms (" & Math.Round(fps) & " fps)"
+        FrmMain.ToolStripStatusLabelDrawFps.Text = Math.Round(elapsed) & "ms (" & Math.Round(fps) & " fps) #" & renderCount
         rendering = False
     End Sub
 
@@ -212,12 +235,14 @@ end sub
 
         For day = 0 To Math.Round(fromDate.Subtract(toDate).TotalDays) Step -stepp
             Dim dat As Date = now.AddDays(day)
-            g.DrawLine(gridPen, New Point(dateToX(dat), curveRect.Y), New Point(dateToX(dat), curveRect.Y + curveRect.Height + 20))
+            g.DrawLine(gridPen, New Point(dateToX(dat), curveRect.Y), New Point(dateToX(dat), curveRect.Y + curveRect.Height))
 
             If stepp = 5 Then text = dat.Day
-            If stepp > 5 Then text = MonthName(dat.Month, True) & " " & dat.Year
+            If stepp > 5 Then text = MonthName(dat.Month, True) & "" & dat.Year.ToString.Substring(2)
 
-            writeText(New Point(dateToX(dat), curveRect.Y + curveRect.Height + 5), text, legendPen.Color, Color.Transparent, 12)
+            Dim shiftText As Integer = 25
+            If stepp = 5 Then shiftText = 5
+            writeText(New Point(dateToX(dat) - shiftText, curveRect.Y + curveRect.Height + 5), text, legendPen.Color, Color.Transparent, 12)
         Next
 
     End Sub
@@ -226,21 +251,18 @@ end sub
     ' horizontal perc value separators
 
     Private Sub renderHorizontals()
+        Dim minPerc As Integer = -Math.Round((1 - minPrice.price / zeroPrice.price) * 100)
+        Dim maxPerc As Integer = Math.Round(maxPrice.price / zeroPrice.price * 100)
 
-        For perc As Double = -75 To 200 Step 2
+        For perc As Double = minPerc To maxPerc Step (Math.Abs(maxPerc) - Math.Abs(minPerc)) / 30
             Dim y As Double = priceToY(zeroPrice.price * (1.0 + perc / 100))
             If y < curveRect.Y Or y > curveRect.Y + curveRect.Height Then Continue For
 
             g.DrawLine(gridPen, New Point(curveRect.X, y), New Point(curveRect.X + curveRect.Width, y))
-            writeText(New Point(curveRect.X + curveRect.Width, y), perc & "%", legendPen.Color, Color.Transparent)
-            writeText(New Point(curveRect.X + curveRect.Width + 55, y + 1), Math.Round(100 * zeroPrice.price * (1 + perc / 100)) / 100, legendPen.Color, Color.Transparent, 11)
+            writeText(New Point(curveRect.X + curveRect.Width, y), Math.Round(perc) & "%", legendPen.Color, Color.Transparent)
+            writeText(New Point(curveRect.X + curveRect.Width + 55, y + 1), formatPrice(zeroPrice.price * (1 + perc / 100)), legendPen.Color, Color.Transparent, 11)
         Next
     End Sub
-
-    'For Each h As Hole In holesList
-    '    g.DrawLine(New Pen(Color.RebeccaPurple), New Point(pixelX(h.ifAfter), curveRect.Y), New Point(pixelX(h.ifAfter), curveRect.Y + curveRect.Height))
-    'Next
-
 
     ' -----------------------------------------------------------------------------------------------------------------------------
     ' Mouse over cross with tooltips
@@ -248,20 +270,30 @@ end sub
     Private Sub renderMouseOverCross()
         If mouseOvering.X = -1 Then Exit Sub
 
-
         priceUnderMouse = PriceFromX(mouseOvering.X)
         Dim y As Double = priceToY(priceUnderMouse)
+        Dim perc As Double = (Math.Round((priceUnderMouse.price / zeroPrice.price - 1) * 100 * 10)) / 10
 
         ' vertical
         g.DrawLine(crossdPen, New Point(mouseOvering.X, curveRect.Y), New Point(mouseOvering.X, curveRect.Y + curveRect.Height))
-        ' horizontal
-        g.DrawLine(crossdPen, New Point(curveRect.X, mouseOvering.Y), New Point(curveRect.X + curveRect.Width, mouseOvering.Y))
+        ' horizontal, don't like for now
+        'g.DrawLine(crossdPen, New Point(curveRect.X, mouseOvering.Y), New Point(curveRect.X + curveRect.Width, mouseOvering.Y))
 
         ' horizontal on price
         g.DrawLine(crossdPen, New Point(curveRect.X, y), New Point(curveRect.X + curveRect.Width, y))
 
-        writeText(New Point(50, img.Height - 50), "UnderMouse " & Math.Round(priceUnderMouse.price) & "[" & priceUnderMouse.dat.ToString & "] max ever " & Math.Round(priceUnderMouse.currentMaxPrice) & " " & priceUnderMouse.diffFromMaxPrice & "%", Color.Black, Color.Transparent, 13)
 
+        writeText(New Point(20, img.Height - 30), "UnderMouse " & formatPrice(priceUnderMouse.price) & " max_ever " & formatPrice(priceUnderMouse.currentMaxPrice) & " " & priceUnderMouse.diffFromMaxPrice & "% below max ever", Color.Black, Color.Transparent, 13)
+
+        ' right price plate
+        g.FillRectangle(New SolidBrush(Color.Black), New Rectangle(curveRect.X + curveRect.Width, y - 5, 150, 25))
+        writeText(New Point(curveRect.X + curveRect.Width, y - 5 + 6), perc.ToString("#0.0") & "%", Color.White, Color.Transparent)
+        writeText(New Point(curveRect.X + curveRect.Width + 75, y - 5 + 8), formatPrice(priceUnderMouse.price), Color.White, Color.Transparent, 11)
+
+        ' bottom date plate
+        Dim shift As Integer = 92
+        g.FillRectangle(New SolidBrush(Color.Black), New Rectangle(mouseOvering.X - shift - 5, curveRect.Y + curveRect.Height, shift * 2 + 5 * 2, 25))
+        writeText(New Point(mouseOvering.X - shift, curveRect.Y + curveRect.Height + 6), priceUnderMouse.dat.ToString("dd/MM/yyyy HH:mm:ss"), Color.White, Color.Transparent, 12)
     End Sub
 
     ' -----------------------------------------------------------------------------------------------------------------------------
@@ -275,10 +307,10 @@ end sub
         If price.todayChangePerc < 0 Then arroyStr = Convert.ToChar(9660)
 
         'top text
-        writeText(New Point(5, 5), asset.ticker & " - " & asset.name.ToString & " (" & asset.currency & ") " & Math.Round(price.price * 10) / 10 & " " & arroyStr & " " & price.todayChangePerc & "% " &
-                      " max_ever:" & Math.Round(history.maxPriceEver.price) & " (" & history.diffWithMaxPerc & "%)", Color.Black, Color.Transparent)
+        writeText(New Point(5, 5), asset.ticker & " - " & asset.name.ToString & " (" & asset.currency & ") " & formatPrice(price.price) & " " & arroyStr & " " & price.todayChangePerc & "% " &
+                          " max_ever:" & formatPrice(history.maxPriceEver.price) & " (" & history.diffWithMaxPerc & "%)", Color.Black, Color.Transparent)
         'sub text
-        writeText(New Point(5, 30), "graph min:" & Math.Round(minPrice.price) & " max:" & Math.Round(maxPrice.price) & "   last_point: " & price.dat.ToString, Color.Black, Color.Transparent, 11)
+        writeText(New Point(5, 30), "graph min:" & formatPrice(minPrice.price) & " max:" & formatPrice(maxPrice.price) & "   last_point: " & price.dat.ToString, Color.Black, Color.Transparent, 11)
 
         writeText(New Point(img.Width - 65, 5), allPrices.Count & " pts", Color.Black, Color.Transparent, 11)
     End Sub
@@ -355,6 +387,12 @@ end sub
         End If
     End Sub
 
+    Public Function formatPrice(amount As Double) As String
+        If amount > 1000 Then Return Math.Round(amount)
+        If amount > 10 Then Return Math.Round(amount * 10) / 10
+        If amount > 1 Then Return Math.Round(amount * 100) / 100
+        Return Math.Round(amount * 10000) / 10000
+    End Function
     Private Function PriceFromX(x As Integer) As AssetPrice
         ' find closest asset price from pixel x (mouse over...)
         Dim mouseDate As Date = xToDate(x)
@@ -461,16 +499,38 @@ end sub
     Private lastMouseMove As Date = Date.UtcNow
     Private mouseOvering As New Point(-1, -1)
 
+    Private startDragAndDropX As Integer = -1
 
     Public Sub moveOverGraph(sender As Object, e As MouseEventArgs)
-        ' 20 fps on mouse over max
-        If Date.UtcNow.Subtract(lastMouseMove).TotalMilliseconds < 60 Or rendering Then Exit Sub
 
-        lastMouseMove = Date.UtcNow
-        mouseOvering.X = e.X
-        mouseOvering.Y = e.Y
+        If e.Button = MouseButtons.Left Then
+            If startDragAndDropX = -1 Then startDragAndDropX = e.X
+            'drag and drop scroll x
+            ' gerbotron si va trop vite
+            Dim spanHours As Double = toDate.Subtract(fromDate).TotalHours
 
-        render()
+            Dim shift As Integer = xToDate(Math.Abs(e.X - startDragAndDropX)).Subtract(fromDate).TotalHours
+
+            If (e.X - startDragAndDropX) < 0 Then shift = -shift
+
+            'this is nice, but we add 5 day to show there is nothing more after
+            fromDate = fromDate.AddHours(shift)
+            If fromDate.CompareTo(defaultFromDate) < 0 And shift < 0 Then fromDate = defaultFromDate.AddDays(-5)
+            toDate = toDate.AddHours(shift)
+            If toDate.CompareTo(defaultToDate) > 0 And shift > 0 Then toDate = defaultToDate.AddDays(5)
+
+            startDragAndDropX = e.X
+        Else
+
+            ' 20 fps on mouse over max
+            ' If Date.UtcNow.Subtract(lastMouseMove).TotalMilliseconds < 60 Or rendering Then Exit Sub
+
+            ' lastMouseMove = Date.UtcNow
+            mouseOvering.X = e.X
+            mouseOvering.Y = e.Y
+
+        End If
+        asyncRender()
     End Sub
 
     Public Sub mouseLeaveGraph(sender As Object, e As EventArgs)
@@ -514,6 +574,14 @@ end sub
     End Sub
 
     Public Sub mouseClickOnGraph(sender As Object, e As MouseEventArgs)
+        If e.Button = MouseButtons.Left Then
+            ' startDragAndDropX = e.X
+            'reset
+            startDragAndDropX = -1
+        End If
+
+
+
         If e.Button = MouseButtons.Right And Not My.Computer.Keyboard.CtrlKeyDown Then
             fromDate = defaultFromDate
             toDate = defaultToDate
