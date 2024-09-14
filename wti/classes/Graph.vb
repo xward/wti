@@ -52,6 +52,7 @@ Public Class Graph
 
     ' todo:
     ' 1 days, 5 days, 1mo, 3 mo, 6 months 1 ytd 1y 3y 5y MAX
+    ' vertical position in, position out
     ' build list of aggregage of prices, and use that instead (like a candle)
     ' order, positions, past trades
 
@@ -104,6 +105,8 @@ Public Class Graph
 
         ' renderOrders()
         ' renderPositions()
+
+        ' ie graph écart max % curve
         ' renderIndicators()
 
         pictureBox.Image = img
@@ -387,12 +390,7 @@ Public Class Graph
         End If
     End Sub
 
-    Public Function formatPrice(amount As Double) As String
-        If amount > 1000 Then Return Math.Round(amount)
-        If amount > 10 Then Return Math.Round(amount * 10) / 10
-        If amount > 1 Then Return Math.Round(amount * 100) / 100
-        Return Math.Round(amount * 10000) / 10000
-    End Function
+
     Private Function PriceFromX(x As Integer) As AssetPrice
         ' find closest asset price from pixel x (mouse over...)
         Dim mouseDate As Date = xToDate(x)
@@ -512,6 +510,7 @@ Public Class Graph
             Dim shift As Integer = xToDate(Math.Abs(e.X - startDragAndDropX)).Subtract(fromDate).TotalHours
 
             If (e.X - startDragAndDropX) < 0 Then shift = -shift
+
 
             'this is nice, but we add 5 day to show there is nothing more after
             fromDate = fromDate.AddHours(shift)

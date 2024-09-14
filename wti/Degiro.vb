@@ -186,6 +186,7 @@ Namespace Degiro
 
             Dim order As DegiroOrder = Nothing
 
+            ' update if already exist for same quantity
             For Each o As DegiroOrder In orders
                 If o.ticker = ticker And o.quantity = qty And o.orderAction = orderAction Then
                     order = o
@@ -194,16 +195,19 @@ Namespace Degiro
                     Exit For
                 End If
             Next
+
             If order.quantity = 0 Then
-                order = New DegiroOrder With {
-                    .ticker = ticker,
-                    .dat = Date.UtcNow,
-                    .isin = assetInfo(ticker).ISIN,
-                    .limit = limit,
-                    .stopPrice = stopPrice,
-                    .orderAction = orderAction,
+                order = New DegiroOrder
+                With order
+                    .ticker = ticker
+                    .dat = Date.UtcNow
+                    .isin = assetInfo(ticker).ISIN
+                    .limit = limit
+                    .stopPrice = stopPrice
+                    .orderAction = orderAction
                     .quantity = qty
-                }
+                End With
+
                 orders.Add(order)
             End If
             '  RandPause(1600, 3200)
@@ -913,9 +917,9 @@ Namespace Degiro
             For Each order In orders
                 If order.orderAction <> "Achat" Then Continue For
                 If order.limit > 0 Then
-                    activeTradeString &= "LIMIT_BUY " & order.ticker & " q" & order.quantity & " limit" & order.limit & " cur" & getPrice(order.ticker).price & " " & 0 & "% away" & vbCrLf
+                    activeTradeString &= "LIMIT_BUY " & order.ticker & " q" & order.quantity & " limit" & order.limit & " cur" & formatPrice(getPrice(order.ticker).price) & " " & 0 & "% away" & vbCrLf
                 Else
-                    activeTradeString &= "STOP_BUY " & order.ticker & " q" & order.quantity & " stop" & order.stopPrice & " cur" & getPrice(order.ticker).price & " " & 0 & "% away" & vbCrLf
+                    activeTradeString &= "STOP_BUY " & order.ticker & " q" & order.quantity & " stop" & order.stopPrice & " cur" & formatPrice(getPrice(order.ticker).price) & " " & 0 & "% away" & vbCrLf
                 End If
             Next
 
@@ -925,9 +929,9 @@ Namespace Degiro
                 If order.orderAction <> "Vente" Then Continue For
 
                 If order.limit > 0 Then
-                    activeTradeString &= "LIMIT_SELL " & order.ticker & " q" & order.quantity & " limit" & order.limit & " cur" & getPrice(order.ticker).price & " " & 0 & "% away" & vbCrLf
+                    activeTradeString &= "LIMIT_SELL " & order.ticker & " q" & order.quantity & " limit" & order.limit & " cur" & formatPrice(getPrice(order.ticker).price) & " " & 0 & "% away" & vbCrLf
                 Else
-                    activeTradeString &= "STOP_SELL " & order.ticker & " q" & order.quantity & " stop" & order.stopPrice & " cur" & getPrice(order.ticker).price & " " & 0 & "% away" & vbCrLf
+                    activeTradeString &= "STOP_SELL " & order.ticker & " q" & order.quantity & " stop" & order.stopPrice & " cur" & formatPrice(getPrice(order.ticker).price) & " " & 0 & "% away" & vbCrLf
                 End If
             Next
 
@@ -945,7 +949,8 @@ Namespace Degiro
                 activeTradeString &= "COMPLETED " & trade.ticker & " q" & trade.quantity & " pru" & trade.pru & " sold" & trade.sellPricePerUnit.ToString(" 0.0") & " perf" & (100 * (trade.perfPerc - 1)).ToString("0.00") & "%" & vbCrLf
             Next
 
-            If FrmMain.LblActiveTrades.Text <> activeTradeString Then FrmMain.LblActiveTrades.Text = activeTradeString
+            ' slowing everything
+            ' If FrmMain.LblActiveTrades.Text <> activeTradeString Then FrmMain.LblActiveTrades.Text = activeTradeString
 
             'TRY_BUY_LIMIT 3OIL q5 limit13.31 cur14 3.2% away
             'TRY_BUY_STOP 3OIS q5 stop13.31 cur13 0.2% away

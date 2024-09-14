@@ -40,6 +40,14 @@ Public Module Structures
         Return structString
     End Function
 
+
+    Public Function formatPrice(amount As Double) As String
+        If amount > 1000 Then Return Math.Round(amount)
+        If amount > 10 Then Return Math.Round(amount * 10) / 10
+        If amount > 1 Then Return Math.Round(amount * 100) / 100
+        Return Math.Round(amount * 10000) / 10000
+    End Function
+
     'Public Function degiroOrderToString(o As DegiroOrder) As String
     '    Return o.ticker & " " & o.isin & " " & o.dat.ToString & " " & o.orderAction & " " & o.quantity & " " & o.limit & " " & o.stopPrice
     'End Function

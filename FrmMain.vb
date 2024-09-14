@@ -3,7 +3,7 @@ Imports System.Windows.Forms.VisualStyles.VisualStyleElement.Tab
 Imports WorstTradingInitiative.CST.CST
 
 Public Class FrmMain
-    ' je veux simuler du long terme sp500
+    ' je veux simuler du long terme sp500, tester des algos, visualiser feedback (vertical position in, position out, active orders), // graph dist from max ever
     '   [done] graph v1
     '   [done] load data from yahoo csv daily
     ' replayInit from date to date
@@ -12,7 +12,7 @@ Public Class FrmMain
 
 
 
-    ' screenshot whole screen 1/2 resolution, wti only, push to web page (fyo.io?) auto-refresh-mdr-liveview
+    ' screenshot whole screen 1/2 resolution, wti only, push to web page (fly.io?) auto-refresh-mdr-liveview
     ' 960x540 png
 
     ' --------------------------------------------------------------------------------------------------------

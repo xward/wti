@@ -9,7 +9,6 @@
 
         ' here we find a long terme strategie using daily infos from s&p500 (SPX)
 
-
         ' detect major crise: 45% value loss in X temps
 
         ' fetch/update historique data long game
@@ -29,8 +28,8 @@
         Public Sub sp500Decision()
             Dim price As AssetPrice = getPrice(sp500)
 
-            If Degiro.orders.Count = 0 And Degiro.positions.Count = 0 And price.diffFromMaxPrice > 8 Then
-                Degiro.SIMU_placeOrUpdateOrder(sp500.ticker, 5, "Achat", price.price, Nothing)
+            If Degiro.orders.Count = 0 And Degiro.positions.Count = 0 And price.diffFromMaxPrice > 3 Then
+                Degiro.SIMU_placeOrUpdateOrder(sp500.ticker, 5, "Achat", price.price * 1.03, Nothing)
             End If
 
             ' sell if better
