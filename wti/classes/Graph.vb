@@ -81,6 +81,10 @@ Public Class Graph
         If status <> StatusEnum.INTERRUPT Then asyncRenderTimer.Enabled = True
     End Sub
 
+    ' bugs
+    ' si le zeroprice = 0, ca pete un peu partout
+    ' si je zoom sur des donnée avant le fromdate original, ca pète
+
     ' -----------------------------------------------------------------------------------------------------------------------------
     ' Render
 
@@ -145,7 +149,7 @@ Public Class Graph
 
         ' might get slow, can be easily optimized
         ' todo: drop outside of market open
-        allPrices = history.allPricesBetwwen(fromDate, toDate)
+        allPrices = history.allPricesBetween(fromDate, toDate)
         ' buildHolesFromAllPrices()
 
         Dim eFetch As Double = Date.UtcNow.Subtract(start).TotalMilliseconds
@@ -203,7 +207,7 @@ Public Class Graph
 
         ' on veut draw line 1 by 1
 
-        dbg.info("Render prices eFetch=" & Math.Round(eFetch) & " eProcess=" & Math.Round(eProcess) & " ePlot=" & Math.Round(ePlot))
+        ' dbg.info("Render prices eFetch=" & Math.Round(eFetch) & " eProcess=" & Math.Round(eProcess) & " ePlot=" & Math.Round(ePlot))
     End Sub
 
     'drawHorizontalGrid(img.Height / 2, 60)
@@ -254,16 +258,19 @@ Public Class Graph
     ' horizontal perc value separators
 
     Private Sub renderHorizontals()
-        Dim minPerc As Integer = -Math.Round((1 - minPrice.price / zeroPrice.price) * 100)
-        Dim maxPerc As Integer = Math.Round(maxPrice.price / zeroPrice.price * 100)
+        Dim zero As Double = zeroPrice.price
+        If zero = 0 Then zero = 1
+
+        Dim minPerc As Integer = -Math.Round((1 - minPrice.price / zero) * 100)
+        Dim maxPerc As Integer = Math.Round(maxPrice.price / zero * 100)
 
         For perc As Double = minPerc To maxPerc Step (Math.Abs(maxPerc) - Math.Abs(minPerc)) / 30
-            Dim y As Double = priceToY(zeroPrice.price * (1.0 + perc / 100))
+            Dim y As Double = priceToY(zero * (1.0 + perc / 100))
             If y < curveRect.Y Or y > curveRect.Y + curveRect.Height Then Continue For
 
             g.DrawLine(gridPen, New Point(curveRect.X, y), New Point(curveRect.X + curveRect.Width, y))
             writeText(New Point(curveRect.X + curveRect.Width, y), Math.Round(perc) & "%", legendPen.Color, Color.Transparent)
-            writeText(New Point(curveRect.X + curveRect.Width + 55, y + 1), formatPrice(zeroPrice.price * (1 + perc / 100)), legendPen.Color, Color.Transparent, 11)
+            writeText(New Point(curveRect.X + curveRect.Width + 55, y + 1), formatPrice(zero * (1 + perc / 100)), legendPen.Color, Color.Transparent, 11)
         Next
     End Sub
 
@@ -277,26 +284,37 @@ Public Class Graph
         Dim y As Double = priceToY(priceUnderMouse)
         Dim perc As Double = (Math.Round((priceUnderMouse.price / zeroPrice.price - 1) * 100 * 10)) / 10
 
-        ' vertical
-        g.DrawLine(crossdPen, New Point(mouseOvering.X, curveRect.Y), New Point(mouseOvering.X, curveRect.Y + curveRect.Height))
-        ' horizontal, don't like for now
-        'g.DrawLine(crossdPen, New Point(curveRect.X, mouseOvering.Y), New Point(curveRect.X + curveRect.Width, mouseOvering.Y))
-
-        ' horizontal on price
-        g.DrawLine(crossdPen, New Point(curveRect.X, y), New Point(curveRect.X + curveRect.Width, y))
 
 
+
+        'bottom dirty text
         writeText(New Point(20, img.Height - 30), "UnderMouse " & formatPrice(priceUnderMouse.price) & " max_ever " & formatPrice(priceUnderMouse.currentMaxPrice) & " " & priceUnderMouse.diffFromMaxPrice & "% below max ever", Color.Black, Color.Transparent, 13)
 
-        ' right price plate
-        g.FillRectangle(New SolidBrush(Color.Black), New Rectangle(curveRect.X + curveRect.Width, y - 5, 150, 25))
-        writeText(New Point(curveRect.X + curveRect.Width, y - 5 + 6), perc.ToString("#0.0") & "%", Color.White, Color.Transparent)
-        writeText(New Point(curveRect.X + curveRect.Width + 75, y - 5 + 8), formatPrice(priceUnderMouse.price), Color.White, Color.Transparent, 11)
+        ' vertical on cursor
+        g.DrawLine(crossdPen, New Point(mouseOvering.X, curveRect.Y), New Point(mouseOvering.X, curveRect.Y + curveRect.Height))
 
-        ' bottom date plate
+
+        ' horizontal on cursor
+        g.DrawLine(crossdPen, New Point(curveRect.X, mouseOvering.Y), New Point(curveRect.X + curveRect.Width, mouseOvering.Y))
+
+        ' horizontal on price
+        ' g.DrawLine(crossdPen, New Point(curveRect.X, y), New Point(curveRect.X + curveRect.Width, y))
+
+        ' horizontal on price price plate
+        g.FillRectangle(New SolidBrush(Color.Black), New Rectangle(curveRect.X + curveRect.Width, y - 12, 150, 25))
+        writeText(New Point(curveRect.X + curveRect.Width, y - 12 + 6), perc.ToString("#0.0") & "%", Color.White, Color.Transparent)
+        writeText(New Point(curveRect.X + curveRect.Width + 75, y - 12 + 8), formatPrice(priceUnderMouse.price), Color.White, Color.Transparent, 11)
+        ' horizontal on mouse price plate
+        Dim percUnderMouse As Double = (Math.Round((yToPrice(mouseOvering.Y) / zeroPrice.price - 1) * 100 * 10)) / 10
+        g.FillRectangle(New SolidBrush(Color.DarkGray), New Rectangle(curveRect.X + curveRect.Width, mouseOvering.Y - 5, 150, 25))
+        writeText(New Point(curveRect.X + curveRect.Width, mouseOvering.Y - 5 + 6), percUnderMouse.ToString("#0.0") & "%", Color.White, Color.Transparent)
+        writeText(New Point(curveRect.X + curveRect.Width + 75, mouseOvering.Y - 5 + 8), formatPrice(yToPrice(mouseOvering.Y)), Color.White, Color.Transparent, 11)
+
+        ' vertial on price date plate
         Dim shift As Integer = 92
         g.FillRectangle(New SolidBrush(Color.Black), New Rectangle(mouseOvering.X - shift - 5, curveRect.Y + curveRect.Height, shift * 2 + 5 * 2, 25))
         writeText(New Point(mouseOvering.X - shift, curveRect.Y + curveRect.Height + 6), priceUnderMouse.dat.ToString("dd/MM/yyyy HH:mm:ss"), Color.White, Color.Transparent, 12)
+
     End Sub
 
     ' -----------------------------------------------------------------------------------------------------------------------------
@@ -361,9 +379,10 @@ Public Class Graph
     Private Function priceToY(price As AssetPrice) As Double
         Return priceToY(price.price)
     End Function
+
+    ' add padding top/bottom, graph should never touch max echelle
+    Dim yInnerPadding As Integer = 50
     Private Function priceToY(p As Double) As Double
-        ' add padding top/bottom, graph should never touch max �chelle
-        Dim innerPadding As Integer = 50
 
         Dim minP As Double = minPrice.price
         If minP = 0 Then minP = p
@@ -375,7 +394,16 @@ Public Class Graph
 
         ' dbg.info(curveRect.Top + innerPadding + (1 - perHOnGraph) * (curveRect.Height - innerPadding * 2))
 
-        Return curveRect.Top + innerPadding + (1 - perHOnGraph) * (curveRect.Height - innerPadding * 2)
+        Return curveRect.Top + yInnerPadding + (1 - perHOnGraph) * (curveRect.Height - yInnerPadding * 2)
+    End Function
+
+    Private Function yToPrice(y As Double) As Double
+        Dim perHOnGraph As Double = -((y - curveRect.Top - yInnerPadding) / (curveRect.Height - yInnerPadding * 2) - 1)
+
+        Dim minP As Double = minPrice.price
+        Dim maxP As Double = maxPrice.price
+
+        Return perHOnGraph * (maxP - minP) + minP
     End Function
 
 
@@ -421,23 +449,23 @@ Public Class Graph
     ' Color.BlanchedAlmond
     ' Color.FromArgb(255, 250, 237, 220)
 
-    Private Sub drawHorizontalGrid(zeroY As Integer, stepp As Integer)
-        For y = zeroY To img.Height Step stepp
-            g.DrawLine(gridPen, New Point(0, y), New Point(img.Width, y))
-        Next
-        For y = zeroY - stepp To 0 Step -stepp
-            g.DrawLine(gridPen, New Point(0, y), New Point(img.Width, y))
-        Next
-    End Sub
+    'Private Sub drawHorizontalGrid(zeroY As Integer, stepp As Integer)
+    '    For y = zeroY To img.Height Step stepp
+    '        g.DrawLine(gridPen, New Point(0, y), New Point(img.Width, y))
+    '    Next
+    '    For y = zeroY - stepp To 0 Step -stepp
+    '        g.DrawLine(gridPen, New Point(0, y), New Point(img.Width, y))
+    '    Next
+    'End Sub
 
-    Private Sub drawVerticalGrid(zeroX As Integer, stepp As Integer)
-        For x = zeroX To img.Width Step stepp
-            g.DrawLine(gridPen, New Point(x, 0), New Point(x, img.Height))
-        Next
-        For x = zeroX - stepp To 0 Step -stepp
-            g.DrawLine(gridPen, New Point(x, 0), New Point(x, img.Height))
-        Next
-    End Sub
+    'Private Sub drawVerticalGrid(zeroX As Integer, stepp As Integer)
+    '    For x = zeroX To img.Width Step stepp
+    '        g.DrawLine(gridPen, New Point(x, 0), New Point(x, img.Height))
+    '    Next
+    '    For x = zeroX - stepp To 0 Step -stepp
+    '        g.DrawLine(gridPen, New Point(x, 0), New Point(x, img.Height))
+    '    Next
+    'End Sub
 
     Public Sub writeText(ByVal pt As Point, ByVal txt As String, ByVal col As Color, ByVal backgroundColor As Color, Optional fontSize As Single = 14)
         'If backgroundColor <> Color.Transparent Then
@@ -457,6 +485,8 @@ Public Class Graph
         fromDate = Date.UtcNow.AddDays(-2000)
         defaultFromDate = fromDate
         defaultToDate = toDate
+
+        crossdPen.DashStyle = Drawing2D.DashStyle.Dot
 
         With pictureBox
             .Parent = parentPanel
@@ -498,27 +528,36 @@ Public Class Graph
     Private mouseOvering As New Point(-1, -1)
 
     Private startDragAndDropX As Integer = -1
+    Private dragAndDropScrollXFromDate As Date
+    Private dragAndDropScrollXToDate As Date
+    Private dragAndDropHourPerPixel As Double
 
     Public Sub moveOverGraph(sender As Object, e As MouseEventArgs)
+        '  Dim spanHours As Double = toDate.Subtract(fromDate).TotalHours
+
 
         If e.Button = MouseButtons.Left Then
-            If startDragAndDropX = -1 Then startDragAndDropX = e.X
-            'drag and drop scroll x
-            ' gerbotron si va trop vite
-            Dim spanHours As Double = toDate.Subtract(fromDate).TotalHours
+            'init dnd
+            If startDragAndDropX = -1 Then
+                startDragAndDropX = e.X
+                dragAndDropScrollXFromDate = fromDate
+                dragAndDropScrollXToDate = toDate
+                Dim spanHours As Double = toDate.Subtract(fromDate).TotalHours
+                dragAndDropHourPerPixel = spanHours / curveRect.Width
+                ' i wanted grab hand closed
+                pictureBox.Cursor = Cursors.VSplit
+            End If
 
-            Dim shift As Integer = xToDate(Math.Abs(e.X - startDragAndDropX)).Subtract(fromDate).TotalHours
 
-            If (e.X - startDragAndDropX) < 0 Then shift = -shift
 
+            Dim shift As Integer = -dragAndDropHourPerPixel * (e.X - startDragAndDropX)
 
             'this is nice, but we add 5 day to show there is nothing more after
-            fromDate = fromDate.AddHours(shift)
-            If fromDate.CompareTo(defaultFromDate) < 0 And shift < 0 Then fromDate = defaultFromDate.AddDays(-5)
-            toDate = toDate.AddHours(shift)
-            If toDate.CompareTo(defaultToDate) > 0 And shift > 0 Then toDate = defaultToDate.AddDays(5)
+            fromDate = dragAndDropScrollXFromDate.AddHours(shift)
+            toDate = dragAndDropScrollXToDate.AddHours(shift)
 
-            startDragAndDropX = e.X
+            ' If fromDate.CompareTo(defaultFromDate) < 0 And shift < 0 Then fromDate = defaultFromDate.AddDays(-5)
+            ' If toDate.CompareTo(defaultToDate) > 0 And shift > 0 Then toDate = defaultToDate.AddDays(5)
         Else
 
             ' 20 fps on mouse over max
@@ -575,8 +614,9 @@ Public Class Graph
     Public Sub mouseClickOnGraph(sender As Object, e As MouseEventArgs)
         If e.Button = MouseButtons.Left Then
             ' startDragAndDropX = e.X
-            'reset
+            ' end drag and drop
             startDragAndDropX = -1
+            pictureBox.Cursor = Cursors.Arrow
         End If
 
 

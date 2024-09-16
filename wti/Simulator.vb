@@ -18,7 +18,7 @@ Namespace Simulator
         Public Sub run(decision As Action)
             Dim start As Date = Date.UtcNow
             While status = StatusEnum.SIMU And replayNext(asset)
-                FrmMain.bottomGraph.asyncRender()
+                FrmMain.mainGraph.asyncRender()
 
                 decision()
 

@@ -64,6 +64,8 @@ Partial Class FrmMain
         SimulationToolStripMenuItem = New ToolStripMenuItem()
         RunToolStripMenuItem = New ToolStripMenuItem()
         RunSp500LongToolStripMenuItem = New ToolStripMenuItem()
+        AnalysisToolStripMenuItem = New ToolStripMenuItem()
+        OpenAnalysisViewerToolStripMenuItem = New ToolStripMenuItem()
         TmerKeyIput = New Timer(components)
         TmerAutoStart = New Timer(components)
         ContextMenuStripGraph = New ContextMenuStrip(components)
@@ -310,9 +312,9 @@ Partial Class FrmMain
         LblActiveTrades.Font = New Font("Cascadia Mono", 9.75F)
         LblActiveTrades.Location = New Point(3, 3)
         LblActiveTrades.Name = "LblActiveTrades"
-        LblActiveTrades.Size = New Size(280, 17)
+        LblActiveTrades.Size = New Size(408, 17)
         LblActiveTrades.TabIndex = 0
-        LblActiveTrades.Text = "TRY_BUY 3OIL q5 pru13.31 3.2% away"
+        LblActiveTrades.Text = "PLACEHOLER TRY_BUY FAKE_3OIL q5 pru13.31 3.2% away"
         ' 
         ' TopPanel
         ' 
@@ -348,7 +350,7 @@ Partial Class FrmMain
         ' 
         ' MainMenuStrip
         ' 
-        MainMenuStrip.Items.AddRange(New ToolStripItem() {TradesToolStripMenuItem, ManualActionsToolStripMenuItem, SimulationToolStripMenuItem})
+        MainMenuStrip.Items.AddRange(New ToolStripItem() {TradesToolStripMenuItem, ManualActionsToolStripMenuItem, SimulationToolStripMenuItem, AnalysisToolStripMenuItem})
         MainMenuStrip.Location = New Point(0, 0)
         MainMenuStrip.Name = "MainMenuStrip"
         MainMenuStrip.Size = New Size(1940, 24)
@@ -417,6 +419,19 @@ Partial Class FrmMain
         RunSp500LongToolStripMenuItem.Name = "RunSp500LongToolStripMenuItem"
         RunSp500LongToolStripMenuItem.Size = New Size(152, 22)
         RunSp500LongToolStripMenuItem.Text = "run sp500Long"
+        ' 
+        ' AnalysisToolStripMenuItem
+        ' 
+        AnalysisToolStripMenuItem.DropDownItems.AddRange(New ToolStripItem() {OpenAnalysisViewerToolStripMenuItem})
+        AnalysisToolStripMenuItem.Name = "AnalysisToolStripMenuItem"
+        AnalysisToolStripMenuItem.Size = New Size(62, 20)
+        AnalysisToolStripMenuItem.Text = "Analysis"
+        ' 
+        ' OpenAnalysisViewerToolStripMenuItem
+        ' 
+        OpenAnalysisViewerToolStripMenuItem.Name = "OpenAnalysisViewerToolStripMenuItem"
+        OpenAnalysisViewerToolStripMenuItem.Size = New Size(186, 22)
+        OpenAnalysisViewerToolStripMenuItem.Text = "Open Analysis viewer"
         ' 
         ' TmerKeyIput
         ' 
@@ -527,5 +542,7 @@ Partial Class FrmMain
     Friend WithEvents CoucouToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents SetToDateHereToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents ToolStripProgressBarSimu As ToolStripProgressBar
+    Friend WithEvents AnalysisToolStripMenuItem As ToolStripMenuItem
+    Friend WithEvents OpenAnalysisViewerToolStripMenuItem As ToolStripMenuItem
 
 End Class
