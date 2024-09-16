@@ -125,15 +125,6 @@ Public Class Graph
         rendering = False
     End Sub
 
-
-    ' implem AssetHistory = list of assetPrice, that load everything we know on this asset ( only what I recorded, for now ), max 4 month history for now (graph doesn't need more). Use this in simulation instead, implem min/max auto, index 5j auto 3mo auto
-    ' implem filter per date min max in assetHistory
-
-    ' find min/max of it percentage
-    ' define �chelle
-    ' fox how much perc horizontal to print
-
-
     ' -------------------------------------------------------------------------------------------------------------------------------------------------------------
     ' render curve itself
 
