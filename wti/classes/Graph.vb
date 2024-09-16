@@ -112,6 +112,7 @@ Public Class Graph
 
         ' ie graph écart max % curve
         ' renderIndicators()
+        renderIndicators()
 
         pictureBox.Image = img
         elapsed = Date.UtcNow.Subtract(start).TotalMilliseconds
@@ -128,8 +129,11 @@ Public Class Graph
     ' -------------------------------------------------------------------------------------------------------------------------------------------------------------
     ' render curve itself
 
-    Private curvePadding As New Padding(5, 50, 85 + 45, 70)
+
     Private curveRect As New Rectangle
+
+    Private curveDDRect As New Rectangle
+
     Private minPrice As AssetPrice
     Private maxPrice As AssetPrice
     Private zeroPrice As AssetPrice
@@ -204,6 +208,13 @@ Public Class Graph
     'drawHorizontalGrid(img.Height / 2, 60)
     'drawVerticalGrid(img.Width / 2, img.Width / (3 * 4))
 
+    ' -----------------------------------------------------------------------------------------------------------------------------
+    ' drawdown graph
+    Private Sub renderIndicators()
+
+
+    End Sub
+
 
     ' -----------------------------------------------------------------------------------------------------------------------------
     ' vertical time separators
@@ -234,6 +245,10 @@ Public Class Graph
         For day = 0 To Math.Round(fromDate.Subtract(toDate).TotalDays) Step -stepp
             Dim dat As Date = now.AddDays(day)
             g.DrawLine(gridPen, New Point(dateToX(dat), curveRect.Y), New Point(dateToX(dat), curveRect.Y + curveRect.Height))
+
+            g.DrawLine(gridPen, New Point(dateToX(dat), curveDDRect.Y), New Point(dateToX(dat), curveDDRect.Y + curveDDRect.Height))
+
+
 
             If stepp = 5 Then text = dat.Day
             If stepp > 5 Then text = MonthName(dat.Month, True) & "" & dat.Year.ToString.Substring(2)
@@ -276,30 +291,32 @@ Public Class Graph
         Dim perc As Double = (Math.Round((priceUnderMouse.price / zeroPrice.price - 1) * 100 * 10)) / 10
 
 
-
-
         'bottom dirty text
         writeText(New Point(20, img.Height - 30), "UnderMouse " & formatPrice(priceUnderMouse.price) & " max_ever " & formatPrice(priceUnderMouse.currentMaxPrice) & " " & priceUnderMouse.diffFromMaxPrice & "% below max ever", Color.Black, Color.Transparent, 13)
 
         ' vertical on cursor
         g.DrawLine(crossdPen, New Point(mouseOvering.X, curveRect.Y), New Point(mouseOvering.X, curveRect.Y + curveRect.Height))
+        g.DrawLine(crossdPen, New Point(mouseOvering.X, curveDDRect.Y), New Point(mouseOvering.X, curveDDRect.Y + curveDDRect.Height))
 
 
-        ' horizontal on cursor
-        g.DrawLine(crossdPen, New Point(curveRect.X, mouseOvering.Y), New Point(curveRect.X + curveRect.Width, mouseOvering.Y))
+        'todo add in rect
+        If mouseOvering.Y > curveRect.Y And mouseOvering.Y < curveRect.Y + curveRect.Height Then
+            ' horizontal on cursor
+            g.DrawLine(crossdPen, New Point(curveRect.X, mouseOvering.Y), New Point(curveRect.X + curveRect.Width, mouseOvering.Y))
 
-        ' horizontal on price
-        ' g.DrawLine(crossdPen, New Point(curveRect.X, y), New Point(curveRect.X + curveRect.Width, y))
+            ' horizontal on price
+            ' g.DrawLine(crossdPen, New Point(curveRect.X, y), New Point(curveRect.X + curveRect.Width, y))
 
-        ' horizontal on price price plate
-        g.FillRectangle(New SolidBrush(Color.Black), New Rectangle(curveRect.X + curveRect.Width, y - 12, 150, 25))
-        writeText(New Point(curveRect.X + curveRect.Width, y - 12 + 6), perc.ToString("#0.0") & "%", Color.White, Color.Transparent)
-        writeText(New Point(curveRect.X + curveRect.Width + 75, y - 12 + 8), formatPrice(priceUnderMouse.price), Color.White, Color.Transparent, 11)
-        ' horizontal on mouse price plate
-        Dim percUnderMouse As Double = (Math.Round((yToPrice(mouseOvering.Y) / zeroPrice.price - 1) * 100 * 10)) / 10
-        g.FillRectangle(New SolidBrush(Color.DarkGray), New Rectangle(curveRect.X + curveRect.Width, mouseOvering.Y - 5, 150, 25))
-        writeText(New Point(curveRect.X + curveRect.Width, mouseOvering.Y - 5 + 6), percUnderMouse.ToString("#0.0") & "%", Color.White, Color.Transparent)
-        writeText(New Point(curveRect.X + curveRect.Width + 75, mouseOvering.Y - 5 + 8), formatPrice(yToPrice(mouseOvering.Y)), Color.White, Color.Transparent, 11)
+            ' horizontal on price price plate
+            g.FillRectangle(New SolidBrush(Color.Black), New Rectangle(curveRect.X + curveRect.Width, y - 12, 150, 25))
+            writeText(New Point(curveRect.X + curveRect.Width, y - 12 + 6), perc.ToString("#0.0") & "%", Color.White, Color.Transparent)
+            writeText(New Point(curveRect.X + curveRect.Width + 75, y - 12 + 8), formatPrice(priceUnderMouse.price), Color.White, Color.Transparent, 11)
+            ' horizontal on mouse price plate
+            Dim percUnderMouse As Double = (Math.Round((yToPrice(mouseOvering.Y) / zeroPrice.price - 1) * 100 * 10)) / 10
+            g.FillRectangle(New SolidBrush(Color.DarkGray), New Rectangle(curveRect.X + curveRect.Width, mouseOvering.Y - 5, 150, 25))
+            writeText(New Point(curveRect.X + curveRect.Width, mouseOvering.Y - 5 + 6), percUnderMouse.ToString("#0.0") & "%", Color.White, Color.Transparent)
+            writeText(New Point(curveRect.X + curveRect.Width + 75, mouseOvering.Y - 5 + 8), formatPrice(yToPrice(mouseOvering.Y)), Color.White, Color.Transparent, 11)
+        End If
 
         ' vertial on price date plate
         Dim shift As Integer = 92
@@ -404,10 +421,10 @@ Public Class Graph
         If parentPanel.Size.ToString() <> img.Size.ToString() Then
             img = New Bitmap(pictureBox.Size.Width, pictureBox.Size.Height)
             g = Graphics.FromImage(img)
-            curveRect.Height = pictureBox.Height - curvePadding.Vertical
-            curveRect.Width = pictureBox.Width - curvePadding.Horizontal
+            setDrawBoxes()
         End If
     End Sub
+
 
 
     Private Function PriceFromX(x As Integer) As AssetPrice
@@ -493,13 +510,11 @@ Public Class Graph
             .Width = parentPanel.Width
             .BackColor = Color.FromArgb(255, 253, 241, 230)
             .Dock = DockStyle.Fill
+            .Cursor = Cursors.Cross
             '.ContextMenuStrip = FrmMain.ContextMenuStripGraph
         End With
 
-        curveRect.X = curvePadding.Left
-        curveRect.Y = curvePadding.Top
-        curveRect.Height = pictureBox.Height - curvePadding.Vertical
-        curveRect.Width = pictureBox.Width - curvePadding.Horizontal
+        setDrawBoxes()
 
         AddHandler pictureBox.MouseMove, AddressOf moveOverGraph
         AddHandler pictureBox.MouseWheel, AddressOf mouseWheelOnGraph
@@ -515,6 +530,21 @@ Public Class Graph
         Application.DoEvents()
 
         render()
+    End Sub
+
+    Private Sub setDrawBoxes()
+        Dim topCurveBox As New Rectangle(0, 0, pictureBox.Width, pictureBox.Height / 2 - 1)
+        Dim curvePadding As New Padding(5, 50, 85 + 45, 70)
+
+        curveRect.X = topCurveBox.X + curvePadding.Left
+        curveRect.Y = topCurveBox.Y + curvePadding.Top
+        curveRect.Height = topCurveBox.Height - curvePadding.Vertical
+        curveRect.Width = topCurveBox.Width - curvePadding.Horizontal
+
+        Dim drawDownDownCurveBox As New Rectangle(0, pictureBox.Height / 2, pictureBox.Width, pictureBox.Height / 2)
+
+        curveDDRect = New Rectangle(drawDownDownCurveBox.X + curvePadding.Left, drawDownDownCurveBox.Y + curvePadding.Top, drawDownDownCurveBox.Width - curvePadding.Horizontal, drawDownDownCurveBox.Height - curvePadding.Vertical)
+
     End Sub
 
 
@@ -613,7 +643,7 @@ Public Class Graph
             ' startDragAndDropX = e.X
             ' end drag and drop
             startDragAndDropX = -1
-            pictureBox.Cursor = Cursors.Arrow
+            pictureBox.Cursor = Cursors.Cross
         End If
 
 
