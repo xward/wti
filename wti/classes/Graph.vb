@@ -482,7 +482,13 @@ Public Class Graph
     ' init at create
     Private Sub init()
 
-        fromDate = Date.UtcNow.AddDays(-2000)
+        If CST.HOST_NAME = CST.CST.hostNameEnum.GALACTICA Then
+            fromDate = Date.UtcNow.AddDays(-2000)
+        Else
+            fromDate = Date.UtcNow.AddDays(-5)
+        End If
+
+
         defaultFromDate = fromDate
         defaultToDate = toDate
 
