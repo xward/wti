@@ -81,7 +81,7 @@ Public Class AssetHistory
         prices.Add(price)
     End Sub
 
-    Public Function allPricesBetwwen(fromDate As Date, toDate As Date) As List(Of AssetPrice)
+    Public Function allPricesBetween(fromDate As Date, toDate As Date) As List(Of AssetPrice)
         Dim np As New List(Of AssetPrice)
         If doingReplay Then
             For Each p As AssetPrice In prices.Slice(0, replayIndex + 1)
@@ -286,8 +286,8 @@ Public Class AssetHistory
         End Select
 
         ' hack for now
-        If asset.ticker = FrmMain.bottomGraph.asset.ticker Then
-            FrmMain.bottomGraph.render()
+        If asset.ticker = FrmMain.mainGraph.asset.ticker Then
+            FrmMain.mainGraph.render()
         End If
 
         lastDataFetchFromSource = Date.UtcNow

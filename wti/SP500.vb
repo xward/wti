@@ -56,7 +56,7 @@
             Dim resoldOrder As Boolean = False
 
             While status = StatusEnum.SIMU And replayNext(sp5003x)
-                FrmMain.bottomGraph.asyncRender()
+                FrmMain.mainGraph.asyncRender()
 
                 ''' DECISION
                 ''' 

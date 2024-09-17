@@ -74,7 +74,7 @@ Public Class FrmMain
     End Sub
 
 
-    Public bottomGraph As Graph
+    Public mainGraph As Graph
 
 
     Public Sub initUI()
@@ -106,9 +106,9 @@ Public Class FrmMain
 
         Select Case CST.HOST_NAME
             Case hostNameEnum.GALACTICA
-                bottomGraph = New Graph(PanelGraphBottom, AssetNameEnum.SP500)
+                mainGraph = New Graph(PanelGraphBottom, AssetNameEnum.SP500)
             Case hostNameEnum.GHOST
-                bottomGraph = New Graph(PanelGraphBottom, AssetNameEnum.SP500_3X)
+                mainGraph = New Graph(PanelGraphBottom, AssetNameEnum.SP500_3X)
         End Select
 
         Degiro.updateTradePanelUI()
@@ -129,6 +129,7 @@ Public Class FrmMain
     End Sub
 
     Private Sub TmerAutoStart_Tick(sender As Object, e As EventArgs) Handles TmerAutoStart.Tick
+        '  If CST.HOST_NAME = hostNameEnum.GALACTICA Then AnalyzeViewer.Show()
         TmerAutoStart.Enabled = False
         Dim start As Date = Date.UtcNow
         ToolStripStatusSays.Text = "init marketprice ..."
@@ -181,7 +182,7 @@ Public Class FrmMain
         If frmMainResized Then
 
             dbg.info("resizing")
-            If Not IsNothing(bottomGraph) Then bottomGraph.render()
+            If Not IsNothing(mainGraph) Then mainGraph.render()
 
             frmMainResized = False
         End If
@@ -228,7 +229,7 @@ Public Class FrmMain
 
 
     Private Sub GraphRenderToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles GraphRenderToolStripMenuItem.Click
-        bottomGraph.render()
+        mainGraph.render()
     End Sub
 
 
@@ -259,5 +260,9 @@ Public Class FrmMain
 
     Private Sub FetchSpxFromYahooToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles FetchSpxFromYahooToolStripMenuItem.Click
         Yahoo.fetchPrice(assetFromName(AssetNameEnum.SP500))
+    End Sub
+
+    Private Sub OpenAnalysisViewerToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles OpenAnalysisViewerToolStripMenuItem.Click
+        AnalyzeViewer.Show()
     End Sub
 End Class
