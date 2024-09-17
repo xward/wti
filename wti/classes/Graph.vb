@@ -299,19 +299,20 @@ Public Class Graph
         g.DrawLine(crossdPen, New Point(mouseOvering.X, curveDDRect.Y), New Point(mouseOvering.X, curveDDRect.Y + curveDDRect.Height))
 
 
-        'todo add in rect
-        If mouseOvering.Y > curveRect.Y And mouseOvering.Y < curveRect.Y + curveRect.Height Then
+        ' horizontal on price price plate
+        g.FillRectangle(New SolidBrush(Color.Black), New Rectangle(curveRect.X + curveRect.Width, y - 12, 150, 25))
+        writeText(New Point(curveRect.X + curveRect.Width, y - 12 + 6), perc.ToString("#0.0") & "%", Color.White, Color.Transparent)
+        writeText(New Point(curveRect.X + curveRect.Width + 75, y - 12 + 8), formatPrice(priceUnderMouse.price), Color.White, Color.Transparent, 11)
+
+
+        If inRect(mouseOvering, curveRect) Then
             ' horizontal on cursor
             g.DrawLine(crossdPen, New Point(curveRect.X, mouseOvering.Y), New Point(curveRect.X + curveRect.Width, mouseOvering.Y))
 
             ' horizontal on price
             ' g.DrawLine(crossdPen, New Point(curveRect.X, y), New Point(curveRect.X + curveRect.Width, y))
 
-            ' horizontal on price price plate
-            g.FillRectangle(New SolidBrush(Color.Black), New Rectangle(curveRect.X + curveRect.Width, y - 12, 150, 25))
-            writeText(New Point(curveRect.X + curveRect.Width, y - 12 + 6), perc.ToString("#0.0") & "%", Color.White, Color.Transparent)
-            writeText(New Point(curveRect.X + curveRect.Width + 75, y - 12 + 8), formatPrice(priceUnderMouse.price), Color.White, Color.Transparent, 11)
-            ' horizontal on mouse price plate
+            ' horizontal on cursor price plate
             Dim percUnderMouse As Double = (Math.Round((yToPrice(mouseOvering.Y) / zeroPrice.price - 1) * 100 * 10)) / 10
             g.FillRectangle(New SolidBrush(Color.DarkGray), New Rectangle(curveRect.X + curveRect.Width, mouseOvering.Y - 5, 150, 25))
             writeText(New Point(curveRect.X + curveRect.Width, mouseOvering.Y - 5 + 6), percUnderMouse.ToString("#0.0") & "%", Color.White, Color.Transparent)
@@ -490,11 +491,14 @@ Public Class Graph
     ' init at create
     Private Sub init()
 
+
         If CST.HOST_NAME = CST.CST.hostNameEnum.GALACTICA Then
             fromDate = Date.UtcNow.AddDays(-2000)
         Else
             fromDate = Date.UtcNow.AddDays(-5)
         End If
+
+        If fromDate.CompareTo(getAssetHistory(asset).oldestPrice.dat) < 0 Then fromDate = getAssetHistory(asset).oldestPrice.dat
 
 
         defaultFromDate = fromDate

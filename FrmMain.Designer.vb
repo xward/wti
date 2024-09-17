@@ -51,8 +51,6 @@ Partial Class FrmMain
         PanelTrades = New Panel()
         LblActiveTrades = New Label()
         TopPanel = New Panel()
-        PanelGraphBottom = New Panel()
-        PanelGraphTop = New Panel()
         MainMenuStrip = New MenuStrip()
         TradesToolStripMenuItem = New ToolStripMenuItem()
         ShowAllToolStripMenuItem = New ToolStripMenuItem()
@@ -71,6 +69,8 @@ Partial Class FrmMain
         ContextMenuStripGraph = New ContextMenuStrip(components)
         CoucouToolStripMenuItem = New ToolStripMenuItem()
         SetToDateHereToolStripMenuItem = New ToolStripMenuItem()
+        PanelBandeau = New Panel()
+        PanelMainGraph = New Panel()
         StatusStrip.SuspendLayout()
         CType(PictureLedRedOff, ComponentModel.ISupportInitialize).BeginInit()
         CType(PictureLedRedOn, ComponentModel.ISupportInitialize).BeginInit()
@@ -319,34 +319,14 @@ Partial Class FrmMain
         ' TopPanel
         ' 
         TopPanel.BackColor = Color.FromArgb(CByte(12), CByte(12), CByte(12))
-        TopPanel.Controls.Add(PanelGraphBottom)
-        TopPanel.Controls.Add(PanelGraphTop)
+        TopPanel.Controls.Add(PanelMainGraph)
+        TopPanel.Controls.Add(PanelBandeau)
         TopPanel.Controls.Add(MainMenuStrip)
         TopPanel.Dock = DockStyle.Fill
         TopPanel.Location = New Point(0, 0)
         TopPanel.Name = "TopPanel"
         TopPanel.Size = New Size(1940, 739)
         TopPanel.TabIndex = 13
-        ' 
-        ' PanelGraphBottom
-        ' 
-        PanelGraphBottom.BackColor = Color.Transparent
-        PanelGraphBottom.BorderStyle = BorderStyle.FixedSingle
-        PanelGraphBottom.Dock = DockStyle.Fill
-        PanelGraphBottom.Location = New Point(0, 329)
-        PanelGraphBottom.Name = "PanelGraphBottom"
-        PanelGraphBottom.Size = New Size(1940, 410)
-        PanelGraphBottom.TabIndex = 6
-        ' 
-        ' PanelGraphTop
-        ' 
-        PanelGraphTop.BackColor = Color.Transparent
-        PanelGraphTop.BorderStyle = BorderStyle.FixedSingle
-        PanelGraphTop.Dock = DockStyle.Top
-        PanelGraphTop.Location = New Point(0, 24)
-        PanelGraphTop.Name = "PanelGraphTop"
-        PanelGraphTop.Size = New Size(1940, 305)
-        PanelGraphTop.TabIndex = 5
         ' 
         ' MainMenuStrip
         ' 
@@ -459,6 +439,24 @@ Partial Class FrmMain
         SetToDateHereToolStripMenuItem.Size = New Size(168, 22)
         SetToDateHereToolStripMenuItem.Text = "set toDate here"
         ' 
+        ' PanelBandeau
+        ' 
+        PanelBandeau.Dock = DockStyle.Top
+        PanelBandeau.Location = New Point(0, 24)
+        PanelBandeau.Name = "PanelBandeau"
+        PanelBandeau.Size = New Size(1940, 53)
+        PanelBandeau.TabIndex = 5
+        ' 
+        ' PanelMainGraph
+        ' 
+        PanelMainGraph.BackColor = Color.Transparent
+        PanelMainGraph.BorderStyle = BorderStyle.FixedSingle
+        PanelMainGraph.Dock = DockStyle.Fill
+        PanelMainGraph.Location = New Point(0, 77)
+        PanelMainGraph.Name = "PanelMainGraph"
+        PanelMainGraph.Size = New Size(1940, 662)
+        PanelMainGraph.TabIndex = 7
+        ' 
         ' FrmMain
         ' 
         AutoScaleDimensions = New SizeF(8F, 17F)
@@ -531,10 +529,8 @@ Partial Class FrmMain
     Friend WithEvents ListBoxLogEvents As ListBox
     Friend WithEvents SimulationToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents RunToolStripMenuItem As ToolStripMenuItem
-    Friend WithEvents PanelGraphTop As Panel
     Friend WithEvents ToolStripStatusLabelDrawFps As ToolStripStatusLabel
     Friend WithEvents GraphRenderToolStripMenuItem As ToolStripMenuItem
-    Friend WithEvents PanelGraphBottom As Panel
     Friend WithEvents RunSp500LongToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents FetchSpxFromYahooToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents Label1 As Label
@@ -544,5 +540,7 @@ Partial Class FrmMain
     Friend WithEvents ToolStripProgressBarSimu As ToolStripProgressBar
     Friend WithEvents AnalysisToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents OpenAnalysisViewerToolStripMenuItem As ToolStripMenuItem
+    Friend WithEvents PanelMainGraph As Panel
+    Friend WithEvents PanelBandeau As Panel
 
 End Class

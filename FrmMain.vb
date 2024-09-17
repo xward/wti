@@ -93,7 +93,6 @@ Public Class FrmMain
         Me.Text = "not WTI - " & CST.HOST_NAME.ToString
 
 
-        PanelGraphTop.Height = 0 'TopPanel.Height / 2
 
         ' auto start configuration
         If CST.COMPILED And CommandLineArgs.Count > 0 AndAlso CommandLineArgs(0) = "COLLECT" Then
@@ -106,9 +105,9 @@ Public Class FrmMain
 
         Select Case CST.HOST_NAME
             Case hostNameEnum.GALACTICA
-                mainGraph = New Graph(PanelGraphBottom, AssetNameEnum.SP500)
+                mainGraph = New Graph(PanelMainGraph, AssetNameEnum.SP500)
             Case hostNameEnum.GHOST
-                mainGraph = New Graph(PanelGraphBottom, AssetNameEnum.SP500_3X)
+                mainGraph = New Graph(PanelMainGraph, AssetNameEnum.SP500_3X)
         End Select
 
         Degiro.updateTradePanelUI()

@@ -40,6 +40,14 @@ Public Module Structures
         Return structString
     End Function
 
+    Public Function inRect(p As Point, ByVal rect As Rectangle) As Byte
+        If rect.X > p.X Then Return 0
+        If rect.Y > p.Y Then Return 0
+        If rect.X + rect.Width - 1 < p.X Then Return 0
+        If rect.Y + rect.Height - 1 < p.Y Then Return 0
+        Return 1
+    End Function
+
 
     Public Function formatPrice(amount As Double) As String
         If amount > 1000 Then Return Math.Round(amount)

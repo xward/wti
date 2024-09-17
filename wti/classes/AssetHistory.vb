@@ -58,6 +58,10 @@ Public Class AssetHistory
         End If
     End Function
 
+    Public Function oldestPrice() As AssetPrice
+        Return prices.ElementAt(0)
+    End Function
+
     ' to make suuure data engine is not down and we place an order for that
     Public Function lastUpdateAgoSec() As Double
         Return Date.UtcNow().Subtract(lastDataSourceUpdate).TotalSeconds
@@ -113,11 +117,17 @@ Public Class AssetHistory
 
     Private Sub loadDataFromPersistHistoryFromLiveCollect()
         Dim count As Integer = 0
+
+        Dim maxEver As Double = 0
+
         For Each filePath As String In Directory.GetFiles(CST.DATA_PATH & "/dataFromThePast/")
             If Not filePath.Contains(asset.ticker) Then Continue For
             If Not filePath.Contains(".tv.txt") Then Continue For
             For Each line In File.ReadAllLines(filePath)
-                addPrice(AssetPrice.Deserialize(asset, line))
+                Dim p As AssetPrice = AssetPrice.Deserialize(asset, line)
+                If p.price > maxEver Then maxEver = p.price
+                p.currentMaxPrice = maxEver
+                addPrice(p)
                 count += 1
             Next
         Next
