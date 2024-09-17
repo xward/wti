@@ -113,6 +113,9 @@ Public Class Graph
 
         spanSec = toDate.Subtract(fromDate).TotalSeconds
 
+        renderDDHorizontals()
+
+
         ' actual stuff
         renderAssetPrices()
 
@@ -229,12 +232,15 @@ Public Class Graph
 
 
     Private Sub renderIndicators()
-        renderDDHorizontals()
 
         'curve itself
         For nu = 1 To allPrices.Count - 1
             Dim nm1 As AssetPrice = allPrices.ElementAt(nu - 1)
             Dim n As AssetPrice = allPrices.ElementAt(nu)
+
+            If nm1.currentMaxPrice = 0 Then Continue For
+
+            If n.currentMaxPrice = 0 Then Continue For
 
             Dim pt1 As PointF = New PointF(dateToX(nm1), curveDDtoY(nm1.diffFromMaxPrice()))
             Dim pt2 As PointF = New PointF(dateToX(n), curveDDtoY(n.diffFromMaxPrice()))
