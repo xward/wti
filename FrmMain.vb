@@ -112,6 +112,8 @@ Public Class FrmMain
 
         Degiro.updateTradePanelUI()
 
+        BloombergBanner.start()
+
     End Sub
 
     Private Sub TmerKeyIput_Tick(sender As Object, e As EventArgs) Handles TmerKeyIput.Tick

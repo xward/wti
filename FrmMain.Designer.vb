@@ -51,6 +51,9 @@ Partial Class FrmMain
         PanelTrades = New Panel()
         LblActiveTrades = New Label()
         TopPanel = New Panel()
+        PanelMainGraph = New Panel()
+        PanelBandeau = New Panel()
+        PictureBoxBloombergBanner = New PictureBox()
         MainMenuStrip = New MenuStrip()
         TradesToolStripMenuItem = New ToolStripMenuItem()
         ShowAllToolStripMenuItem = New ToolStripMenuItem()
@@ -69,8 +72,6 @@ Partial Class FrmMain
         ContextMenuStripGraph = New ContextMenuStrip(components)
         CoucouToolStripMenuItem = New ToolStripMenuItem()
         SetToDateHereToolStripMenuItem = New ToolStripMenuItem()
-        PanelBandeau = New Panel()
-        PanelMainGraph = New Panel()
         StatusStrip.SuspendLayout()
         CType(PictureLedRedOff, ComponentModel.ISupportInitialize).BeginInit()
         CType(PictureLedRedOn, ComponentModel.ISupportInitialize).BeginInit()
@@ -81,6 +82,8 @@ Partial Class FrmMain
         Panel1.SuspendLayout()
         PanelTrades.SuspendLayout()
         TopPanel.SuspendLayout()
+        PanelBandeau.SuspendLayout()
+        CType(PictureBoxBloombergBanner, ComponentModel.ISupportInitialize).BeginInit()
         MainMenuStrip.SuspendLayout()
         ContextMenuStripGraph.SuspendLayout()
         SuspendLayout()
@@ -328,6 +331,34 @@ Partial Class FrmMain
         TopPanel.Size = New Size(1940, 739)
         TopPanel.TabIndex = 13
         ' 
+        ' PanelMainGraph
+        ' 
+        PanelMainGraph.BackColor = Color.Transparent
+        PanelMainGraph.BorderStyle = BorderStyle.FixedSingle
+        PanelMainGraph.Dock = DockStyle.Fill
+        PanelMainGraph.Location = New Point(0, 55)
+        PanelMainGraph.Name = "PanelMainGraph"
+        PanelMainGraph.Size = New Size(1940, 684)
+        PanelMainGraph.TabIndex = 7
+        ' 
+        ' PanelBandeau
+        ' 
+        PanelBandeau.Controls.Add(PictureBoxBloombergBanner)
+        PanelBandeau.Dock = DockStyle.Top
+        PanelBandeau.Location = New Point(0, 24)
+        PanelBandeau.Name = "PanelBandeau"
+        PanelBandeau.Size = New Size(1940, 31)
+        PanelBandeau.TabIndex = 5
+        ' 
+        ' PictureBoxBloombergBanner
+        ' 
+        PictureBoxBloombergBanner.Dock = DockStyle.Fill
+        PictureBoxBloombergBanner.Location = New Point(0, 0)
+        PictureBoxBloombergBanner.Name = "PictureBoxBloombergBanner"
+        PictureBoxBloombergBanner.Size = New Size(1940, 31)
+        PictureBoxBloombergBanner.TabIndex = 0
+        PictureBoxBloombergBanner.TabStop = False
+        ' 
         ' MainMenuStrip
         ' 
         MainMenuStrip.Items.AddRange(New ToolStripItem() {TradesToolStripMenuItem, ManualActionsToolStripMenuItem, SimulationToolStripMenuItem, AnalysisToolStripMenuItem})
@@ -439,24 +470,6 @@ Partial Class FrmMain
         SetToDateHereToolStripMenuItem.Size = New Size(168, 22)
         SetToDateHereToolStripMenuItem.Text = "set toDate here"
         ' 
-        ' PanelBandeau
-        ' 
-        PanelBandeau.Dock = DockStyle.Top
-        PanelBandeau.Location = New Point(0, 24)
-        PanelBandeau.Name = "PanelBandeau"
-        PanelBandeau.Size = New Size(1940, 53)
-        PanelBandeau.TabIndex = 5
-        ' 
-        ' PanelMainGraph
-        ' 
-        PanelMainGraph.BackColor = Color.Transparent
-        PanelMainGraph.BorderStyle = BorderStyle.FixedSingle
-        PanelMainGraph.Dock = DockStyle.Fill
-        PanelMainGraph.Location = New Point(0, 77)
-        PanelMainGraph.Name = "PanelMainGraph"
-        PanelMainGraph.Size = New Size(1940, 662)
-        PanelMainGraph.TabIndex = 7
-        ' 
         ' FrmMain
         ' 
         AutoScaleDimensions = New SizeF(8F, 17F)
@@ -488,6 +501,8 @@ Partial Class FrmMain
         PanelTrades.PerformLayout()
         TopPanel.ResumeLayout(False)
         TopPanel.PerformLayout()
+        PanelBandeau.ResumeLayout(False)
+        CType(PictureBoxBloombergBanner, ComponentModel.ISupportInitialize).EndInit()
         MainMenuStrip.ResumeLayout(False)
         MainMenuStrip.PerformLayout()
         ContextMenuStripGraph.ResumeLayout(False)
@@ -542,5 +557,6 @@ Partial Class FrmMain
     Friend WithEvents OpenAnalysisViewerToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents PanelMainGraph As Panel
     Friend WithEvents PanelBandeau As Panel
+    Friend WithEvents PictureBoxBloombergBanner As PictureBox
 
 End Class

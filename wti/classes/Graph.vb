@@ -102,6 +102,15 @@ Public Class Graph
         g.DrawRectangle(gridPen, curveRect)
 
         ' precompute stuff
+        If CST.HOST_NAME = CST.CST.hostNameEnum.GHOST Then
+            ' On ghost, real time data
+            defaultToDate = Date.UtcNow
+            toDate = Date.UtcNow
+
+            fromDate = toDate.AddDays(-5)
+            If fromDate.CompareTo(getAssetHistory(asset).oldestPrice.dat) < 0 Then fromDate = getAssetHistory(asset).oldestPrice.dat
+        End If
+
         spanSec = toDate.Subtract(fromDate).TotalSeconds
 
         ' actual stuff
@@ -190,6 +199,8 @@ Public Class Graph
             g.DrawLine(curvePen, pt1, pt2)
         Next
 
+
+
         Dim ePlot As Double = Date.UtcNow.Subtract(start).TotalMilliseconds - eProcess
 
         renderMouseOverCross()
@@ -210,9 +221,26 @@ Public Class Graph
 
     ' -----------------------------------------------------------------------------------------------------------------------------
     ' drawdown graph
+
+    Private Function curveDDtoY(diff As Double) As Double
+        If diff > maxDDGraphPerc Then diff = maxDDGraphPerc
+        Return curveDDRect.Y + curveDDRect.Height - diff / 100 * curveDDRect.Height * 100 / 55
+    End Function
+
+
     Private Sub renderIndicators()
+        renderDDHorizontals()
 
+        'curve itself
+        For nu = 1 To allPrices.Count - 1
+            Dim nm1 As AssetPrice = allPrices.ElementAt(nu - 1)
+            Dim n As AssetPrice = allPrices.ElementAt(nu)
 
+            Dim pt1 As PointF = New PointF(dateToX(nm1), curveDDtoY(nm1.diffFromMaxPrice()))
+            Dim pt2 As PointF = New PointF(dateToX(n), curveDDtoY(n.diffFromMaxPrice()))
+
+            g.DrawLine(curvePen, pt1, pt2)
+        Next
     End Sub
 
 
@@ -270,13 +298,23 @@ Public Class Graph
         Dim minPerc As Integer = -Math.Round((1 - minPrice.price / zero) * 100)
         Dim maxPerc As Integer = Math.Round(maxPrice.price / zero * 100)
 
-        For perc As Double = minPerc To maxPerc Step (Math.Abs(maxPerc) - Math.Abs(minPerc)) / 30
+        For perc As Double = minPerc To maxPerc Step (Math.Abs(maxPerc) - Math.Abs(minPerc)) / 12
             Dim y As Double = priceToY(zero * (1.0 + perc / 100))
             If y < curveRect.Y Or y > curveRect.Y + curveRect.Height Then Continue For
 
             g.DrawLine(gridPen, New Point(curveRect.X, y), New Point(curveRect.X + curveRect.Width, y))
-            writeText(New Point(curveRect.X + curveRect.Width, y), Math.Round(perc) & "%", legendPen.Color, Color.Transparent)
-            writeText(New Point(curveRect.X + curveRect.Width + 55, y + 1), formatPrice(zero * (1 + perc / 100)), legendPen.Color, Color.Transparent, 11)
+            writeText(New Point(curveRect.X + curveRect.Width, y - 6), Math.Round(perc) & "%", legendPen.Color, Color.Transparent)
+            writeText(New Point(curveRect.X + curveRect.Width + 55, y + 1 - 6), formatPrice(zero * (1 + perc / 100)), legendPen.Color, Color.Transparent, 11)
+        Next
+    End Sub
+
+    Private maxDDGraphPerc As Double = 55
+    Private Sub renderDDHorizontals()
+        For perc As Double = 0 To maxDDGraphPerc Step 5
+            Dim y As Double = curveDDtoY(perc)
+
+            g.DrawLine(gridPen, New Point(curveDDRect.X, y), New Point(curveDDRect.X + curveDDRect.Width, y))
+            writeText(New Point(curveDDRect.X + curveDDRect.Width, y - 6), Math.Round(perc) & "%", legendPen.Color, Color.Transparent)
         Next
     End Sub
 
@@ -290,8 +328,7 @@ Public Class Graph
         Dim y As Double = priceToY(priceUnderMouse)
         Dim perc As Double = (Math.Round((priceUnderMouse.price / zeroPrice.price - 1) * 100 * 10)) / 10
 
-
-        'bottom dirty text
+        ' bottom dirty text
         writeText(New Point(20, img.Height - 30), "UnderMouse " & formatPrice(priceUnderMouse.price) & " max_ever " & formatPrice(priceUnderMouse.currentMaxPrice) & " " & priceUnderMouse.diffFromMaxPrice & "% below max ever", Color.Black, Color.Transparent, 13)
 
         ' vertical on cursor
@@ -303,6 +340,10 @@ Public Class Graph
         g.FillRectangle(New SolidBrush(Color.Black), New Rectangle(curveRect.X + curveRect.Width, y - 12, 150, 25))
         writeText(New Point(curveRect.X + curveRect.Width, y - 12 + 6), perc.ToString("#0.0") & "%", Color.White, Color.Transparent)
         writeText(New Point(curveRect.X + curveRect.Width + 75, y - 12 + 8), formatPrice(priceUnderMouse.price), Color.White, Color.Transparent, 11)
+
+        ' curveDD: horizontal on price diff from max price 
+        g.FillRectangle(New SolidBrush(Color.Black), New Rectangle(curveDDRect.X + curveDDRect.Width, curveDDtoY(priceUnderMouse.diffFromMaxPrice) - 12, 150, 25))
+        writeText(New Point(curveDDRect.X + curveDDRect.Width, curveDDtoY(priceUnderMouse.diffFromMaxPrice) - 12 + 6), priceUnderMouse.diffFromMaxPrice.ToString("#0.0") & "%", Color.White, Color.Transparent)
 
 
         If inRect(mouseOvering, curveRect) Then
@@ -317,6 +358,14 @@ Public Class Graph
             g.FillRectangle(New SolidBrush(Color.DarkGray), New Rectangle(curveRect.X + curveRect.Width, mouseOvering.Y - 5, 150, 25))
             writeText(New Point(curveRect.X + curveRect.Width, mouseOvering.Y - 5 + 6), percUnderMouse.ToString("#0.0") & "%", Color.White, Color.Transparent)
             writeText(New Point(curveRect.X + curveRect.Width + 75, mouseOvering.Y - 5 + 8), formatPrice(yToPrice(mouseOvering.Y)), Color.White, Color.Transparent, 11)
+        End If
+
+        If inRect(mouseOvering, curveDDRect) Then
+            ' curveDD: horizontal on cursor
+            g.DrawLine(crossdPen, New Point(curveDDRect.X, mouseOvering.Y), New Point(curveDDRect.X + curveDDRect.Width, mouseOvering.Y))
+
+
+
         End If
 
         ' vertial on price date plate
@@ -493,7 +542,7 @@ Public Class Graph
 
 
         If CST.HOST_NAME = CST.CST.hostNameEnum.GALACTICA Then
-            fromDate = Date.UtcNow.AddDays(-2000)
+            fromDate = Date.UtcNow.AddYears(-10)
         Else
             fromDate = Date.UtcNow.AddDays(-5)
         End If
@@ -583,12 +632,14 @@ Public Class Graph
 
             Dim shift As Integer = -dragAndDropHourPerPixel * (e.X - startDragAndDropX)
 
-            'this is nice, but we add 5 day to show there is nothing more after
+            ' If fromDate.CompareTo(defaultFromDate) < 0 And shift < 0 Then fromDate = defaultFromDate.AddDays(-5)
+            If dragAndDropScrollXToDate.AddHours(shift).CompareTo(defaultToDate) > 0 Then
+                toDate = defaultToDate
+                Exit Sub
+            End If
+
             fromDate = dragAndDropScrollXFromDate.AddHours(shift)
             toDate = dragAndDropScrollXToDate.AddHours(shift)
-
-            ' If fromDate.CompareTo(defaultFromDate) < 0 And shift < 0 Then fromDate = defaultFromDate.AddDays(-5)
-            ' If toDate.CompareTo(defaultToDate) > 0 And shift > 0 Then toDate = defaultToDate.AddDays(5)
         Else
 
             ' 20 fps on mouse over max
