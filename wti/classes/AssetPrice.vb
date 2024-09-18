@@ -35,6 +35,7 @@
     ' rounded diff from max price perc
     'return number between 0.00 and 100.00
     Public Function diffFromMaxPrice() As Double
+        If currentMaxPrice = 0 Then Return 0
         Return Math.Round((1 - price / currentMaxPrice) * 100 * 100) / 100
     End Function
 End Class
