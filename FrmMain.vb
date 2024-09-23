@@ -49,8 +49,7 @@ Public Class FrmMain
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         CST.init()
 
-        whoIsCollecting = hostNameEnum.GALACTICA
-
+        whoIsCollecting = hostNameEnum.VIPER
 
         Degiro.loadPastData()
 

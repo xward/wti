@@ -16,6 +16,8 @@ Namespace CST
 		Public Enum hostNameEnum
 			UNKNOWN
 			GALACTICA
+			VIPER
+			' rip
 			GHOST
 		End Enum
 
@@ -23,6 +25,8 @@ Namespace CST
 			Select Case My.Computer.Name
 				Case "DESKTOP-58FECV7"
 					HOST_NAME = hostNameEnum.GALACTICA
+				Case "DESKTOP-PBM317F"
+					HOST_NAME = hostNameEnum.VIPER
 				Case "EPIA-GHOST"
 					HOST_NAME = hostNameEnum.GHOST
 			End Select
