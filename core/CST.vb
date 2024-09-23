@@ -2,7 +2,7 @@
 Imports System.IO
 
 Namespace CST
-	Module CST
+	Public Module CST
 		Public ROOT_PATH As String = Path.GetFullPath(Path.GetDirectoryName(System.Windows.Forms.Application.ExecutablePath) & "/../../..")
 
 		Public DATA_PATH As String = ROOT_PATH & "/data"

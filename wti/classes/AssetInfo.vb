@@ -164,11 +164,11 @@
                     .marketUTCClose = Date.Parse("01/01/2024 15:45")
                     .lineColor = Color.Blue
                     ' data source
-                    .updateDateFromSource = CST.HOST_NAME = CST.CST.hostNameEnum.GHOST
+                    .updateDateFromSource = CST.HOST_NAME = whoIsCollecting ' CST.HOST_NAME = CST.CST.hostNameEnum.GHOST
                     .updateSource = UpdateSourceEnum.TRADING_VIEW
                     .updatePeriodSec = 5
                     .tradingViewUrl = tradingViewUrl
-                    .persistHistoryFromLiveCollect = CST.HOST_NAME = CST.CST.hostNameEnum.GHOST
+                    .persistHistoryFromLiveCollect = CST.HOST_NAME = whoIsCollecting ' CST.HOST_NAME = CST.CST.hostNameEnum.GHOST
                     ' degiro
                     .degiroOrderUrl = "https://trader.degiro.nl/trader/?appMode=order#/markets?newOrder&action=buy&productId=4995112"
                     .degireId = 4995112

@@ -102,7 +102,7 @@ Public Class Graph
         g.DrawRectangle(gridPen, curveRect)
 
         ' precompute stuff
-        If CST.HOST_NAME = CST.CST.hostNameEnum.GHOST Then
+        If CST.HOST_NAME = whoIsCollecting Then
             ' On ghost, real time data
             defaultToDate = Date.UtcNow
             toDate = Date.UtcNow
@@ -546,8 +546,7 @@ Public Class Graph
     ' init at create
     Private Sub init()
 
-
-        If CST.HOST_NAME = CST.CST.hostNameEnum.GALACTICA Then
+        If CST.HOST_NAME <> CST.HOST_NAME = whoIsCollecting Then
             fromDate = Date.UtcNow.AddYears(-10)
         Else
             fromDate = Date.UtcNow.AddDays(-5)

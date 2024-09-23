@@ -1,10 +1,13 @@
 ﻿Imports System.IO
 Imports System.Reflection
+Imports WorstTradingInitiative.CST.CST
 
 Public Module Structures
     'please take care  to sell trade with this strat
 
     Public status As StatusEnum = StatusEnum.NONE
+    Public whoIsCollecting As hostNameEnum = hostNameEnum.UNKNOWN
+
 
     Public Enum StatusEnum
         NONE

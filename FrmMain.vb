@@ -44,10 +44,13 @@ Public Class FrmMain
 
     ' --------------------------------------------------------------------------------------------------------
 
-    Dim CommandLineArgs As System.Collections.ObjectModel.ReadOnlyCollection(Of String) = My.Application.CommandLineArgs
+
 
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         CST.init()
+
+        whoIsCollecting = hostNameEnum.GALACTICA
+
 
         Degiro.loadPastData()
 
@@ -59,6 +62,7 @@ Public Class FrmMain
         ' Edge.printAllEdge()
 
         initUI()
+
 
 
 
@@ -76,7 +80,7 @@ Public Class FrmMain
 
     Public mainGraph As Graph
 
-
+    Dim CommandLineArgs As System.Collections.ObjectModel.ReadOnlyCollection(Of String) = My.Application.CommandLineArgs
     Public Sub initUI()
         If CST.COMPILED Then runType.Text = "RUN" Else runType.Text = "DEBUG"
 
@@ -105,9 +109,9 @@ Public Class FrmMain
 
         Select Case CST.HOST_NAME
             Case hostNameEnum.GALACTICA
-                mainGraph = New Graph(PanelMainGraph, AssetNameEnum.SP500)
-            Case hostNameEnum.GHOST
+                'mainGraph = New Graph(PanelMainGraph, AssetNameEnum.SP500)
                 mainGraph = New Graph(PanelMainGraph, AssetNameEnum.SP500_3X)
+            Case hostNameEnum.GHOST
         End Select
 
         Degiro.updateTradePanelUI()
