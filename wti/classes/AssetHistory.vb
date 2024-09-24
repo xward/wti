@@ -1,21 +1,21 @@
 ﻿Imports System.IO
+Imports System.Windows.Forms.VisualStyles.VisualStyleElement.ToolTip
 
 Public Class AssetHistory
     Public asset As AssetInfos
 
     Private prices As New List(Of AssetPrice)
 
-    ' max price among prices stored in Me
-    Private maxPrice As AssetPrice
-    Public diffWithMaxPerc As Double
+    ' max ever from file, even from outside timeframe
     Public maxPriceEver As AssetPrice
+    ' max price ever before current price
+    Private maxPrice As New AssetPrice
 
     Private lastDataSourceUpdate As Date
 
     Private doingReplay As Boolean = False
     Private replayIndex As Integer
 
-    Private tmpMaxPrice As Double = 0
 
     Public Sub New(asset As AssetInfos)
         Me.asset = asset
@@ -26,11 +26,10 @@ Public Class AssetHistory
         If asset.populateDataFromYahooDaily Then loadDataFromYahooDaily()
         If asset.populateDataFromYahooMinute Then loadDataFromYahooMinute()
 
-        'if any, load it
+        ' if any, load it
         loadDataFromPersistHistoryFromLiveCollect()
 
-
-
+        ' sort
         prices.Sort(New AssetPriceDateComparer)
 
         ' load sp500 daily data, using special fonction provided from SP500 module
@@ -58,8 +57,16 @@ Public Class AssetHistory
         End If
     End Function
 
+    Public Function daySpanSize() As Double
+        Return prices.Last.dat.Subtract(prices.First.dat).TotalDays
+    End Function
+
+    Public Function pricesCount() As Integer
+        Return prices.Count
+    End Function
+
     Public Function oldestPrice() As AssetPrice
-        Return prices.ElementAt(0)
+        Return prices.First
     End Function
 
     ' to make suuure data engine is not down and we place an order for that
@@ -70,17 +77,12 @@ Public Class AssetHistory
     ' only MarketPrice or Me can call me
     Public Sub addPrice(ByRef price As AssetPrice)
         If IsNothing(maxPrice) OrElse price.price > maxPrice.price Then maxPrice = price
-        If IsNothing(maxPriceEver) OrElse price.price > maxPriceEver.price Then
-            maxPriceEver = price
+        If IsNothing(maxPriceEver) OrElse maxPrice.price > maxPriceEver.price Then
+            maxPriceEver = maxPrice
             pushMaxEverFile()
         End If
 
         lastDataSourceUpdate = Date.UtcNow()
-
-        If Not IsNothing(maxPriceEver) And maxPriceEver.price <> 0 Then
-            diffWithMaxPerc = Math.Round((1 - price.price / maxPriceEver.price) * 100 * 100) / 100
-        End If
-
 
         prices.Add(price)
     End Sub
@@ -104,6 +106,9 @@ Public Class AssetHistory
     ' ---------------------------------------------------------------------------------------------------------------------------
     ' DATA LOADER
 
+
+    Private tmpMaxPrice As AssetPrice
+
     Private Sub loadMaxEver()
         Dim fileName As String = CST.DATA_PATH & "/dataFromThePast/" & asset.ticker & ".max.ever.txt"
         If File.Exists(fileName) Then
@@ -113,20 +118,21 @@ Public Class AssetHistory
             maxPriceEver = New AssetPrice
             maxPriceEver.price = 0
         End If
+        maxPrice = maxPriceEver
     End Sub
+
 
     Private Sub loadDataFromPersistHistoryFromLiveCollect()
         Dim count As Integer = 0
-
-        Dim maxEver As Double = 0
 
         For Each filePath As String In Directory.GetFiles(CST.DATA_PATH & "/dataFromThePast/")
             If Not filePath.Contains(asset.ticker) Then Continue For
             If Not filePath.Contains(".tv.txt") Then Continue For
             For Each line In File.ReadAllLines(filePath)
                 Dim p As AssetPrice = AssetPrice.Deserialize(asset, line)
-                If p.price > maxEver Then maxEver = p.price
-                p.currentMaxPrice = maxEver
+                If p.price > maxPrice.price Then maxPrice = p
+
+                p.setCurrentMaxPrice(maxPrice)
                 addPrice(p)
                 count += 1
             Next
@@ -137,6 +143,8 @@ Public Class AssetHistory
 
     Private Sub loadDataFromYahooMinute()
         Dim count As Integer = 0
+        tmpMaxPrice = New AssetPrice
+        tmpMaxPrice.price = 0
         For Each filePath As String In Directory.GetFiles(CST.DATA_PATH & "/yahoo/")
             If Not filePath.Contains(asset.yahooTicker) Then Continue For
             If Not filePath.Contains(".minute.yahoo.txt") Then Continue For
@@ -150,6 +158,8 @@ Public Class AssetHistory
     Private Sub loadDataFromYahooDaily()
         Dim filePath As String = CST.DATA_PATH & "/yahoo/" & asset.yahooTicker & ".daily.yahoo.txt"
         Dim count As Integer = 0
+        tmpMaxPrice = New AssetPrice
+        tmpMaxPrice.price = 0
         If File.Exists(filePath) Then
             count += loadFromAYahooFile(filePath)
 
@@ -164,6 +174,10 @@ Public Class AssetHistory
         Dim daily As Boolean = False
         Dim count As Integer
         Dim openPrice As Double = -1
+
+        Dim tmpPrice As AssetPrice
+
+
         For Each line In File.ReadAllLines(filePath)
             If line.Contains("Date;") Then
                 daily = True
@@ -208,64 +222,92 @@ Public Class AssetHistory
 
             If openPrice = -1 Then openPrice = open
 
+            challengeTmpMaxPrice(openPrice, openDate)
+
             count += 4
             ' open price
-            addPrice(New AssetPrice With {
-                    .ticker = asset.ticker,
-                    .price = open,
-                    .dat = openDate,
-                    .todayChangePerc = 0,
-                    .currentMaxPrice = tmpMaxPrice
-                })
+            tmpPrice = New AssetPrice
+            With tmpPrice
+                .ticker = asset.ticker
+                .price = open
+                .dat = openDate
+                .todayChangePerc = 0
+            End With
+            tmpPrice.setCurrentMaxPrice(tmpMaxPrice)
+            addPrice(tmpPrice)
+
 
             ' note: if there is already some live data for this day, don't do min/max approximation
 
             ' min/max price approximation
             If close > open Then
-                addPrice(New AssetPrice With {
-                    .ticker = asset.ticker,
-                    .price = low,
-                    .dat = step1Date,
-                    .todayChangePerc = (openPrice <> 0 AndAlso low / openPrice) Or 0,
-                    .currentMaxPrice = tmpMaxPrice
-                })
-                addPrice(New AssetPrice With {
-                    .ticker = asset.ticker,
-                    .price = high,
-                    .dat = step2Date,
-                    .todayChangePerc = (openPrice <> 0 AndAlso high / openPrice) Or 0,
-                    .currentMaxPrice = tmpMaxPrice
-                })
+
+                tmpPrice = New AssetPrice
+                With tmpPrice
+                    .ticker = asset.ticker
+                    .price = low
+                    .dat = step1Date
+                    .todayChangePerc = (openPrice <> 0 AndAlso low / openPrice) Or 0
+                End With
+                tmpPrice.setCurrentMaxPrice(tmpMaxPrice)
+                addPrice(tmpPrice)
+
+                challengeTmpMaxPrice(high, step2Date)
+
+                tmpPrice = New AssetPrice
+                With tmpPrice
+                    .ticker = asset.ticker
+                    .price = high
+                    .dat = step2Date
+                    .todayChangePerc = (openPrice <> 0 AndAlso high / openPrice) Or 0
+                End With
+                tmpPrice.setCurrentMaxPrice(tmpMaxPrice)
+                addPrice(tmpPrice)
+
             Else
-                addPrice(New AssetPrice With {
-                    .ticker = asset.ticker,
-                    .price = high,
-                    .dat = step1Date,
-                    .todayChangePerc = (openPrice <> 0 AndAlso high / openPrice) Or 0,
-                    .currentMaxPrice = tmpMaxPrice
-                })
-                addPrice(New AssetPrice With {
-                    .ticker = asset.ticker,
-                    .price = low,
-                    .dat = step2Date,
-                    .todayChangePerc = (openPrice <> 0 AndAlso low / openPrice) Or 0,
-                    .currentMaxPrice = tmpMaxPrice
-                })
+                challengeTmpMaxPrice(high, step1Date)
+
+                tmpPrice = New AssetPrice
+                With tmpPrice
+                    .ticker = asset.ticker
+                    .price = high
+                    .dat = step1Date
+                    .todayChangePerc = (openPrice <> 0 AndAlso high / openPrice) Or 0
+                End With
+                tmpPrice.setCurrentMaxPrice(tmpMaxPrice)
+                addPrice(tmpPrice)
+
+                tmpPrice = New AssetPrice
+                With tmpPrice
+                    .ticker = asset.ticker
+                    .price = low
+                    .dat = step2Date
+                    .todayChangePerc = (openPrice <> 0 AndAlso low / openPrice) Or 0
+                End With
+                tmpPrice.setCurrentMaxPrice(tmpMaxPrice)
+                addPrice(tmpPrice)
             End If
 
-            If high > tmpMaxPrice Then tmpMaxPrice = high
-
             'close price
-            addPrice(New AssetPrice With {
-                    .ticker = asset.ticker,
-                    .price = close,
-                    .dat = closeDate,
-                    .todayChangePerc = (openPrice <> 0 AndAlso close / openPrice) Or 0,
-                    .currentMaxPrice = tmpMaxPrice
-                })
+            tmpPrice = New AssetPrice
+            With tmpPrice
+                .ticker = asset.ticker
+                .price = close
+                .dat = closeDate
+                .todayChangePerc = (openPrice <> 0 AndAlso close / openPrice) Or 0
+            End With
+            tmpPrice.setCurrentMaxPrice(tmpMaxPrice)
+            addPrice(tmpPrice)
+
         Next
         Return count
     End Function
+
+    Private Sub challengeTmpMaxPrice(price As Double, dat As Date)
+        If price < tmpMaxPrice.price Then Exit Sub
+        tmpMaxPrice.price = price
+        tmpMaxPrice.dat = dat
+    End Sub
 
     ' ---------------------------------------------------------------------------------------------------------------------------
     ' LIVE DATA FETCH FROM SOURCE
@@ -296,10 +338,9 @@ Public Class AssetHistory
         End Select
 
         ' hack for now
-
-        'If asset.ticker = FrmMain.mainGraph.asset.ticker Then
-        '    FrmMain.mainGraph.render()
-        'End If
+        If asset.ticker = FrmMain.mainGraph.asset.ticker Then
+            FrmMain.mainGraph.render()
+        End If
 
         lastDataFetchFromSource = Date.UtcNow
     End Sub
@@ -343,23 +384,37 @@ Public Class AssetHistory
     Public Sub initReplay()
         doingReplay = True
         replayIndex = 0
+
         maxPrice = prices.First
+        If maxPriceEver.dat.CompareTo(maxPrice.dat) < 0 Then maxPrice = maxPriceEver
 
         FrmMain.ToolStripProgressBarSimu.Maximum = prices.Count - 1
         FrmMain.ToolStripProgressBarSimu.Value = 0
     End Sub
 
-    Public Function replayNext() As Boolean
+    Public Function replayProgressIndex() As Integer
+        Return replayIndex
+    End Function
+
+    Public Function replayProgress() As Double
+        Return replayIndex / prices.Count
+    End Function
+
+
+
+    Public Function replayNext(Optional tick As Integer = 1) As Boolean
         ' thus we will never use the last value
-        If replayIndex = prices.Count - 1 Then Return False
+        If replayIndex + tick > prices.Count - 1 Then Return False
 
-        FrmMain.ToolStripProgressBarSimu.Value = replayIndex
-
-
-        replayIndex += 1
-        If currentPrice().price > maxPrice.price Then maxPrice = currentPrice()
+        replayIndex += tick
+        replayGoto(replayIndex)
         Return True
     End Function
+
+    Public Sub replayGoto(index As Integer)
+        replayIndex = index
+        FrmMain.ToolStripProgressBarSimu.Value = replayIndex
+    End Sub
 
     'Public Function minPriceEver() As AssetPrice
     '    If doingReplay Then

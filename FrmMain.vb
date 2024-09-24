@@ -6,10 +6,11 @@ Public Class FrmMain
     ' je veux simuler du long terme sp500, tester des algos, visualiser feedback (vertical position in, position out, active orders), // graph dist from max ever
     '   [done] graph v1
     '   [done] load data from yahoo csv daily
-    ' replayInit from date to date
+    '   [done] graph timeframe 1d 5d 1m 3m 6m
+    '   [] graph gérer les trous, render per pixel
+    ' replayInit from date to date, manual control it
     '   simuler, agir
     ' je veux voir wti, sp500 "live" data value, indice de peur
-
 
 
     ' screenshot whole screen 1/2 resolution, wti only, push to web page (fly.io?) auto-refresh-mdr-liveview
@@ -68,7 +69,7 @@ Public Class FrmMain
         ' dbg.info(getPrice(AssetNameEnum.SP500_3X).ToString)
 
         'my current playground
-        If CST.HOST_NAME = hostNameEnum.GALACTICA And False Then
+        If CST.HOST_NAME = hostNameEnum.GALACTICA Then
             SP500StrategyLab.runAll()
         End If
 
@@ -108,9 +109,10 @@ Public Class FrmMain
 
         Select Case CST.HOST_NAME
             Case hostNameEnum.GALACTICA
-                'mainGraph = New Graph(PanelMainGraph, AssetNameEnum.SP500)
+                mainGraph = New Graph(PanelMainGraph, AssetNameEnum.SP500)
+               ' mainGraph = New Graph(PanelMainGraph, AssetNameEnum.SP500_3X)
+            Case hostNameEnum.VIPER
                 mainGraph = New Graph(PanelMainGraph, AssetNameEnum.SP500_3X)
-            Case hostNameEnum.GHOST
         End Select
 
         Degiro.updateTradePanelUI()

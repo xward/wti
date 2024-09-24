@@ -99,6 +99,9 @@ Public Class Graph
         checkResized()
         ' init
         paintItBlack()
+
+        pictureBox.Cursor = Cursors.Cross
+
         g.DrawRectangle(gridPen, curveRect)
 
         ' precompute stuff
@@ -114,6 +117,8 @@ Public Class Graph
         spanSec = toDate.Subtract(fromDate).TotalSeconds
 
         renderDDHorizontals()
+
+        renderButtons()
 
 
         ' actual stuff
@@ -137,6 +142,93 @@ Public Class Graph
         FrmMain.ToolStripStatusLabelDrawFps.Text = Math.Round(elapsed) & "ms (" & Math.Round(fps) & " fps) #" & renderCount
         rendering = False
     End Sub
+
+    ' -------------------------------------------------------------------------------------------------------------------------------------------------------------
+    ' buttons
+
+    Dim buttons As New List(Of GraphButton)
+    Dim tmpButton As GraphButton
+
+    Private Sub buildTimeFrameButton(x As Integer, name As String, text As String)
+        Dim rect As New Rectangle(0, img.Height - 50, 30, 30)
+        rect.X = x
+
+        tmpButton = New GraphButton
+        With tmpButton
+            .backColor = Color.Transparent
+            .borderColor = blackPen.Color
+            .mouseOverColor = Color.LightSteelBlue
+            .name = name
+            .text = text
+            .rect = rect
+        End With
+        buttons.Add(tmpButton)
+    End Sub
+
+    Private Sub initButtons()
+        buttons.Clear()
+        Dim x As Integer = img.Width - 440
+        buildTimeFrameButton(x, "Time5D", "5D")
+        buildTimeFrameButton(x + 40, "Time1M", "1M")
+        buildTimeFrameButton(x + 80, "Time3M", "3M")
+        buildTimeFrameButton(x + 120, "Time6M", "6M")
+        buildTimeFrameButton(x + 160, "Time1Y", "1Y")
+        buildTimeFrameButton(x + 200, "Time3Y", "3Y")
+        buildTimeFrameButton(x + 240, "Time6Y", "6Y")
+        buildTimeFrameButton(x + 280, "Time15Y", "15Y")
+        buildTimeFrameButton(x + 320, "TimeMAX", "MAX")
+    End Sub
+
+    Private Sub buttonCallback(x As Integer, y As Integer)
+        For Each b As GraphButton In buttons
+            If inRect(New Point(x, y), b.rect) Then
+                'dbg.info("clic " & b.name)
+                Select Case b.name
+                    Case "Time5D"
+                        toDate = Date.UtcNow
+                        fromDate = Date.UtcNow.AddDays(-5)
+                    Case "Time1M"
+                        toDate = Date.UtcNow
+                        fromDate = Date.UtcNow.AddDays(-30)
+                    Case "Time3M"
+                        toDate = Date.UtcNow
+                        fromDate = Date.UtcNow.AddDays(-30 * 3)
+                    Case "Time6M"
+                        toDate = Date.UtcNow
+                        fromDate = Date.UtcNow.AddDays(-30 * 6)
+                    Case "Time1Y"
+                        toDate = Date.UtcNow
+                        fromDate = Date.UtcNow.AddDays(-365)
+                    Case "Time3Y"
+                        toDate = Date.UtcNow
+                        fromDate = Date.UtcNow.AddDays(-365 * 3)
+                    Case "Time6Y"
+                        toDate = Date.UtcNow
+                        fromDate = Date.UtcNow.AddDays(-365 * 6)
+                    Case "Time15Y"
+                        toDate = Date.UtcNow
+                        fromDate = Date.UtcNow.AddDays(-365 * 15)
+                    Case "TimeMAX"
+                        toDate = Date.UtcNow
+                        fromDate = Date.UtcNow.AddDays(-365 * 30)
+                    Case Else
+                        'nothing
+                End Select
+            End If
+        Next
+    End Sub
+
+    Private Sub renderButtons()
+        For Each b As GraphButton In buttons
+            g.DrawRectangle(New Pen(b.borderColor), b.rect)
+            If inRect(mouseOvering, b.rect) Then
+                g.FillRectangle(New SolidBrush(b.mouseOverColor), b.rect)
+                pictureBox.Cursor = Cursors.Hand
+            End If
+            writeText(New Point(b.rect.X + 5, b.rect.Y + 9), b.text, b.borderColor, b.backColor, 12)
+        Next
+    End Sub
+
 
     ' -------------------------------------------------------------------------------------------------------------------------------------------------------------
     ' render curve itself
@@ -238,9 +330,9 @@ Public Class Graph
             Dim nm1 As AssetPrice = allPrices.ElementAt(nu - 1)
             Dim n As AssetPrice = allPrices.ElementAt(nu)
 
-            If nm1.currentMaxPrice = 0 Then Continue For
+            If nm1.currentMaxPrice.price = 0 Then Continue For
 
-            If n.currentMaxPrice = 0 Then Continue For
+            If n.currentMaxPrice.price = 0 Then Continue For
 
             Dim pt1 As PointF = New PointF(dateToX(nm1), curveDDtoY(nm1.diffFromMaxPrice()))
             Dim pt2 As PointF = New PointF(dateToX(n), curveDDtoY(n.diffFromMaxPrice()))
@@ -264,6 +356,8 @@ Public Class Graph
         If spanSec / curveRect.Width > 100 Then stepp = 5
         If spanSec / curveRect.Width > 5000 Then stepp = 30
         If spanSec / curveRect.Width > 20000 Then stepp = 90
+        If spanSec / curveRect.Width > 50000 Then stepp = 30 * 6
+        If spanSec / curveRect.Width > 400000 Then stepp = 365
 
         'dbg.info(spanSec / curveRect.Width)
         'dbg.info(stepp)
@@ -281,8 +375,6 @@ Public Class Graph
             g.DrawLine(gridPen, New Point(dateToX(dat), curveRect.Y), New Point(dateToX(dat), curveRect.Y + curveRect.Height))
 
             g.DrawLine(gridPen, New Point(dateToX(dat), curveDDRect.Y), New Point(dateToX(dat), curveDDRect.Y + curveDDRect.Height))
-
-
 
             If stepp = 5 Then text = dat.Day
             If stepp > 5 Then text = MonthName(dat.Month, True) & "" & dat.Year.ToString.Substring(2)
@@ -335,7 +427,7 @@ Public Class Graph
         Dim perc As Double = (Math.Round((priceUnderMouse.price / zeroPrice.price - 1) * 100 * 10)) / 10
 
         ' bottom dirty text
-        writeText(New Point(20, img.Height - 30), "UnderMouse " & formatPrice(priceUnderMouse.price) & " max_ever " & formatPrice(priceUnderMouse.currentMaxPrice) & " " & priceUnderMouse.diffFromMaxPrice & "% below max ever", Color.Black, Color.Transparent, 13)
+        writeText(New Point(3, img.Height - 16), "UnderMouse " & formatPrice(priceUnderMouse.price) & " max_ever_before " & formatPrice(priceUnderMouse.currentMaxPrice.price) & " " & priceUnderMouse.diffFromMaxPrice & "% below max", Color.Black, Color.Transparent, 13)
 
         ' vertical on cursor
         g.DrawLine(crossdPen, New Point(mouseOvering.X, curveRect.Y), New Point(mouseOvering.X, curveRect.Y + curveRect.Height))
@@ -374,10 +466,17 @@ Public Class Graph
 
         End If
 
-        ' vertial on price date plate
-        Dim shift As Integer = 92
-        g.FillRectangle(New SolidBrush(Color.Black), New Rectangle(mouseOvering.X - shift - 5, curveRect.Y + curveRect.Height, shift * 2 + 5 * 2, 25))
-        writeText(New Point(mouseOvering.X - shift, curveRect.Y + curveRect.Height + 6), priceUnderMouse.dat.ToString("dd/MM/yyyy HH:mm:ss"), Color.White, Color.Transparent, 12)
+
+        If mouseOvering.X > curveRect.X And mouseOvering.X < curveRect.X + curveRect.Width Then
+            ' vertial on price date plate
+            Dim shift As Integer = 92
+            Dim datePlateX As Integer = mouseOvering.X - shift - 5
+            If datePlateX < 0 Then datePlateX = 0
+            g.FillRectangle(New SolidBrush(Color.Black), New Rectangle(datePlateX, curveRect.Y + curveRect.Height, shift * 2 + 5 * 2, 25))
+            writeText(New Point(datePlateX + 5, curveRect.Y + curveRect.Height + 6), priceUnderMouse.dat.ToString("dd/MM/yyyy HH:mm:ss"), Color.White, Color.Transparent, 12)
+
+
+        End If
 
     End Sub
 
@@ -393,11 +492,13 @@ Public Class Graph
 
         'top text
         writeText(New Point(5, 5), asset.ticker & " - " & asset.name.ToString & " (" & asset.currency & ") " & formatPrice(price.price) & " " & arroyStr & " " & price.todayChangePerc & "% " &
-                          " max_ever:" & formatPrice(history.maxPriceEver.price) & " (" & history.diffWithMaxPerc & "%)", Color.Black, Color.Transparent)
+                          " max:" & formatPrice(price.currentMaxPrice.price) & " (" & price.diffFromMaxPrice & "%)", Color.Black, Color.Transparent)
         'sub text
         writeText(New Point(5, 30), "graph min:" & formatPrice(minPrice.price) & " max:" & formatPrice(maxPrice.price) & "   last_point: " & price.dat.ToString, Color.Black, Color.Transparent, 11)
 
+
         writeText(New Point(img.Width - 65, 5), allPrices.Count & " pts", Color.Black, Color.Transparent, 11)
+        writeText(New Point(img.Width - 125, 18), "max_ever " & formatPrice(history.maxPriceEver.price), Color.Black, Color.Transparent, 11)
     End Sub
 
     ' -----------------------------------------------------------------------------------------------------------------------------
@@ -546,10 +647,10 @@ Public Class Graph
     ' init at create
     Private Sub init()
 
-        If CST.HOST_NAME <> CST.HOST_NAME = whoIsCollecting Then
+        If asset.name = AssetNameEnum.SP500 Then
             fromDate = Date.UtcNow.AddYears(-10)
         Else
-            fromDate = Date.UtcNow.AddDays(-5)
+            fromDate = Date.UtcNow.AddDays(-30)
         End If
 
         If fromDate.CompareTo(getAssetHistory(asset).oldestPrice.dat) < 0 Then fromDate = getAssetHistory(asset).oldestPrice.dat
@@ -585,6 +686,8 @@ Public Class Graph
 
         history = getAssetHistory(asset)
 
+
+
         Application.DoEvents()
 
         render()
@@ -602,6 +705,9 @@ Public Class Graph
         Dim drawDownDownCurveBox As New Rectangle(0, pictureBox.Height / 2, pictureBox.Width, pictureBox.Height / 2)
 
         curveDDRect = New Rectangle(drawDownDownCurveBox.X + curvePadding.Left, drawDownDownCurveBox.Y + curvePadding.Top, drawDownDownCurveBox.Width - curvePadding.Horizontal, drawDownDownCurveBox.Height - curvePadding.Vertical)
+
+
+        initButtons()
 
     End Sub
 
@@ -698,6 +804,8 @@ Public Class Graph
         End If
     End Sub
 
+
+
     Public Sub mouseClickOnGraph(sender As Object, e As MouseEventArgs)
         If e.Button = MouseButtons.Left Then
             ' startDragAndDropX = e.X
@@ -706,7 +814,7 @@ Public Class Graph
             pictureBox.Cursor = Cursors.Cross
         End If
 
-
+        If e.Button = MouseButtons.Left Then buttonCallback(e.X, e.Y)
 
         If e.Button = MouseButtons.Right And Not My.Computer.Keyboard.CtrlKeyDown Then
             fromDate = defaultFromDate
@@ -723,6 +831,16 @@ Public Class Graph
 
 
 End Class
+
+Public Structure GraphButton
+    Dim rect As Rectangle
+    Dim borderColor As Color
+    Dim backColor As Color
+    Dim mouseOverColor As Color
+    Dim name As String
+    Dim text As String
+End Structure
+
 ' draw back shadow night
 'If toDate.Subtract(fromDate).TotalDays < 8 Then
 '' todo: manage weekend
