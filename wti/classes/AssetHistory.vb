@@ -296,9 +296,10 @@ Public Class AssetHistory
         End Select
 
         ' hack for now
-        If asset.ticker = FrmMain.mainGraph.asset.ticker Then
-            FrmMain.mainGraph.render()
-        End If
+
+        'If asset.ticker = FrmMain.mainGraph.asset.ticker Then
+        '    FrmMain.mainGraph.render()
+        'End If
 
         lastDataFetchFromSource = Date.UtcNow
     End Sub
