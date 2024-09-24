@@ -84,7 +84,7 @@
                 Select Case CST.HOST_NAME
                     Case CST.CST.hostNameEnum.GALACTICA
                         tradingViewUrl = "https://www.tradingview.com/chart/2OrM2Knv/?symbol=MIL%3A3OIS"
-                    Case CST.CST.hostNameEnum.GHOST
+                    Case CST.CST.hostNameEnum.VIPER
                         tradingViewUrl = "https://www.tradingview.com/chart/vjhxMR0Z/?symbol=MIL%3A3OIS"
                 End Select
 
@@ -144,8 +144,8 @@
                 Select Case CST.HOST_NAME
                     Case CST.CST.hostNameEnum.GALACTICA
                         tradingViewUrl = "https://www.tradingview.com/chart/2OrM2Knv/?symbol=MIL%3A3USL"
-                    Case CST.CST.hostNameEnum.GHOST
-                        tradingViewUrl = "https://www.tradingview.com/chart/vjhxMR0Z/?symbol=MIL%3A3USL"
+                    Case CST.CST.hostNameEnum.VIPER
+                        tradingViewUrl = "https://fr.tradingview.com/chart/2OrM2Knv/?symbol=MIL%3A3USL"
                 End Select
 
                 ' https://finance.yahoo.com/quote/IE00B7Y34M31.SG/
