@@ -8,7 +8,7 @@ Public Class AssetHistory
 
     ' max ever from file, even from outside timeframe
     Public maxPriceEver As AssetPrice
-    ' max price ever before current price
+    ' max price ever before latest price
     Private maxPrice As New AssetPrice
 
     Private lastDataSourceUpdate As Date
