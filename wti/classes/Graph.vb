@@ -42,6 +42,8 @@ Public Class Graph
     Private blackPen As Pen = New Pen(Color.Black)
     Private curvePen As Pen
 
+    Private mouseCursor As Cursor = Cursors.Cross
+
     'interactions:
     ' [done] ctrl molette: scroll x
     ' [done] molette: zoom x
@@ -100,7 +102,7 @@ Public Class Graph
         ' init
         paintItBlack()
 
-        pictureBox.Cursor = Cursors.Cross
+        mouseCursor = Cursors.Cross
 
         g.DrawRectangle(gridPen, curveRect)
 
@@ -135,6 +137,7 @@ Public Class Graph
         elapsed = Date.UtcNow.Subtract(start).TotalMilliseconds
 
 
+        pictureBox.Cursor = mouseCursor
         Application.DoEvents()
 
         ' temps
@@ -223,10 +226,17 @@ Public Class Graph
             g.DrawRectangle(New Pen(b.borderColor), b.rect)
             If inRect(mouseOvering, b.rect) Then
                 g.FillRectangle(New SolidBrush(b.mouseOverColor), b.rect)
-                pictureBox.Cursor = Cursors.Hand
+                mouseCursor = Cursors.Hand
             End If
             writeText(New Point(b.rect.X + 5, b.rect.Y + 9), b.text, b.borderColor, b.backColor, 12)
         Next
+
+        Dim days As Integer = Math.Round(toDate.Subtract(fromDate).TotalDays)
+        Dim curD As String = days & "D"
+        If days > 29 Then curD = Math.Round(days / 30) & "M"
+        If days > 360 Then curD = Math.Round(days / 365) & "Y"
+
+        writeText(New Point(img.Width - 480, img.Height - 40), curD, Color.Black, Color.Transparent, 12)
     End Sub
 
 
@@ -330,9 +340,7 @@ Public Class Graph
             Dim nm1 As AssetPrice = allPrices.ElementAt(nu - 1)
             Dim n As AssetPrice = allPrices.ElementAt(nu)
 
-            If nm1.currentMaxPrice.price = 0 Then Continue For
-
-            If n.currentMaxPrice.price = 0 Then Continue For
+            If nm1.currentMaxPrice = 0 Or n.currentMaxPrice = 0 Then Continue For
 
             Dim pt1 As PointF = New PointF(dateToX(nm1), curveDDtoY(nm1.diffFromMaxPrice()))
             Dim pt2 As PointF = New PointF(dateToX(n), curveDDtoY(n.diffFromMaxPrice()))
@@ -427,7 +435,7 @@ Public Class Graph
         Dim perc As Double = (Math.Round((priceUnderMouse.price / zeroPrice.price - 1) * 100 * 10)) / 10
 
         ' bottom dirty text
-        writeText(New Point(3, img.Height - 16), "UnderMouse " & formatPrice(priceUnderMouse.price) & " max_ever_before " & formatPrice(priceUnderMouse.currentMaxPrice.price) & " " & priceUnderMouse.diffFromMaxPrice & "% below max", Color.Black, Color.Transparent, 13)
+        writeText(New Point(3, img.Height - 16), "UnderMouse " & formatPrice(priceUnderMouse.price) & " max_ever_before " & formatPrice(priceUnderMouse.currentMaxPrice) & " " & priceUnderMouse.diffFromMaxPrice & "% below max", Color.Black, Color.Transparent, 13)
 
         ' vertical on cursor
         g.DrawLine(crossdPen, New Point(mouseOvering.X, curveRect.Y), New Point(mouseOvering.X, curveRect.Y + curveRect.Height))
@@ -492,7 +500,7 @@ Public Class Graph
 
         'top text
         writeText(New Point(5, 5), asset.ticker & " - " & asset.name.ToString & " (" & asset.currency & ") " & formatPrice(price.price) & " " & arroyStr & " " & price.todayChangePerc & "% " &
-                          " max:" & formatPrice(price.currentMaxPrice.price) & " (" & price.diffFromMaxPrice & "%)", Color.Black, Color.Transparent)
+                          " max:" & formatPrice(price.currentMaxPrice) & " (" & price.diffFromMaxPrice & "%)", Color.Black, Color.Transparent)
         'sub text
         writeText(New Point(5, 30), "graph min:" & formatPrice(minPrice.price) & " max:" & formatPrice(maxPrice.price) & "   last_point: " & price.dat.ToString, Color.Black, Color.Transparent, 11)
 
@@ -669,7 +677,7 @@ Public Class Graph
             .Width = parentPanel.Width
             .BackColor = Color.FromArgb(255, 253, 241, 230)
             .Dock = DockStyle.Fill
-            .Cursor = Cursors.Cross
+            .Cursor = mouseCursor
             '.ContextMenuStrip = FrmMain.ContextMenuStripGraph
         End With
 
@@ -736,7 +744,7 @@ Public Class Graph
                 Dim spanHours As Double = toDate.Subtract(fromDate).TotalHours
                 dragAndDropHourPerPixel = spanHours / curveRect.Width
                 ' i wanted grab hand closed
-                pictureBox.Cursor = Cursors.VSplit
+                mouseCursor = Cursors.VSplit
             End If
 
 
@@ -811,7 +819,7 @@ Public Class Graph
             ' startDragAndDropX = e.X
             ' end drag and drop
             startDragAndDropX = -1
-            pictureBox.Cursor = Cursors.Cross
+            mouseCursor = Cursors.Cross
         End If
 
         If e.Button = MouseButtons.Left Then buttonCallback(e.X, e.Y)

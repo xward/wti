@@ -6,7 +6,10 @@
 
     ' virtual fields, omit from serializing
     ' goal: indicators
-    Public currentMaxPrice As AssetPrice
+    Public currentMaxPrice As Double = 0
+    Public currentMaxPriceDate As Date = Date.UtcNow
+
+
     Public stability100min As AssetStability
 
     Public Overrides Function ToString() As String
@@ -37,18 +40,13 @@
     ' rounded diff from max price perc
     'return number between 0.00 and 100.00
     Public Function diffFromMaxPrice() As Double
-        If currentMaxPrice.price = 0 Then Return 0
-        Return Math.Round((1 - price / currentMaxPrice.price) * 100 * 100) / 100
+        If currentMaxPrice = 0 Then Return 0
+        Return Math.Round((1 - price / currentMaxPrice) * 100 * 100) / 100
     End Function
 
     Public Sub setCurrentMaxPrice(maxPrice As AssetPrice)
-        currentMaxPrice = New AssetPrice
-        With currentMaxPrice
-            .ticker = maxPrice.ticker
-            .price = maxPrice.price
-            .dat = maxPrice.dat
-        End With
-
+        currentMaxPrice = maxPrice.price
+        currentMaxPriceDate = maxPrice.dat
     End Sub
 End Class
 
