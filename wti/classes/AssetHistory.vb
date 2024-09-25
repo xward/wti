@@ -84,6 +84,9 @@ Public Class AssetHistory
 
         lastDataSourceUpdate = Date.UtcNow()
 
+        price.currentMaxPrice = maxPrice.price
+        price.currentMaxPriceDate = maxPrice.dat
+
         prices.Add(price)
     End Sub
 
