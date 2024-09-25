@@ -13,7 +13,7 @@
     Public stability100min As AssetStability
 
     Public Overrides Function ToString() As String
-        Return StructToString(Me)
+        Return ticker & " " & dat.ToString & " " & price & " (" & todayChangePerc & ")"
     End Function
 
     Public Function Serialize() As String
