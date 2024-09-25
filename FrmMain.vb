@@ -107,8 +107,8 @@ Public Class FrmMain
 
         Select Case CST.HOST_NAME
             Case CST.hostNameEnum.GALACTICA
-                ' mainGraph = New Graph(PanelMainGraph, AssetNameEnum.SP500)
-                mainGraph = New Graph(PanelMainGraph, AssetNameEnum.SP500_3X)
+                mainGraph = New Graph(PanelMainGraph, AssetNameEnum.SP500)
+               ' mainGraph = New Graph(PanelMainGraph, AssetNameEnum.SP500_3X)
             Case CST.hostNameEnum.VIPER
                 mainGraph = New Graph(PanelMainGraph, AssetNameEnum.SP500_3X)
         End Select

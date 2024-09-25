@@ -227,8 +227,6 @@ Public Class AssetHistory
 
             challengeTmpMaxPrice(openPrice, openDate)
 
-
-
             If openPrice > 0 Then
                 ' open price
                 tmpPrice = New AssetPrice
@@ -242,7 +240,6 @@ Public Class AssetHistory
                 addPrice(tmpPrice)
                 count += 1
             End If
-
 
             ' note: if there is already some live data for this day, don't do min/max approximation
 
