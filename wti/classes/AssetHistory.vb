@@ -8,7 +8,7 @@ Public Class AssetHistory
 
     ' max ever from file, even from outside timeframe
     Public maxPriceEver As AssetPrice
-    ' max price ever before current price
+    ' max price ever before latest price
     Private maxPrice As New AssetPrice
 
     Private lastDataSourceUpdate As Date
@@ -227,18 +227,19 @@ Public Class AssetHistory
 
             challengeTmpMaxPrice(openPrice, openDate)
 
-            count += 4
-            ' open price
-            tmpPrice = New AssetPrice
-            With tmpPrice
-                .ticker = asset.ticker
-                .price = open
-                .dat = openDate
-                .todayChangePerc = 0
-            End With
-            tmpPrice.setCurrentMaxPrice(tmpMaxPrice)
-            addPrice(tmpPrice)
-
+            If openPrice > 0 Then
+                ' open price
+                tmpPrice = New AssetPrice
+                With tmpPrice
+                    .ticker = asset.ticker
+                    .price = open
+                    .dat = openDate
+                    .todayChangePerc = 0
+                End With
+                tmpPrice.setCurrentMaxPrice(tmpMaxPrice)
+                addPrice(tmpPrice)
+                count += 1
+            End If
 
             ' note: if there is already some live data for this day, don't do min/max approximation
 
@@ -301,6 +302,8 @@ Public Class AssetHistory
             End With
             tmpPrice.setCurrentMaxPrice(tmpMaxPrice)
             addPrice(tmpPrice)
+
+            count += 3
 
         Next
         Return count

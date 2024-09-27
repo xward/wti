@@ -1,6 +1,5 @@
 ﻿Imports System.Runtime.InteropServices
 Imports System.Windows.Forms.VisualStyles.VisualStyleElement.Tab
-Imports WorstTradingInitiative.CST.CST
 
 Public Class FrmMain
     ' je veux simuler du long terme sp500, tester des algos, visualiser feedback (vertical position in, position out, active orders), // graph dist from max ever
@@ -50,7 +49,7 @@ Public Class FrmMain
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         CST.init()
 
-        whoIsCollecting = hostNameEnum.VIPER
+        whoIsCollecting = CST.hostNameEnum.VIPER
 
         Degiro.loadPastData()
 
@@ -69,7 +68,7 @@ Public Class FrmMain
         ' dbg.info(getPrice(AssetNameEnum.SP500_3X).ToString)
 
         'my current playground
-        If CST.HOST_NAME = hostNameEnum.GALACTICA Then
+        If CST.HOST_NAME = CST.hostNameEnum.GALACTICA Then
             SP500StrategyLab.runAll()
         End If
 
@@ -97,7 +96,6 @@ Public Class FrmMain
         Me.Text = "not WTI - " & CST.HOST_NAME.ToString
 
 
-
         ' auto start configuration
         If CST.COMPILED And CommandLineArgs.Count > 0 AndAlso CommandLineArgs(0) = "COLLECT" Then
             ' nothing can be auto start for now
@@ -108,10 +106,10 @@ Public Class FrmMain
         End If
 
         Select Case CST.HOST_NAME
-            Case hostNameEnum.GALACTICA
-                ' mainGraph = New Graph(PanelMainGraph, AssetNameEnum.SP500)
-                mainGraph = New Graph(PanelMainGraph, AssetNameEnum.SP500_3X)
-            Case hostNameEnum.VIPER
+            Case CST.hostNameEnum.GALACTICA
+                mainGraph = New Graph(PanelMainGraph, AssetNameEnum.SP500)
+               ' mainGraph = New Graph(PanelMainGraph, AssetNameEnum.SP500_3X)
+            Case CST.hostNameEnum.VIPER
                 mainGraph = New Graph(PanelMainGraph, AssetNameEnum.SP500_3X)
         End Select
 

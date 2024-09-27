@@ -44,181 +44,185 @@ Namespace SP500StrategyLab
         ' at end with fiscalité, combien de % par an de gain au bout de 10 ans
         ' -------------------------------------------------------------------------------------------------------------------------------------------------
 
+        Private beginAtYear As Integer = 2010
+
         Public Sub runAll()
             history = getAssetHistory(assetInfo(AssetNameEnum.SP500))
 
             serenityOnly()
-            'serenityLumpSumSurCrise()
             'runDCA()
-            'runDCAWeek()
-            'runDVAClassic()
-            'runDVAClassicWeek()
+            ' sur le long terme ca change rien de faire par semaine
+            ' runDCAWeek()
+            ' légerement moins bien
+            ' runDCAYear()
+
+            runDVApas()
         End Sub
 
         Public Sub serenityOnly()
-            resetRun()
+            resetRun(beginAtYear)
             setEarn(500, 30)
-            'push now
             epargne(500)
             useSerenityAtRest = True
 
             While nextTick()
             End While
 
-            Debug.WriteLine(vbCrLf & "Serenity only après: " & history.daySpanSize / 365 & " ans: ")
-            dbgLog()
-        End Sub
-
-        Public Sub serenityLumpSumSurCrise()
-            resetRun()
-            setEarn(500, 30)
-            availableCash = 500
-            useSerenityAtRest = True
-
-            While nextTick()
-                ' tapis !
-                If auFondduTrou() Then
-                    dbgLog()
-                    buy()
-                End If
-            End While
-
-            Debug.WriteLine(vbCrLf & "Serenity/lump sum crise only après: " & history.daySpanSize / 365 & " ans: ")
-            dbgLog()
+            dbgLog("serenity only")
         End Sub
 
         Public Sub runDCA()
-            resetRun()
+            resetRun(beginAtYear)
             setEarn(500, 30)
-            availableCash = 500
+            epargne(500)
             buy()
 
             While nextTick()
-                If isPAyDay() Then buy()
+                If isPayDay() Then buy()
             End While
 
-            Debug.WriteLine(vbCrLf & "DCA classic par mois, après: " & history.daySpanSize / 365 & " ans: ")
-            dbgLog()
+            ' ca fait un taux global de 8.7%, si on peut acheter des fractions
+            ' https://finary.com/fr/tools/compound-interests-calculator?initial_capital=500&monthly_savings=500&investment_horizon=55&interest_rate=8.7&interest_rate_every_x_months=12
+
+            dbgLog("DCA classic")
         End Sub
 
         Public Sub runDCAWeek()
-            resetRun()
+            resetRun(beginAtYear)
             setEarn(500.0 / 30 * 7, 7)
-            availableCash = 100
+            epargne(100)
             buy()
 
             While nextTick()
-                If isPAyDay() Then buy()
+                If isPayDay() Then buy()
             End While
 
-            Debug.WriteLine(vbCrLf & "DCA classic par semaine, après: " & history.daySpanSize / 365 & " ans: ")
-            dbgLog()
+            dbgLog("DCA classic weekly")
         End Sub
 
-        Public Sub runDVAClassic()
-            resetRun()
+        Public Sub runDCAYear()
+            resetRun(beginAtYear)
+            setEarn(500 * 12, 30 * 12)
+            epargne(500)
+            buy()
+
+            While nextTick()
+                If isPayDay() Then buy()
+            End While
+
+            dbgLog("DCA classic yearly")
+        End Sub
+
+        Public Sub runDVApas()
+            resetRun(beginAtYear)
             setEarn(500, 30)
-            availableCash = 500
-            ' useSerenityAtRest = True
+            epargne(500)
+            buy()
+            useSerenityAtRest = True
+            stopAfterTickCount(1000)
+
+            'j achete quand diff max ever > 5%
 
             While nextTick()
-                If isPAyDay() Then
-                    Dim thisMonthGain As Double = 1.1 ' history.currentPrice().close / history.ElementAt(day - 30).close
+                ' dbg.info(history.currentPrice.price & " " & history.currentPrice.currentMaxPrice)
+                If history.currentPrice.diffFromMaxPrice > 20 Then buy()
 
-                    ' the repartition is very dumb, can be improved
-                    ' =f(global trend), =f(max ever, now), do more linear
-                    If thisMonthGain > 1.09 Then
-                        ' buy(25)
-                    ElseIf thisMonthGain < 0.95 Then
-                        buy()
-                        ' dbgLog()
-                    Else
-                        ' buy(50)
-                    End If
-
-
-                    'If thisMonthGain < 0.91 Then
-                    '    portefeuilleValue += availableCash
-                    '    availableCash = 0
-                    'End If
-
-                End If
+                'If isPayDay() Then buy()
             End While
 
-            'i don't know why this one is 33%
-
-            Debug.WriteLine(vbCrLf & "DVA classic par mois, après: " & history.daySpanSize / 365 & " ans: ")
-            dbgLog()
+            dbgLog("DVApa 5%")
         End Sub
 
 
-        Public Sub runDVAClassicWeek()
-            resetRun()
-            setEarn(500.0 / 30 * 7, 7)
-            availableCash = 100
+        ' -------------------------------------------------------------------------------------------------------------------------------------------------
+        ' Tools
 
-            While nextTick()
-                If isPAyDay() Then
-                    Dim thisWeekGain As Double = 1 ' history.currentPrice().close / history.ElementAt(day - 7).close
+        Private Sub dbgLog(Optional strategyName As String = "")
 
-                    If thisWeekGain > 1.05 Then
-                        ' buy(25)
-                    ElseIf thisWeekGain < 0.95 Then
-                        buy()
-                    Else
-                        ' buy(50)
-                    End If
-
-                End If
-            End While
-
-            Debug.WriteLine(vbCrLf & "DVA classic par semaine, après: " & history.daySpanSize / 365 & " ans: ")
-            dbgLog()
-        End Sub
+            Dim totalValue As Double = owned * history.currentPrice.price + availableCash
 
 
-        Private Sub dbgLog()
+            Debug.WriteLine(vbCrLf & "running " & strategyName & " gives after " & Date.UtcNow.Year - startingYear & " years:")
+
             Debug.WriteLine("[" & history.replayProgressIndex & "/" & history.pricesCount & "] " & " [invested=" & Math.Round(totalInvested) &
-                            "] -> [porteuille=" & Math.Round(portefeuilleValue) & " cash=" & Math.Round(availableCash) & "]" &
-                            " gain: " & Math.Round(10000 * ((portefeuilleValue + availableCash) / totalInvested - 1)) / 100 & "% (+" & Math.Round(portefeuilleValue + availableCash - totalInvested) & ")")
+                            "] -> [porteuille=" & Math.Round(owned * history.currentPrice.price) & " owned=" & Math.Round(100 * owned) / 100 & " cash=" & Math.Round(availableCash) & "]" &
+                            " gain: " & Math.Round(10000 * (totalValue / totalInvested - 1)) / 100 & "% (+" & Math.Round(totalValue - totalInvested) & ")")
         End Sub
 
         ' -------------------------------------------------------------------------------------------------------------------------------------------------
+        ' Engine
         Private history As AssetHistory
         'you can have fraction of it
         Private owned As Double
 
-        Private currentTickIsPayDay As Boolean
+        'how many days since we start epargning
+        Private daysDone As Integer = 0
 
+        Private daysSinceLastPayDay As Integer = 0
+        Private previousDayWasPayDay As Boolean = False
+
+        Private lastTickDayChange As Date
+
+        Private iEarnEveryXDays As Integer
+        Private earnAmount As Double
 
         Private availableCash As Double
         Private totalInvested As Double
+
         Private portefeuilleValue As Double
-        Private iEarnEveryXDays As Integer
-        Private earnAmount As Double
         Private useLeverage3 As Boolean
         Private useSerenityAtRest As Boolean
 
         Private brokerFee As Double
         Private brokerFeePerc As Double
 
+        Private runToMaxTick As Integer = 0
+        Private curTickIdx As Integer = 0
+
         Private Sub buy(Optional percOfAvailableCashToUse As Integer = 100)
-            portefeuilleValue += availableCash * percOfAvailableCashToUse / 100
-            availableCash *= 1 - percOfAvailableCashToUse / 100
+            Dim spending As Double = availableCash * percOfAvailableCashToUse / 100
+            Dim price As Double = history.currentPrice.price
+
+            owned += spending / price
+            availableCash -= spending
+
+            dbg.info(spending & " " & price & "  " & owned & "  " & availableCash)
         End Sub
 
-        Private Sub resetRun()
+        Private aLongTimeAgo As Date = Date.Parse("01/01/1950")
+
+        Private Function dayInt(d As Date) As Integer
+            Return Math.Floor(d.Subtract(aLongTimeAgo).TotalDays)
+        End Function
+
+        ' 1900 ie forever before
+        Private startingYear As Integer = 0
+        Private Sub resetRun(Optional beginingYear As Integer = 1900)
             history.initReplay()
+
+            history.replayNext()
+
+            While history.currentPrice.dat.Year < beginingYear
+                history.replayNext()
+            End While
+
+            startingYear = history.currentPrice.dat.Year
+
+
+            lastTickDayChange = history.currentPrice.dat
 
             owned = 0
 
-            currentTickIsPayDay = False
+            daysDone = 0
+            daysSinceLastPayDay = 0
+            previousDayWasPayDay = False
 
 
             availableCash = 0
             totalInvested = 0
             portefeuilleValue = 0
             iEarnEveryXDays = 30
+
             earnAmount = 0
             useLeverage3 = False
             useSerenityAtRest = False
@@ -231,8 +235,15 @@ Namespace SP500StrategyLab
             iEarnEveryXDays = everyHowManyDays
         End Sub
 
-        Public Function isPAyDay() As Boolean
-            Return False
+
+        Public Sub stopAfterTickCount(count As Integer)
+            runToMaxTick = count
+        End Sub
+
+        Public Function isPayDay() As Boolean
+            Return daysSinceLastPayDay >= iEarnEveryXDays
+
+            'Return False
             'Return Day Mod iEarnEveryXDays = 0
         End Function
 
@@ -252,37 +263,62 @@ Namespace SP500StrategyLab
         Private Function nextTick() As Boolean
             If Not history.replayNext() Then Return False
 
-            ' history.currentPrice()
+            curTickIdx += 1
+            If curTickIdx > runToMaxTick Then Return False
+
+            Dim price As AssetPrice = history.currentPrice()
+
+            ' dbg.info(price.ToString)
+
+            Dim dayDiff As Integer = dayInt(price.dat) - dayInt(lastTickDayChange)
+
+            If previousDayWasPayDay Then
+                previousDayWasPayDay = False
+                daysSinceLastPayDay = 0
+            End If
+            ' new day !
+            If dayDiff > 0 Then
+                lastTickDayChange = price.dat
+
+                daysDone += dayDiff
+                daysSinceLastPayDay += dayDiff
+
+                If useSerenityAtRest Then availableCash += availableCash * dayDiff * 0.025 / 365.0
+
+                If isPayDay() Then epargne(earnAmount)
+
+                If isPayDay() Then previousDayWasPayDay = True
+            End If
 
 
-            'If history.currentPrice().close = 0 Or history.currentPrice().open = 0 Then
-            '    ' do nothing
-            'Else
-            '    If useLeverage3 Then
-            '        If history.currentPrice().close / history.currentPrice().open > 1 Then
-            '            portefeuilleValue = portefeuilleValue * (1 + 3 * (history.currentPrice().close / history.currentPrice().open - 1))
-            '        Else
-            '            portefeuilleValue = portefeuilleValue * (1 + 3.01 * (history.currentPrice().close / history.currentPrice().open - 1))
-            '        End If
-            '    Else
-            '        portefeuilleValue = portefeuilleValue * history.currentPrice().close / history.currentPrice().open
-            '    End If
-            'End If
 
-            Dim newCash As Double = 0
-            'fix: do it once per day ... not 4 !
-            If useSerenityAtRest Then availableCash += availableCash * (0.02 / 365)
-
-            If isPAyDay() Then epargne(earnAmount)
 
 
             Application.DoEvents()
             Return True
         End Function
 
+
+
+        'If history.currentPrice().close = 0 Or history.currentPrice().open = 0 Then
+        '    ' do nothing
+        'Else
+        '    If useLeverage3 Then
+        '        If history.currentPrice().close / history.currentPrice().open > 1 Then
+        '            portefeuilleValue = portefeuilleValue * (1 + 3 * (history.currentPrice().close / history.currentPrice().open - 1))
+        '        Else
+        '            portefeuilleValue = portefeuilleValue * (1 + 3.01 * (history.currentPrice().close / history.currentPrice().open - 1))
+        '        End If
+        '    Else
+        '        portefeuilleValue = portefeuilleValue * history.currentPrice().close / history.currentPrice().open
+        '    End If
+        'End If
+
+
         Private Function auFondduTrou() As Double
 
             Dim dats As New List(Of String)
+
             ' covid
             dats.Add("03/20/2020")
             'creux 2022
@@ -330,6 +366,86 @@ Namespace SP500StrategyLab
         '    Dim high As Double
         '    Dim low As Double
         'End Structure
+
+
+
+        'Public Sub serenityLumpSumSurCrise()
+        '    resetRun(1990)
+        '    setEarn(500, 30)
+        '    epargne(500)
+        '    useSerenityAtRest = True
+
+        '    While nextTick()
+        '        ' tapis !
+        '        If auFondduTrou() Then
+        '            dbgLog()
+        '            buy()
+        '        End If
+        '    End While
+
+        '    dbgLog("Serenity/lump sum crise")
+        'End Sub
+
+        'Public Sub runDVAClassic()
+        '    resetRun()
+        '    setEarn(500, 30)
+        '    epargne(500)
+        '    ' useSerenityAtRest = True
+
+        '    While nextTick()
+        '        If isPayDay() Then
+        '            Dim thisMonthGain As Double = 1.1 ' history.currentPrice().close / history.ElementAt(day - 30).close
+
+        '            ' the repartition is very dumb, can be improved
+        '            ' =f(global trend), =f(max ever, now), do more linear
+        '            If thisMonthGain > 1.09 Then
+        '                ' buy(25)
+        '            ElseIf thisMonthGain < 0.95 Then
+        '                buy()
+        '                ' dbgLog()
+        '            Else
+        '                ' buy(50)
+        '            End If
+
+
+        '            'If thisMonthGain < 0.91 Then
+        '            '    portefeuilleValue += availableCash
+        '            '    availableCash = 0
+        '            'End If
+
+        '        End If
+        '    End While
+
+        '    'i don't know why this one is 33%
+
+        '    Debug.WriteLine(vbCrLf & "DVA classic par mois, après: " & history.daySpanSize / 365 & " ans: ")
+        '    dbgLog()
+        'End Sub
+
+
+        'Public Sub runDVAClassicWeek()
+        '    resetRun()
+        '    setEarn(500.0 / 30 * 7, 7)
+        '    epargne(100)
+
+        '    While nextTick()
+        '        If isPayDay() Then
+        '            Dim thisWeekGain As Double = 1 ' history.currentPrice().close / history.ElementAt(day - 7).close
+
+        '            If thisWeekGain > 1.05 Then
+        '                ' buy(25)
+        '            ElseIf thisWeekGain < 0.95 Then
+        '                buy()
+        '            Else
+        '                ' buy(50)
+        '            End If
+
+        '        End If
+        '    End While
+
+        '    Debug.WriteLine(vbCrLf & "DVA classic par semaine, après: " & history.daySpanSize / 365 & " ans: ")
+        '    dbgLog()
+        'End Sub
     End Module
 
 End Namespace
